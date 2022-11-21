@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/app_navigation"
+    app:startDestination="@id/cluesGuessesFragment">
+
+    <fragment
+        android:id="@+id/cluesGuessesFragment"
+        android:name="de.uhh.detectives.frontend.ui.clues_and_guesses.CluesGuessesFragment"
+        android:label="Clues &amp; Guesses"
+        tools:layout="@layout/fragment_clues_guesses" />
+    <fragment
+        android:id="@+id/hintsFragment"
+        android:name="de.uhh.detectives.frontend.ui.hints.HintsFragment"
+        android:label="Hints"
+        tools:layout="@layout/fragment_hints" />
+    <fragment
+        android:id="@+id/mapsFragment"
+        android:name="de.uhh.detectives.frontend.ui.maps.MapsFragment"
+        android:label="Map"
+        tools:layout="@layout/fragment_maps" />
+    <fragment
+        android:id="@+id/commsFragment"
+        android:name="de.uhh.detectives.frontend.ui.comms.CommsFragment"
+        android:label="Communication"
+        tools:layout="@layout/fragment_comms" />
+</navigation>
