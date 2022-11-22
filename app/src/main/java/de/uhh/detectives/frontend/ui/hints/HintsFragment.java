@@ -29,11 +29,11 @@ public class HintsFragment extends Fragment {
     private List<HintModel> hintModels;
     private List<HintModel> hintsForUser;
 
+    private static final int NOTIFICATION_DELAY = 3000;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
-        Handler handler = new Handler();
 
         binding = FragmentHintsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -48,18 +48,8 @@ public class HintsFragment extends Fragment {
         recyclerViewHints.setAdapter(adapter);
         recyclerViewHints.setLayoutManager(new LinearLayoutManager(this.getContext()));
 
-        // Thread to update notification for presentation purposes
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                if (hintsForUser.size() < hintModels.size()) {
-                    hintsForUser.add(hintModels.get(hintsForUser.size()));
-                    adapter.notifyItemInserted(hintsForUser.size());
-                }
-                handler.postDelayed(this, 3000);
-            }
-        };
-        handler.post(runnable);
+        final Handler handler = new Handler();
+        handler.post(setUpNotificationRunnable(adapter, handler));
 
         return root;
     }
@@ -79,7 +69,7 @@ public class HintsFragment extends Fragment {
         if (mainActivity != null && mainActivity.getGameStartTime() != null) {
             final long applicationUpTime = System.currentTimeMillis() - mainActivity.getGameStartTime();
             // one hint every 3 seconds
-            for (int i = 0; i < applicationUpTime / 3000; i++) {
+            for (int i = 0; i < applicationUpTime / NOTIFICATION_DELAY; i++) {
                 if (i < hintModels.size()) {
                     hints.add(hintModels.get(i));
                 }
@@ -103,9 +93,23 @@ public class HintsFragment extends Fragment {
         for ( int i = 0; i < descriptions.length; i++) {
             iconName = "ic_hint_" + category.toLowerCase(Locale.ROOT) + (i + 1);
             // different icons for presentation purposes
-            hintModels.add(new HintModel(category, descriptions[i] + " ist es nicht!",
-                    getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName())));
+            final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
+            hintModels.add(new HintModel(category, descriptions[i] + " ist es nicht!", iconIdentifier));
         }
         return hintModels;
+    }
+
+    private Runnable setUpNotificationRunnable(final HintAdapter adapter, final Handler handler) {
+        // Thread to update notification for presentation purposes
+        return new Runnable() {
+            @Override
+            public void run() {
+                if (hintsForUser.size() < hintModels.size()) {
+                    hintsForUser.add(hintModels.get(hintsForUser.size()));
+                    adapter.notifyItemInserted(hintsForUser.size());
+                }
+                handler.postDelayed(this, NOTIFICATION_DELAY);
+            }
+        };
     }
 }
