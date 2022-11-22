@@ -1,3 +1,39 @@
 <resources>
     <string name="app_name">detectives-frontend</string>
+    <string name="hint_category">Hint category</string>
+    <string name="hint_description">Hint description</string>
+
+    <string-array name="weapon_names">
+        <item>Pistole</item>
+        <item>Dolch</item>
+        <item>Seil</item>
+        <item>Kerzenleuchter</item>
+        <item>Rohrzange</item>
+        <item>Heizungsrohr</item>
+        <item>Messer</item>
+        <item>Gift</item>
+        <item>Hantel</item>
+    </string-array>
+
+    <string-array name="person_names">
+        <item>Dennis Gatow</item>
+        <item>Felix Bloom</item>
+        <item>tom Gruen</item>
+        <item>Klara Porz</item>
+        <item>Gloria Roth</item>
+        <item>Diana Weiss</item>
+    </string-array>
+
+    <string-array name="location_names">
+        <item>Kueche</item>
+        <item>Musikzimmer</item>
+        <item>Wintergarten</item>
+        <item>Speisezimmer</item>
+        <item>Keller</item>
+        <item>Billardzimmer</item>
+        <item>Bibliothek</item>
+        <item>Salon</item>
+        <item>Eingangshalle</item>
+        <item>Arbeitszimmer</item>
+    </string-array>
 </resources>
