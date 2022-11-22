@@ -1,6 +1,7 @@
 package de.uhh.detectives.frontend.ui.hints;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
 import de.uhh.detectives.frontend.MainActivity;
 import de.uhh.detectives.frontend.R;
@@ -23,20 +27,40 @@ public class HintsFragment extends Fragment {
 
     // variable can be removed once we load hints from backend
     private List<HintModel> hintModels;
+    private List<HintModel> hintsForUser;
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+
+        Handler handler = new Handler();
 
         binding = FragmentHintsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         hintModels = setUpHintModels(); // row can be removed once we load hints from backend
 
-        final List<HintModel> hintsForUser = getHintsForUser();
+        Collections.shuffle(hintModels, new Random(322)); // so it is bit more random for presentation purposes
+
+        hintsForUser = getHintsForUser();
         final RecyclerView recyclerViewHints = binding.recyclerViewHints;
         final HintAdapter adapter = new HintAdapter(this.getContext(), hintsForUser);
         recyclerViewHints.setAdapter(adapter);
         recyclerViewHints.setLayoutManager(new LinearLayoutManager(this.getContext()));
+
+        // Thread to update notification for presentation purposes
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (hintsForUser.size() < hintModels.size()) {
+                    hintsForUser.add(hintModels.get(hintsForUser.size()));
+                    adapter.notifyItemInserted(hintsForUser.size());
+                }
+                handler.postDelayed(this, 3000);
+            }
+        };
+        handler.post(runnable);
+
         return root;
     }
 
@@ -54,7 +78,7 @@ public class HintsFragment extends Fragment {
         final MainActivity mainActivity = (MainActivity) getActivity();
         if (mainActivity != null && mainActivity.getGameStartTime() != null) {
             final long applicationUpTime = System.currentTimeMillis() - mainActivity.getGameStartTime();
-            // one hint every 5 seconds
+            // one hint every 3 seconds
             for (int i = 0; i < applicationUpTime / 3000; i++) {
                 if (i < hintModels.size()) {
                     hints.add(hintModels.get(i));
@@ -75,8 +99,12 @@ public class HintsFragment extends Fragment {
 
     private List<HintModel> createHintsFor(final String category, final String[] descriptions) {
         final List<HintModel> hintModels = new ArrayList<>();
-        for (final String description : descriptions) {
-            hintModels.add(new HintModel(category, description + " ist es nicht!", R.drawable.ic_food));
+        String iconName;
+        for ( int i = 0; i < descriptions.length; i++) {
+            iconName = "ic_hint_" + category.toLowerCase(Locale.ROOT) + (i + 1);
+            // different icons for presentation purposes
+            hintModels.add(new HintModel(category, descriptions[i] + " ist es nicht!",
+                    getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName())));
         }
         return hintModels;
     }
