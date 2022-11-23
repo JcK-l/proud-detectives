@@ -1,0 +1,1 @@
+insert into PLAYER(id, first_name, last_name) VALUES (987654, 'Daniel', 'Wolpers');
