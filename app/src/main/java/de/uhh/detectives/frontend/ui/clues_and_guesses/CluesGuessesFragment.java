@@ -50,7 +50,7 @@ public class CluesGuessesFragment extends Fragment {
         setUpListeners();
 
         cardview.setCardBackgroundColor(viewModel.cardColor);
-        textNumber.setText(String.valueOf(viewModel.numberOfTries));
+        textNumber.setText(String.format(Locale.ROOT,"Guesses Left: %d", viewModel.numberOfTries));
         image_suspicion_left.setTag(viewModel.suspicion_left_tag);
         image_suspicion_middle.setTag(viewModel.suspicion_middle_tag);
         image_suspicion_right.setTag(viewModel.suspicion_right_tag);
@@ -126,11 +126,10 @@ public class CluesGuessesFragment extends Fragment {
                     Toast.makeText(getContext(), "INVALID SELECTION!!!", Toast.LENGTH_SHORT).show();
                     return;
             }
-            textNumber.setText(String.valueOf(viewModel.numberOfTries));
+            textNumber.setText(String.format(Locale.ROOT,"Guesses Left: %d", viewModel.numberOfTries));
             if (viewModel.numberOfTries == 0) {
                 Toast.makeText(getContext(), "YOU LOSE!!!", Toast.LENGTH_LONG).show();
                 viewModel.numberOfTries = -1;
-
             }
             cardview.setCardBackgroundColor(viewModel.cardColor);
         });

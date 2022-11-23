@@ -1,5 +1,8 @@
 package de.uhh.detectives.frontend.ui.clues_and_guesses;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class ForPresentation {
 
     final private String[] solution;
@@ -9,6 +12,10 @@ public class ForPresentation {
         solution[0] = "pistole";
         solution[1] = "tom gruen";
         solution[2] = "arbeitszimmer";
+    }
+
+    public List<String> getSolution() {
+        return Arrays.asList(solution);
     }
 
     public SuspicionResult compareToSolution(String[] suspicion) {

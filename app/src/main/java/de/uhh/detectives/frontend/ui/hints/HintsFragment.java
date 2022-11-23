@@ -20,6 +20,7 @@ import java.util.Random;
 import de.uhh.detectives.frontend.MainActivity;
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.databinding.FragmentHintsBinding;
+import de.uhh.detectives.frontend.ui.clues_and_guesses.ForPresentation;
 
 public class HintsFragment extends Fragment {
 
@@ -89,8 +90,11 @@ public class HintsFragment extends Fragment {
 
     private List<HintModel> createHintsFor(final String category, final String[] descriptions) {
         final List<HintModel> hintModels = new ArrayList<>();
+        final ForPresentation forPresentation = new ForPresentation();
         String iconName;
         for ( int i = 0; i < descriptions.length; i++) {
+            if (forPresentation.getSolution().contains(descriptions[i].toLowerCase(Locale.ROOT)))
+                continue;
             iconName = "ic_hint_" + category.toLowerCase(Locale.ROOT) + (i + 1);
             // different icons for presentation purposes
             final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
