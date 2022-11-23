@@ -28,12 +28,12 @@
     <string-array name="location_names">
         <item>Kueche</item>
         <item>Musikzimmer</item>
-        <item>Wintergarten</item>
+        <item>Schlafzimmer</item>
         <item>Speisezimmer</item>
         <item>Keller</item>
         <item>Billardzimmer</item>
         <item>Bibliothek</item>
-        <item>Salon</item>
+        <item>Garten</item>
         <item>Eingangshalle</item>
         <item>Arbeitszimmer</item>
     </string-array>
