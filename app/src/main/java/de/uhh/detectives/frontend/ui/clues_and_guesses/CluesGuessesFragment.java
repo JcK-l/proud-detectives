@@ -3,7 +3,6 @@ package de.uhh.detectives.frontend.ui.clues_and_guesses;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,23 +69,29 @@ public class CluesGuessesFragment extends Fragment {
     }
 
     private void setUpDefaults() {
-        if (viewModel.cells == null)
+        if (viewModel.cells == null) {
             viewModel.cells = setUpCells();
+        }
 
-        if (viewModel.numberOfTries == 0)
+        if (viewModel.numberOfTries == 0) {
             viewModel.numberOfTries = 3;
+        }
 
-        if (viewModel.cardColor == 0)
+        if (viewModel.cardColor == 0) {
             viewModel.cardColor = Color.WHITE;
+        }
 
-        if (viewModel.suspicion_left != null)
+        if (viewModel.suspicion_left != null) {
             image_suspicion_left.setImageDrawable(viewModel.suspicion_left);
-        if (viewModel.suspicion_middle != null)
+        }
+        if (viewModel.suspicion_middle != null) {
             image_suspicion_middle.setImageDrawable(viewModel.suspicion_middle);
-        if (viewModel.suspicion_right != null)
+        }
+        if (viewModel.suspicion_right != null) {
             image_suspicion_right.setImageDrawable(viewModel.suspicion_right);
+        }
 
-        if (viewModel.suspicion_left_tag == null){
+        if (viewModel.suspicion_left_tag == null) {
             viewModel.suspicion_left_tag = "waffe:default";
             viewModel.suspicion_middle_tag = "person:default";
             viewModel.suspicion_right_tag = "ort:default";

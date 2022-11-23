@@ -62,30 +62,28 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
         public void bind(final Cell cell){
             imageView.setTag(cell.getCategory() + ":" + cell.getDescription());
             // Initiating Drag
-            imageView.setOnLongClickListener( view -> {
+            imageView.setOnLongClickListener(enableDraggable(cell));
+            // set backgroundcolor before click
+            setBackgroundColorBeforeClick(cell);
+            // set backgroundcolor on click
+            imageView.setOnClickListener(enableBackgroundColorchangeOnClick(cell));
+        }
+
+        private View.OnLongClickListener enableDraggable(final Cell cell) {
+            return view -> {
                 ClipData.Item item = new ClipData.Item((CharSequence) cell.getDescription());
                 ClipData dragData = new ClipData(
                         (CharSequence) view.getTag(),
-                        new String[] {ClipDescription.MIMETYPE_TEXT_PLAIN},
+                        new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN},
                         item);
                 View.DragShadowBuilder myShadow = new View.DragShadowBuilder(imageView);
                 view.startDragAndDrop(dragData, myShadow, view, 0);
                 return true;
-            });
-            // set backgroundcolor before click
-            switch (cell.getState()){
-                case NEUTRAL:
-                    itemView.setBackgroundColor(Color.WHITE);
-                    break;
-                case NEGATIVE:
-                    itemView.setBackgroundColor(Color.RED);
-                    break;
-                case POSITIVE:
-                    itemView.setBackgroundColor(Color.GREEN);
-                    break;
-            }
-            // set backgroundcolor on click
-            imageView.setOnClickListener(view -> {
+            };
+        }
+
+        private View.OnClickListener enableBackgroundColorchangeOnClick(final Cell cell) {
+            return view -> {
                 switch (cell.getState()){
                     case NEUTRAL:
                         itemView.setBackgroundColor(Color.RED);
@@ -100,8 +98,21 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
                         cell.setState(CellState.NEUTRAL);
                         break;
                 }
-            });
+            };
+        }
 
+        private void setBackgroundColorBeforeClick(final Cell cell) {
+            switch (cell.getState()){
+                case NEUTRAL:
+                    itemView.setBackgroundColor(Color.WHITE);
+                    break;
+                case NEGATIVE:
+                    itemView.setBackgroundColor(Color.RED);
+                    break;
+                case POSITIVE:
+                    itemView.setBackgroundColor(Color.GREEN);
+                    break;
+            }
         }
     }
 }
