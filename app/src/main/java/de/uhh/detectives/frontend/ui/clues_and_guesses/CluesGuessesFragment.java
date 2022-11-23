@@ -44,6 +44,8 @@ public class CluesGuessesFragment extends Fragment {
         initViews();
         setUpViewModel();
 
+        cardview.setCardBackgroundColor(viewModel.cardColor);
+
         final RecyclerView recyclerViewCluesGuesses = binding.recyclerViewCluesGuesses;
         final CluesGuessesAdapter adapter = new CluesGuessesAdapter(this.getContext(), viewModel.cells);
         recyclerViewCluesGuesses.setAdapter(adapter);
@@ -59,23 +61,26 @@ public class CluesGuessesFragment extends Fragment {
     }
 
     private void setUpViewModel() {
-        if (viewModel.cells == null){
+        if (viewModel.cells == null)
             viewModel.cells = setUpCells();
-        }
+        if (viewModel.cardColor == 0)
+            viewModel.cardColor = Color.WHITE;
         if (viewModel.suspicion_left != null)
             image_suspicion_left.setImageDrawable(viewModel.suspicion_left);
         if (viewModel.suspicion_middle != null)
             image_suspicion_middle.setImageDrawable(viewModel.suspicion_middle);
         if (viewModel.suspicion_right != null)
             image_suspicion_right.setImageDrawable(viewModel.suspicion_right);
-
     }
 
     private void initViews() {
         cardview = binding.cardView;
         button = binding.button;
 
-        button.setOnClickListener( view -> cardview.setCardBackgroundColor(Color.GREEN));
+        button.setOnClickListener( view -> {
+            viewModel.cardColor = Color.GREEN;
+            cardview.setCardBackgroundColor(viewModel.cardColor);
+        });
 
         image_suspicion_left = binding.cardView.findViewById(R.id.image_suspicion_left);
         setListenerFor(image_suspicion_left, "Waffe");
@@ -114,6 +119,9 @@ public class CluesGuessesFragment extends Fragment {
 
                     saveSuspicionState(drawable, category);
 
+                    CardView card = (CardView) view.getParent().getParent();
+                    card.setCardBackgroundColor(viewModel.cardColor);
+
                     ((ImageView) view).setImageDrawable(drawable);
                     return true;
                 case DragEvent.ACTION_DRAG_ENDED:
@@ -128,6 +136,7 @@ public class CluesGuessesFragment extends Fragment {
     }
 
     private void saveSuspicionState(Drawable drawable, String category) {
+        viewModel.cardColor = Color.WHITE;
         switch (category) {
             case "Waffe":
                 viewModel.suspicion_left = drawable;
