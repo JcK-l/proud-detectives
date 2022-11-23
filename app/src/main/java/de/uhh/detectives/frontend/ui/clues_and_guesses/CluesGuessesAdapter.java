@@ -60,10 +60,10 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
         }
 
         public void bind(final Cell cell){
-            imageView.setTag(cell.getCategory());
+            imageView.setTag(cell.getCategory() + ":" + cell.getDescription());
             // Initiating Drag
             imageView.setOnLongClickListener( view -> {
-                ClipData.Item item = new ClipData.Item((CharSequence) view.getTag());
+                ClipData.Item item = new ClipData.Item((CharSequence) cell.getDescription());
                 ClipData dragData = new ClipData(
                         (CharSequence) view.getTag(),
                         new String[] {ClipDescription.MIMETYPE_TEXT_PLAIN},
@@ -80,7 +80,7 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
                 case NEGATIVE:
                     itemView.setBackgroundColor(Color.RED);
                     break;
-                case POSTIVE:
+                case POSITIVE:
                     itemView.setBackgroundColor(Color.GREEN);
                     break;
             }
@@ -93,9 +93,9 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
                         break;
                     case NEGATIVE:
                         itemView.setBackgroundColor(Color.GREEN);
-                        cell.setState(CellState.POSTIVE);
+                        cell.setState(CellState.POSITIVE);
                         break;
-                    case POSTIVE:
+                    case POSITIVE:
                         itemView.setBackgroundColor(Color.WHITE);
                         cell.setState(CellState.NEUTRAL);
                         break;

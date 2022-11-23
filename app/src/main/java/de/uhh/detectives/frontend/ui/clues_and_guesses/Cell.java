@@ -4,11 +4,17 @@ public class Cell {
     private CellState state;
     private final int image;
     private final String category;
+    private final String description;
 
-    public Cell(CellState state, final int image, final String category){
+    public Cell(CellState state, final int image, final String category, final String description){
         this.state = state;
         this.image = image;
         this.category = category;
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public CellState getState() {
