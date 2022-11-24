@@ -10,11 +10,15 @@ import androidx.navigation.ui.NavigationUI;
 
 import java.util.Objects;
 
+import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
+import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.repository.UserDataRepository;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private AppDatabase db;
 
     private final static Long gameStartTime = System.currentTimeMillis();
 
@@ -39,10 +43,24 @@ public class MainActivity extends AppCompatActivity {
         final NavController navController = navHostFragment.getNavController();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+        setUpDatabase();
     }
 
     public Long getGameStartTime() {
         return gameStartTime;
+    }
+
+    private void setUpDatabase() {
+        db = AppDatabase.getDatabase(getApplicationContext());
+
+        // TODO: generate userId on start screen
+        // but for now lookup if there is a user already and if not, generate one
+        final UserDataRepository userDataRepository = db.getUserDataRepository();
+        if (userDataRepository.checkEmpty() == null) {
+            final UserData user = new UserData();
+            userDataRepository.insertAll(user);
+        }
     }
 
 }

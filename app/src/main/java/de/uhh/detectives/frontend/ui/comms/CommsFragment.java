@@ -5,12 +5,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.util.List;
+
+import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCommsBinding;
+import de.uhh.detectives.frontend.model.UserData;
 
 public class CommsFragment extends Fragment {
 
@@ -26,6 +31,9 @@ public class CommsFragment extends Fragment {
 
         final TextView textView = binding.textComms;
         commsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        final AppDatabase db = AppDatabase.getDatabase(getContext());
+        final UserData userData = db.getUserDataRepository().getAll().get(0);
+        Toast.makeText(getContext(), "UserId: " + userData.getUserId(), Toast.LENGTH_LONG).show();
         return root;
     }
 

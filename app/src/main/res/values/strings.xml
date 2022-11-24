@@ -3,6 +3,7 @@
     <string name="hint_category">Hint category</string>
     <string name="hint_description">Hint description</string>
     <string name="type_a_message">Type a message</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoicGhpbGtpc3RlcnMiLCJhIjoiY2t2c2l0aHlpMmxiajMya2xwNnp4ZWtsNiJ9.mhZpfB64qU2PoMeBAMnowA</string>
 
     <string-array name="weapon_names">
         <item>Pistole</item>
@@ -19,7 +20,7 @@
     <string-array name="person_names">
         <item>Dennis Gatow</item>
         <item>Felix Bloom</item>
-        <item>tom Gruen</item>
+        <item>Tom Gruen</item>
         <item>Klara Porz</item>
         <item>Gloria Roth</item>
         <item>Diana Weiss</item>
@@ -28,12 +29,12 @@
     <string-array name="location_names">
         <item>Kueche</item>
         <item>Musikzimmer</item>
-        <item>Wintergarten</item>
+        <item>Schlafzimmer</item>
         <item>Speisezimmer</item>
         <item>Keller</item>
         <item>Billardzimmer</item>
         <item>Bibliothek</item>
-        <item>Salon</item>
+        <item>Garten</item>
         <item>Eingangshalle</item>
         <item>Arbeitszimmer</item>
     </string-array>
