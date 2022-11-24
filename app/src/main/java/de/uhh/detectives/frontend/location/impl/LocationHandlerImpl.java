@@ -1,4 +1,4 @@
-package de.uhh.detectives.frontend.ui.maps;
+package de.uhh.detectives.frontend.location.impl;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -26,10 +26,9 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.location.SettingsClient;
 
-import java.util.Locale;
+import de.uhh.detectives.frontend.location.api.LocationHandler;
 
-public class LocationHandler {
-
+public class LocationHandlerImpl implements LocationHandler {
 
     private static final String ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
@@ -37,16 +36,19 @@ public class LocationHandler {
     private static final int REQUEST_CHECK_SETTINGS = 100;
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
     private static final long FASTET_UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
-    private static final String TAG = LocationHandler.class.getSimpleName();
+    private static final String TAG = LocationHandlerImpl.class.getSimpleName();
 
-    private FusedLocationProviderClient locationClient;
-    private SettingsClient settingsClient;
-    private LocationRequest locationRequest;
-    private LocationSettingsRequest locationSettingsRequest;
-    private LocationCallback locationCallback;
+    private final FusedLocationProviderClient locationClient;
+    private final SettingsClient settingsClient;
+    private final LocationRequest locationRequest;
+    private final LocationSettingsRequest locationSettingsRequest;
+    private final LocationCallback locationCallback;
+
     private Location currentLocation;
 
-    public void handleLocation(final Context context, final Activity activity) {
+    private boolean locationUpdatesEnabled = false;
+
+    public LocationHandlerImpl(final Context context, final Activity activity) {
         checkLocationPermissions(context, activity);
 
         locationClient = LocationServices.getFusedLocationProviderClient(activity);
@@ -54,21 +56,51 @@ public class LocationHandler {
 
         locationSettingsRequest = setUpLocationSettingsRequest();
         locationRequest = setUpLocationRequest();
-        locationCallback = setUpLocationCallback(context);
+        locationCallback = setUpLocationCallback();
+    }
 
+    @Override
+    public Location getCurrentLocation(final Context context) {
+        if (!locationUpdatesEnabled) {
+            final String errorMessage = "Location requested but updates are currently disabled!";
+            Log.e(TAG, errorMessage);
+            Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
+        }
+        return currentLocation;
+    }
+
+    @Override
+    public boolean isLocationUpdatesEnabled() {
+        return locationUpdatesEnabled;
+    }
+
+    @Override
+    public void enableLocationUpdates(final Activity activity) {
         startLocationUpdates(activity);
     }
 
+    @Override
+    public void disableLocationUpdates(final Activity activity) {
+        stopLocationUpdates(activity);
+    }
 
     @SuppressLint("MissingPermission")
     private void startLocationUpdates(final Activity activity) {
         settingsClient.checkLocationSettings(locationSettingsRequest)
-                .addOnSuccessListener(activity, locationSettingsResponse ->
-                        locationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper()))
+                .addOnSuccessListener(activity, locationSettingsResponse -> {
+                    locationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+                    locationUpdatesEnabled = true;
+                })
                 .addOnFailureListener(activity, e -> {
+                    locationUpdatesEnabled = false;
                     int statusCode = ((ApiException) e).getStatusCode();
                     handleFailure(activity, statusCode, e);
                 });
+    }
+
+    private void stopLocationUpdates(final Activity activity) {
+        locationClient.removeLocationUpdates(locationCallback)
+                .addOnCompleteListener(activity, task -> Log.d(TAG, "Location update stopped."));
     }
 
     private void checkLocationPermissions(@NonNull final Context context, @NonNull final Activity activity) {
@@ -78,7 +110,7 @@ public class LocationHandler {
         final boolean coarseLocationGranted = coarseLocation == PackageManager.PERMISSION_GRANTED;
         if (!fineLocationGranted || !coarseLocationGranted) {
             ActivityCompat.requestPermissions(activity,
-                    new String[] {ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION}, 99);
+                    new String[] {ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION}, REQUEST_CHECK_SETTINGS);
         }
     }
 
@@ -101,17 +133,12 @@ public class LocationHandler {
         }
     }
 
-    private LocationCallback setUpLocationCallback(final Context context) {
+    private LocationCallback setUpLocationCallback() {
         return new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 currentLocation = locationResult.getLastLocation();
-
-                // TODO: do something with location but for now toast it to UI
-                double latitude = currentLocation.getLatitude();
-                double longitude = currentLocation.getLongitude();
-                Toast.makeText(context, String.format(Locale.ROOT, "Location: %f:%f", latitude, longitude), Toast.LENGTH_LONG).show();
             }
         };
     }

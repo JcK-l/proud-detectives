@@ -11,10 +11,15 @@ import androidx.navigation.ui.NavigationUI;
 import java.util.Objects;
 
 import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
+import de.uhh.detectives.frontend.location.api.LocationHandler;
+import de.uhh.detectives.frontend.location.impl.LocationHandlerImpl;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+
+    // LocationHandler in MainActivity einmal initialisieren, um state zu halten
+    private LocationHandler locationHandler;
 
     private final static Long gameStartTime = System.currentTimeMillis();
 
@@ -24,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        locationHandler = new LocationHandlerImpl(this.getApplicationContext(), this);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(
@@ -43,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
 
     public Long getGameStartTime() {
         return gameStartTime;
+    }
+
+    public LocationHandler getLocationHandler() {
+        return locationHandler;
     }
 
 }
