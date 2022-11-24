@@ -2,6 +2,7 @@
     <string name="app_name">detectives-frontend</string>
     <string name="hint_category">Hint category</string>
     <string name="hint_description">Hint description</string>
+    <string name="type_a_message">Type a message</string>
 
     <string-array name="weapon_names">
         <item>Pistole</item>
