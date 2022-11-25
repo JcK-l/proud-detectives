@@ -10,13 +10,17 @@ import androidx.navigation.ui.NavigationUI;
 
 import java.util.Objects;
 
+import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
 import de.uhh.detectives.frontend.location.api.LocationHandler;
 import de.uhh.detectives.frontend.location.impl.LocationHandlerImpl;
+import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.repository.UserDataRepository;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private AppDatabase db;
 
     // LocationHandler in MainActivity einmal initialisieren, um state zu halten
     private LocationHandler locationHandler;
@@ -34,10 +38,10 @@ public class MainActivity extends AppCompatActivity {
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(
-                        R.id.cluesGuessesFragment,
-                        R.id.hintsFragment,
-                        R.id.mapsFragment,
-                        R.id.commsFragment)
+                    R.id.cluesGuessesFragment,
+                    R.id.hintsFragment,
+                    R.id.mapsFragment,
+                    R.id.commsFragment)
                 .build();
 
         final NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
@@ -46,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
         final NavController navController = navHostFragment.getNavController();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+        setUpDatabase();
     }
 
     public Long getGameStartTime() {
@@ -54,6 +60,18 @@ public class MainActivity extends AppCompatActivity {
 
     public LocationHandler getLocationHandler() {
         return locationHandler;
+    }
+
+    private void setUpDatabase() {
+        db = AppDatabase.getDatabase(getApplicationContext());
+
+        // TODO: generate userId on start screen
+        // but for now lookup if there is a user already and if not, generate one
+        final UserDataRepository userDataRepository = db.getUserDataRepository();
+        if (userDataRepository.findFirst() == null) {
+            final UserData user = new UserData();
+            userDataRepository.insertAll(user);
+        }
     }
 
 }
