@@ -10,7 +10,7 @@ import java.util.List;
 
 import de.uhh.detectives.frontend.databinding.ItemContainerRecievedMessageBinding;
 import de.uhh.detectives.frontend.databinding.ItemContainerSentMassageBinding;
-import de.uhh.detectives.frontend.ui.comms.values.ChatMessage;
+import de.uhh.detectives.frontend.model.ChatMessage;
 
 public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final List<ChatMessage> chatMessages;
@@ -23,7 +23,6 @@ public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public CommsAdapter(List<ChatMessage> chatMessages, long senderId) {
         this.chatMessages = chatMessages;
         this.senderId = senderId;
-        receivedId = 0L;
     }
 
     @NonNull
@@ -64,7 +63,7 @@ public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        if (chatMessages.get(position).senderId.equals(senderId)) {
+        if (chatMessages.get(position).getSenderId().equals(senderId)) {
             return VIEW_TYPE_SENT;
         } else {
             return VIEW_TYPE_RECEIVED;
@@ -80,8 +79,8 @@ public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
 
         void setData(ChatMessage chatMessage) {
-            binding.textMessage.setText(chatMessage.message);
-            binding.textDateTime.setText(chatMessage.dateTime);
+            binding.textMessage.setText(chatMessage.getMessage());
+            binding.textDateTime.setText(chatMessage.getDateTime());
         }
     }
 
@@ -95,9 +94,9 @@ public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
 
         void setData(ChatMessage chatMessage) {
-            binding.textMessage.setText(chatMessage.message);
-            binding.textDateTime.setText(chatMessage.dateTime);
-            binding.userNameSpace.setText(chatMessage.senderId.toString());
+            binding.textMessage.setText(chatMessage.getMessage());
+            binding.textDateTime.setText(chatMessage.getDateTime());
+            binding.userNameSpace.setText(chatMessage.getSenderId().toString());
         }
     }
 }

@@ -24,4 +24,8 @@ public abstract class AppDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
+
+    public static AppDatabase getInstance() {
+        return INSTANCE;
+    }
 }

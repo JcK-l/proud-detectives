@@ -3,7 +3,6 @@ package de.uhh.detectives.frontend;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.OnRebindCallback;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -32,10 +31,10 @@ public class MainActivity extends AppCompatActivity {
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(
-                R.id.cluesGuessesFragment,
-                R.id.hintsFragment,
-                R.id.mapsFragment,
-                R.id.commsFragment)
+                    R.id.cluesGuessesFragment,
+                    R.id.hintsFragment,
+                    R.id.mapsFragment,
+                    R.id.commsFragment)
                 .build();
 
         final NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
@@ -45,23 +44,23 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
 
-//        setUpDatabase();
+        setUpDatabase();
     }
 
     public Long getGameStartTime() {
         return gameStartTime;
     }
 
-//    private void setUpDatabase() {
-//        db = AppDatabase.getDatabase(getApplicationContext());
-//
-//        // TODO: generate userId on start screen
-//        // but for now lookup if there is a user already and if not, generate one
-//        final UserDataRepository userDataRepository = db.getUserDataRepository();
-//        if (userDataRepository.checkEmpty() == null) {
-//            final UserData user = new UserData();
-//            userDataRepository.insertAll(user);
-//        }
-//    }
+    private void setUpDatabase() {
+        db = AppDatabase.getDatabase(getApplicationContext());
+
+        // TODO: generate userId on start screen
+        // but for now lookup if there is a user already and if not, generate one
+        final UserDataRepository userDataRepository = db.getUserDataRepository();
+        if (userDataRepository.findFirst() == null) {
+            final UserData user = new UserData();
+            userDataRepository.insertAll(user);
+        }
+    }
 
 }

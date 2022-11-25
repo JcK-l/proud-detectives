@@ -18,5 +18,5 @@ public interface UserDataRepository {
     List<UserData> getAll();
 
     @Query("SELECT * FROM UserData LIMIT 1")
-    UserData checkEmpty();
+    UserData findFirst();
 }
