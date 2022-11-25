@@ -38,7 +38,14 @@
             app:layout_constraintTop_toTopOf="@id/viewBackground"
             app:layout_constraintStart_toEndOf="@id/viewBackground"/>
 
-
+        <View
+            android:id="@+id/viewSupporter"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/primary_chat"
+            android:layout_marginTop="@dimen/_12sdp"
+            app:layout_constraintTop_toTopOf="@+id/viewBackground" />
+        
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/chatRecyclerView"
             android:layout_width="match_parent"
@@ -47,10 +54,11 @@
             android:orientation="vertical"
             android:overScrollMode="never"
             android:padding="@dimen/_20sdp"
+            app:stackFromEnd="true"
             android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="@id/viewBackground"
-            app:layout_constraintTop_toTopOf="@+id/viewBackground" />
+            app:layout_constraintTop_toTopOf="@+id/viewSupporter" />
 
         <FrameLayout
             android:id="@+id/layoutSend"
@@ -73,6 +81,7 @@
 
         </FrameLayout>
             <EditText
+                android:id="@+id/inputMessage"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/_40sdp"
                 android:layout_marginStart="@dimen/_16sdp"
