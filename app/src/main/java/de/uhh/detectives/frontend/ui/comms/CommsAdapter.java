@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.databinding.ItemContainerRecievedMessageBinding;
 import de.uhh.detectives.frontend.databinding.ItemContainerSentMassageBinding;
 import de.uhh.detectives.frontend.model.ChatMessage;
@@ -96,7 +97,7 @@ public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         void setData(ChatMessage chatMessage) {
             binding.textMessage.setText(chatMessage.getMessage());
             binding.textDateTime.setText(chatMessage.getDateTime());
-            binding.userNameSpace.setText(chatMessage.getSenderId().toString());
+            binding.userNameSpace.setText(R.string.sample_name);
         }
     }
 }

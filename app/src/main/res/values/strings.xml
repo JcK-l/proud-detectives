@@ -5,6 +5,7 @@
     <string name="type_a_message">Type a message</string>
     <string name="mapbox_access_token">pk.eyJ1IjoicGhpbGtpc3RlcnMiLCJhIjoiY2t2c2l0aHlpMmxiajMya2xwNnp4ZWtsNiJ9.mhZpfB64qU2PoMeBAMnowA</string>
     <string name="confirm_guess">Confirm Guess</string>
+    <string name="sample_name">Bob</string>
 
     <string-array name="weapon_names">
         <item>Pistole</item>
