@@ -75,10 +75,10 @@ public class CommsFragment extends Fragment {
         commsAdapter = new CommsAdapter(viewModel.chatMessages, user.getUserId());
         binding.chatRecyclerView.setAdapter(commsAdapter);
 
-        ObjectAnimator animationInput = ObjectAnimator.ofFloat(root.findViewById(R.id.inputMessage), "translationY", 80f);
-        ObjectAnimator animationSend = ObjectAnimator.ofFloat(root.findViewById(R.id.layoutSend), "translationY", 80f);
-        ObjectAnimator animationBackground = ObjectAnimator.ofFloat(root.findViewById(R.id.viewBackground), "translationY", 80f);
-        ObjectAnimator animationRecycler = ObjectAnimator.ofFloat(root.findViewById(R.id.chatRecyclerView), "translationY", 80f);
+        ObjectAnimator animationInput = ObjectAnimator.ofFloat(root.findViewById(R.id.inputMessage), "translationY", 130f);
+        ObjectAnimator animationSend = ObjectAnimator.ofFloat(root.findViewById(R.id.layoutSend), "translationY", 130f);
+        ObjectAnimator animationBackground = ObjectAnimator.ofFloat(root.findViewById(R.id.viewBackground), "translationY", 130f);
+        ObjectAnimator animationRecycler = ObjectAnimator.ofFloat(root.findViewById(R.id.chatRecyclerView), "translationY", 130f);
 
         List<ObjectAnimator> animations = new ArrayList<>(Arrays.asList(animationInput, animationSend, animationBackground, animationRecycler));
         Drawable background_flat = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.background_content_chat, null);
