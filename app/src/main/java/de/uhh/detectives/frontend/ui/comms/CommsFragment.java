@@ -104,7 +104,6 @@ public class CommsFragment extends Fragment {
         });
         binding.layoutSend.setOnClickListener(v -> {
             final ChatMessage chatMessage = createMessage(binding.inputMessage.getText().toString(), user.getUserId());
-            sendMessageToUi(chatMessage);
             final Thread thread = new Thread(sendMessageToServer(chatMessage));
             thread.start();
             // for now we'll put it here, because the thread uses the same method
@@ -174,10 +173,16 @@ public class CommsFragment extends Fragment {
         };
     }
 
-    private Runnable receiveMessage(final String messageText) {
+    private Runnable receiveMessage(final String message) {
         return () -> {
-            final ChatMessage message = createMessage(messageText, DUMMY_USER_ID);
-            sendMessageToUi(message);
+            // TODO: create message from server String instead of just sending string to chat
+            ChatMessage chatMessage;
+            if (message.contains(user.getUserId() + "")) {
+                chatMessage = createMessage(message, user.getUserId());
+            } else {
+                chatMessage = createMessage(message, DUMMY_USER_ID);
+            }
+            sendMessageToUi(chatMessage);
         };
     }
 
