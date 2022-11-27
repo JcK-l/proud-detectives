@@ -1,6 +1,7 @@
 package de.uhh.detectives.backend.tcp.config;
 
 import de.uhh.detectives.backend.service.api.TcpMessageService;
+import de.uhh.detectives.backend.tcp.ServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,10 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 @Configuration
 public class TcpServerConfig {
@@ -21,9 +18,8 @@ public class TcpServerConfig {
     @Value("${tcp.server.port}")
     private int port;
 
-    ServerSocket serverSocket = null;
+    private final TcpMessageService tcpMessageService;
 
-    final TcpMessageService tcpMessageService;
 
     public TcpServerConfig(final TcpMessageService tcpMessageService) {
         this.tcpMessageService = tcpMessageService;
@@ -32,59 +28,14 @@ public class TcpServerConfig {
     @Bean
     public void serverConnectionFactory() {
         try {
-            serverSocket = new ServerSocket(port);
-        } catch (IOException e) {
-            LOG.error("Could not listen on port: " + port);
+            final Runnable serverHandler = new ServerHandler(port, tcpMessageService);
+            final Thread connectionThread = new Thread(serverHandler);
+            connectionThread.start();
+        } catch (final IOException e) {
+            LOG.error("Could not open connection on server socket. Critical error");
+            e.printStackTrace();
             System.exit(1);
         }
-        final Thread serverThread = new Thread(listenOnServerSocket(serverSocket));
-        serverThread.start();
-    }
-
-    private Runnable listenOnServerSocket(final ServerSocket serverSocket) {
-        return () -> {
-            Socket clientSocket;
-            while (true) {
-                try {
-                    clientSocket = serverSocket.accept();
-                    LOG.info("Somebody connected.");
-                } catch (IOException e) {
-                    LOG.error("Accept failed.");
-                    break;
-                }
-                final Thread clientThread = new Thread(handleClientSocket(clientSocket));
-                clientThread.start();
-            }
-            try {
-                serverSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        };
-    }
-
-    private Runnable handleClientSocket(final Socket clientSocket) {
-        return () -> {
-            Object input;
-            PrintWriter out;
-            ObjectInputStream in;
-
-            try {
-                out = new PrintWriter(clientSocket.getOutputStream(), true);
-                in = new ObjectInputStream(clientSocket.getInputStream());
-                while ((input = in.readObject()) != null) {
-                    final String inputMessage = (String) input;
-                    tcpMessageService.receiveMessage(inputMessage);
-                    LOG.info("Received:" + inputMessage);
-                    out.println("this comes from the backend");
-                }
-                out.close();
-                in.close();
-                clientSocket.close();
-            } catch (ClassNotFoundException | IOException e) {
-                e.printStackTrace();
-            }
-        };
     }
 
 }

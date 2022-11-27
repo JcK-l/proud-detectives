@@ -1,8 +1,11 @@
 package de.uhh.detectives.backend.model;
 
+import de.uhh.detectives.backend.service.api.MessageType;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -62,6 +65,12 @@ public class ChatMessage implements Serializable, Message {
 
     public void setMessageContent(String messageContent) {
         this.messageContent = messageContent;
+    }
+
+    @Override
+    @Transient
+    public MessageType getType() {
+        return MessageType.CHAT_MESSAGE;
     }
 
     @Override

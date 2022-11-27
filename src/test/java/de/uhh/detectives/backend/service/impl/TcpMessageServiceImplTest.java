@@ -37,7 +37,7 @@ public class TcpMessageServiceImplTest {
         testee.receiveMessage(messageToBeDeciphered);
 
         // then
-        verify(chatMessageService).saveMessage(captor.capture());
+        verify(chatMessageService).handle(captor.capture());
         assertEquals(expected, captor.getValue());
     }
 }

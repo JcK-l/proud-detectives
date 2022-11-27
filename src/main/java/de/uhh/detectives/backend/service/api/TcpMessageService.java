@@ -2,6 +2,18 @@ package de.uhh.detectives.backend.service.api;
 
 public interface TcpMessageService {
 
-    void receiveMessage(final String message);
+    /**
+     * Takes a message from the TCP client.
+     * Messages have to be Strings of the following format:
+     * starting with 'TYPE:MESSAGE_TYPE;'
+     * MESSAGE_TYPE has to be one of EnumValues of MessageType.enum
+     * then the properties have to be mapped like follows:
+     * 'identifier=value'
+     *
+     * @param message the message that was sent from the client
+     * @return a return message as String from the server or NULL
+     *         return messages have the same format as incoming messages
+     */
+    String receiveMessage(final String message);
 
 }

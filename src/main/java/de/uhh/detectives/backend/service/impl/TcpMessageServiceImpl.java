@@ -1,10 +1,9 @@
 package de.uhh.detectives.backend.service.impl;
 
-import de.uhh.detectives.backend.model.ChatMessage;
 import de.uhh.detectives.backend.model.Message;
 import de.uhh.detectives.backend.service.api.ChatMessageService;
-import de.uhh.detectives.backend.service.api.TcpMessageService;
 import de.uhh.detectives.backend.service.api.MessageType;
+import de.uhh.detectives.backend.service.api.TcpMessageService;
 import de.uhh.detectives.backend.service.api.adapter.MessageAdapter;
 import de.uhh.detectives.backend.service.impl.adapter.ChatMessageAdapter;
 import org.slf4j.Logger;
@@ -25,11 +24,13 @@ public class TcpMessageServiceImpl implements TcpMessageService {
     }
 
     @Override
-    public void receiveMessage(final String messageString) {
+    public String receiveMessage(final String messageString) {
         LOG.info("deciphering message: " + messageString);
         final Message message = decipherMessage(messageString);
-        // TODO refactor, when we have multiple implementation of Messages
-        chatMessageService.saveMessage((ChatMessage)message);
+        return switch (message.getType()) {
+            case CHAT_MESSAGE -> chatMessageService.handle(message);
+            default -> null;
+        };
     }
 
     private Message decipherMessage(final String messageString) {
