@@ -57,4 +57,14 @@ public class ChatMessage {
     public int messageSize(){
         return message.length();
     }
+
+    @Override
+    public String toString() {
+        return "TYPE:ChatMessage" +
+                ";senderId=" + senderId +
+                ";receiverId=" + receiverId +
+                ";message=" + message +
+                ";timestamp=" + timestamp +
+                ";dateTime=" + dateTime;
+    }
 }
