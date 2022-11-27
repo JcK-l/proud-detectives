@@ -74,6 +74,7 @@ public class TcpServerConfig {
                 in = new ObjectInputStream(clientSocket.getInputStream());
                 while ((input = in.readObject()) != null) {
                     final String inputMessage = (String) input;
+                    tcpMessageService.receiveMessage(inputMessage);
                     LOG.info("Received:" + inputMessage);
                     out.println("this comes from the backend");
                 }
