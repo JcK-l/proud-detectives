@@ -30,28 +30,37 @@ public class TcpServerConfig {
     }
 
     @Bean
-    public void serverConnectionFactory() throws IOException {
+    public void serverConnectionFactory() {
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
             LOG.error("Could not listen on port: " + port);
             System.exit(1);
         }
-        Socket clientSocket;
+        final Thread serverThread = new Thread(listenOnServerSocket(serverSocket));
+        serverThread.start();
+    }
 
-        while (true) {
-
-            try {
-                clientSocket = serverSocket.accept();
-                LOG.info("Somebody connected.");
-            } catch (IOException e) {
-                LOG.error("Accept failed.");
-                break;
+    private Runnable listenOnServerSocket(final ServerSocket serverSocket) {
+        return () -> {
+            Socket clientSocket;
+            while (true) {
+                try {
+                    clientSocket = serverSocket.accept();
+                    LOG.info("Somebody connected.");
+                } catch (IOException e) {
+                    LOG.error("Accept failed.");
+                    break;
+                }
+                final Thread clientThread = new Thread(handleClientSocket(clientSocket));
+                clientThread.start();
             }
-            final Thread clientThread = new Thread(handleClientSocket(clientSocket));
-            clientThread.start();
-        }
-        serverSocket.close();
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
     }
 
     private Runnable handleClientSocket(final Socket clientSocket) {
