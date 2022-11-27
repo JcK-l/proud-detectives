@@ -60,7 +60,7 @@ public class ChatMessage {
 
     @Override
     public String toString() {
-        return "TYPE:ChatMessage" +
+        return "TYPE:CHAT_MESSAGE" +
                 ";senderId=" + senderId +
                 ";receiverId=" + receiverId +
                 ";message=" + message +
