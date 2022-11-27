@@ -1,9 +1,8 @@
 package de.uhh.detectives.backend.model;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -14,11 +13,12 @@ public class Player implements Serializable {
     private static final long serialVersionUID = -8534287358633192608L;
 
     private Long id;
-    private String firstName;
-    private String lastName;
+    private String prename;
+    private String surname;
+
+    private String pseudonym;
 
     @Id
-    @GeneratedValue
     public Long getId() {
         return id;
     }
@@ -27,21 +27,28 @@ public class Player implements Serializable {
         this.id = id;
     }
 
-    @Column(nullable = false)
-    public String getFirstName() {
-        return firstName;
+    public String getPrename() {
+        return prename;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setPrename(String prename) {
+        this.prename = prename;
     }
 
-    @Column(nullable = false)
-    public String getLastName() {
-        return lastName;
+    public String getSurname() {
+        return surname;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    @NotNull
+    public String getPseudonym() {
+        return pseudonym;
+    }
+
+    public void setPseudonym(String pseudonym) {
+        this.pseudonym = pseudonym;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 }
