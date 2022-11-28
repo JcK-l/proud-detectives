@@ -41,22 +41,17 @@ public class TcpMessageServiceImpl implements TcpMessageService {
     }
 
     private Message decipherMessage(final String messageString) {
-        final String[] fields = messageString.split(";");
-        final MessageType type = MessageType.valueOf(fields[0].substring(5));
-        for (final MessageAdapter messageAdapter : messageAdapters) {
-            if (messageAdapter.accepts(type)) {
-                return messageAdapter.constructFromFields(fields);
+        try {
+            final String[] fields = messageString.split(";");
+            final MessageType type = MessageType.valueOf(fields[0].substring(5));
+            for (final MessageAdapter messageAdapter : messageAdapters) {
+                if (messageAdapter.accepts(type)) {
+                    return messageAdapter.constructFromFields(fields);
+                }
             }
+        } catch (IllegalArgumentException e) {
+            LOG.error(String.format("could not decipher message %s", messageString));
         }
-        LOG.error(String.format("could not decipher message of type %s", type));
         return new EmptyMessage();
-    }
-
-    public List<MessageService> getMessageServices() {
-        return messageServices;
-    }
-
-    public List<MessageAdapter> getMessageAdapters() {
-        return messageAdapters;
     }
 }
