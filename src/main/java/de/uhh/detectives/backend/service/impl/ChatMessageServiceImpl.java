@@ -4,6 +4,7 @@ import de.uhh.detectives.backend.model.ChatMessage;
 import de.uhh.detectives.backend.model.Message;
 import de.uhh.detectives.backend.repository.ChatMessageRepository;
 import de.uhh.detectives.backend.service.api.ChatMessageService;
+import de.uhh.detectives.backend.service.api.MessageType;
 import de.uhh.detectives.backend.service.impl.adapter.ChatMessageAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,11 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     public ChatMessageServiceImpl(final ChatMessageRepository chatMessageRepository) {
         this.chatMessageRepository = chatMessageRepository;
         this.chatMessageAdapter = new ChatMessageAdapter();
+    }
+
+    @Override
+    public boolean accepts(final MessageType messageType) {
+        return MessageType.CHAT_MESSAGE.equals(messageType);
     }
 
     @Override

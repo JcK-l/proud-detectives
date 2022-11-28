@@ -2,7 +2,10 @@ package de.uhh.detectives.backend.service.impl.adapter;
 
 import de.uhh.detectives.backend.model.ChatMessage;
 import de.uhh.detectives.backend.model.Message;
+import de.uhh.detectives.backend.service.api.MessageType;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ChatMessageAdapter extends AbstractMessageAdapter {
 
     private static final int INDEX_MESSAGE_TYPE = 0;
@@ -18,6 +21,11 @@ public class ChatMessageAdapter extends AbstractMessageAdapter {
 
     private static final char IDENTIFIER_VALUE_SEPERATOR = '=';
     private static final String FIELD_DELIMITER = ";";
+
+    @Override
+    public boolean accepts(final MessageType type) {
+        return MessageType.CHAT_MESSAGE.equals(type);
+    }
 
     @Override
     public Message constructFromFields(final String[] fields) {

@@ -3,13 +3,27 @@ package de.uhh.detectives.backend.service.impl.adapter;
 import de.uhh.detectives.backend.model.Message;
 import de.uhh.detectives.backend.model.Player;
 import de.uhh.detectives.backend.model.RegisterMessage;
+import de.uhh.detectives.backend.service.api.MessageType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RegisterMessageAdapterTest {
     private final RegisterMessageAdapter testee = new RegisterMessageAdapter();
+
+    @Test
+    public void testAccepts() {
+        final MessageType type = MessageType.REGISTER_MESSAGE;
+        assertTrue(testee.accepts(type));
+    }
+
+    @Test
+    public void testNotAccepts() {
+        final MessageType type = MessageType.CHAT_MESSAGE;
+        assertFalse(testee.accepts(type));
+    }
 
     @Test
     public void testConstructFromFields(){

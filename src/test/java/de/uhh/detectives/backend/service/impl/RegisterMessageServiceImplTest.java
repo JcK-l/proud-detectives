@@ -1,5 +1,6 @@
 package de.uhh.detectives.backend.service.impl;
 
+import de.uhh.detectives.backend.model.ChatMessage;
 import de.uhh.detectives.backend.model.Player;
 import de.uhh.detectives.backend.model.RegisterMessage;
 import de.uhh.detectives.backend.repository.PlayerRepository;
@@ -11,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,6 +24,18 @@ public class RegisterMessageServiceImplTest {
 
     @Mock
     private PlayerRepository playerRepository;
+
+    @Test
+    public void testAccepts() {
+        final RegisterMessage registerMessage = new RegisterMessage();
+        assertTrue(testee.accepts(registerMessage.getType()));
+    }
+
+    @Test
+    public void testNotAccepts() {
+        final ChatMessage chatMessage = new ChatMessage();
+        assertFalse(testee.accepts(chatMessage.getType()));
+    }
 
     @Test
     public void testHandle(){

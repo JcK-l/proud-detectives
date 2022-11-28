@@ -43,6 +43,7 @@ public class ServerHandler implements Runnable {
         Socket clientSocket;
         while (true) {
             try {
+                LOG.info("Listening for connections on port " + serverSocket.getLocalPort());
                 clientSocket = serverSocket.accept();
                 LOG.info("Somebody connected.");
             } catch (IOException e) {

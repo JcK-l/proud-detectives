@@ -4,6 +4,7 @@ import de.uhh.detectives.backend.model.Message;
 import de.uhh.detectives.backend.model.Player;
 import de.uhh.detectives.backend.model.RegisterMessage;
 import de.uhh.detectives.backend.repository.PlayerRepository;
+import de.uhh.detectives.backend.service.api.MessageType;
 import de.uhh.detectives.backend.service.api.RegisterMessageService;
 import de.uhh.detectives.backend.service.impl.adapter.RegisterMessageAdapter;
 import org.slf4j.Logger;
@@ -21,6 +22,11 @@ public class RegisterMessageServiceImpl implements RegisterMessageService {
     public RegisterMessageServiceImpl(PlayerRepository playerRepository) {
         this.playerRepository = playerRepository;
         this.registerMessageAdapter = new RegisterMessageAdapter();
+    }
+
+    @Override
+    public boolean accepts(final MessageType messageType) {
+        return MessageType.REGISTER_MESSAGE.equals(messageType);
     }
 
     @Override
