@@ -1,6 +1,6 @@
 package de.uhh.detectives.backend.service.impl.adapter;
 
-import de.uhh.detectives.backend.model.ChatMessage;
+import de.uhh.detectives.backend.model.entity.ChatMessage;
 import de.uhh.detectives.backend.model.Message;
 import de.uhh.detectives.backend.service.api.MessageType;
 import org.junit.jupiter.api.Test;

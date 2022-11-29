@@ -1,5 +1,6 @@
 package de.uhh.detectives.backend.tcp;
 
+import de.uhh.detectives.backend.service.api.GameService;
 import de.uhh.detectives.backend.service.api.TcpMessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,20 +20,24 @@ public class ServerHandler implements Runnable {
     private final ServerSocket serverSocket;
     private final List<ClientHandler> connections;
     private final TcpMessageService tcpMessageService;
+    private final GameService gameService;
     private final ExecutorService threadPool;
 
-    public ServerHandler(final int port, final TcpMessageService tcpMessageService) throws IOException {
+    public ServerHandler(final int port, final TcpMessageService tcpMessageService, final GameService gameService) throws IOException {
         this.connections = new ArrayList<>();
         this.serverSocket = new ServerSocket(port);
         this.threadPool = Executors.newCachedThreadPool();
         this.tcpMessageService = tcpMessageService;
+        this.gameService = gameService;
     }
 
-    public void broadcastMessage(final String message) {
+    public void broadcastMessage(final String message, final List<Long> userIds) {
         for (final ClientHandler handler : connections) {
             if (handler.isClosed()) {
                 connections.remove(handler);
-            } else {
+                break;
+            }
+            if (userIds.contains(handler.getClientUserId())) {
                 handler.sendMessage(message);
             }
         }
@@ -50,7 +55,7 @@ public class ServerHandler implements Runnable {
                 LOG.error("Accept failed.");
                 break;
             }
-            final ClientHandler clientHandler = new ClientHandler(this, clientSocket, tcpMessageService);
+            final ClientHandler clientHandler = new ClientHandler(this, clientSocket, tcpMessageService, gameService);
             connections.add(clientHandler);
             threadPool.execute(clientHandler);
         }

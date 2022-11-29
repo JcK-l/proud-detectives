@@ -1,7 +1,7 @@
 package de.uhh.detectives.backend.service.impl;
 
-import de.uhh.detectives.backend.model.ChatMessage;
-import de.uhh.detectives.backend.model.Player;
+import de.uhh.detectives.backend.model.entity.ChatMessage;
+import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.model.RegisterMessage;
 import de.uhh.detectives.backend.repository.PlayerRepository;
 import org.junit.jupiter.api.Test;

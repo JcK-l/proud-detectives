@@ -1,6 +1,6 @@
 package de.uhh.detectives.backend.service.impl;
 
-import de.uhh.detectives.backend.model.ChatMessage;
+import de.uhh.detectives.backend.model.entity.ChatMessage;
 import de.uhh.detectives.backend.service.api.ChatMessageService;
 import de.uhh.detectives.backend.service.api.MessageService;
 import de.uhh.detectives.backend.service.api.MessageType;

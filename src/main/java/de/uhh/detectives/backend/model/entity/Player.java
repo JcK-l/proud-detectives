@@ -1,4 +1,4 @@
-package de.uhh.detectives.backend.model;
+package de.uhh.detectives.backend.model.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

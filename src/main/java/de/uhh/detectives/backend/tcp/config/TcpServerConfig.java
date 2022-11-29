@@ -1,5 +1,6 @@
 package de.uhh.detectives.backend.tcp.config;
 
+import de.uhh.detectives.backend.service.api.GameService;
 import de.uhh.detectives.backend.service.api.TcpMessageService;
 import de.uhh.detectives.backend.tcp.ServerHandler;
 import org.slf4j.Logger;
@@ -19,16 +20,17 @@ public class TcpServerConfig {
     private int port;
 
     private final TcpMessageService tcpMessageService;
+    private final GameService gameService;
 
-
-    public TcpServerConfig(final TcpMessageService tcpMessageService) {
+    public TcpServerConfig(final TcpMessageService tcpMessageService, final GameService gameService) {
         this.tcpMessageService = tcpMessageService;
+        this.gameService = gameService;
     }
 
     @Bean
     public void serverConnectionFactory() {
         try {
-            final Runnable serverHandler = new ServerHandler(port, tcpMessageService);
+            final Runnable serverHandler = new ServerHandler(port, tcpMessageService, gameService);
             final Thread connectionThread = new Thread(serverHandler);
             connectionThread.start();
         } catch (final IOException e) {
