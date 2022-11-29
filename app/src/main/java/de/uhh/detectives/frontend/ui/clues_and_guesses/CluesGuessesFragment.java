@@ -1,5 +1,7 @@
 package de.uhh.detectives.frontend.ui.clues_and_guesses;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -7,7 +9,6 @@ import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,7 +34,6 @@ public class CluesGuessesFragment extends Fragment {
     private ImageView image_suspicion_middle;
     private ImageView image_suspicion_right;
     private TextView textNumber;
-    private Button button;
     private CardView cardview;
     private CluesGuessesViewModel viewModel;
 
@@ -99,44 +99,24 @@ public class CluesGuessesFragment extends Fragment {
     }
 
     private void setUpListeners() {
-        button.setOnClickListener( view -> {
-            if (viewModel.numberOfTries == -1){
-                Toast.makeText(getContext(), "YOU LOST ALREADY!!!", Toast.LENGTH_LONG).show();
-                return;
-            }
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        guessingGame();
+                        break;
 
-            ForPresentation backend = new ForPresentation();
-            String[] suspicion = new String[3];
-            suspicion[0] = viewModel.suspicion_left_tag.split(":")[1];
-            suspicion[1] = viewModel.suspicion_middle_tag.split(":")[1];
-            suspicion[2] = viewModel.suspicion_right_tag.split(":")[1];
-            switch (backend.compareToSolution(suspicion)) {
-                case SUCCESS:
-                    viewModel.cardColor = Color.GREEN;
-                    Toast.makeText(getContext(), "YOU WIN!!!", Toast.LENGTH_LONG).show();
-                    break;
-                case SEMIFAILED:
-                    viewModel.cardColor = Color.YELLOW;
-                    if (viewModel.numberOfTries > 1)
-                        Toast.makeText(getContext(), "KINDA WRONG!!!", Toast.LENGTH_SHORT).show();
-                    viewModel.numberOfTries -= 1;
-                    break;
-                case FAILED:
-                    viewModel.cardColor = Color.RED;
-                    if (viewModel.numberOfTries > 1)
-                        Toast.makeText(getContext(), "WRONG!!!", Toast.LENGTH_SHORT).show();
-                    viewModel.numberOfTries -= 1;
-                    break;
-                case INVALID:
-                    Toast.makeText(getContext(), "INVALID SELECTION!!!", Toast.LENGTH_SHORT).show();
-                    return;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        break;
+                }
             }
-            textNumber.setText(String.format(Locale.ROOT,"Guesses Left: %d", viewModel.numberOfTries));
-            if (viewModel.numberOfTries == 0) {
-                Toast.makeText(getContext(), "YOU LOSE!!!", Toast.LENGTH_LONG).show();
-                viewModel.numberOfTries = -1;
-            }
-            cardview.setCardBackgroundColor(viewModel.cardColor);
+        };
+        cardview.setOnClickListener( view -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("Guess").setMessage("Do you want to confirm you selection?").setPositiveButton("Yes", dialogClickListener)
+                    .setNegativeButton("No", dialogClickListener).show();
         });
 
         setListenerFor(image_suspicion_left);
@@ -146,7 +126,6 @@ public class CluesGuessesFragment extends Fragment {
 
     private void initViews() {
         cardview = binding.cardView;
-        button = binding.button;
         textNumber = binding.textView;
 
         image_suspicion_left = binding.cardView.findViewById(R.id.image_suspicion_left);
@@ -205,6 +184,46 @@ public class CluesGuessesFragment extends Fragment {
             }
             return false;
         });
+    }
+
+    private void guessingGame() {
+        if (viewModel.numberOfTries == -1){
+            Toast.makeText(getContext(), "YOU LOST ALREADY!!!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        ForPresentation backend = new ForPresentation();
+        String[] suspicion = new String[3];
+        suspicion[0] = viewModel.suspicion_left_tag.split(":")[1];
+        suspicion[1] = viewModel.suspicion_middle_tag.split(":")[1];
+        suspicion[2] = viewModel.suspicion_right_tag.split(":")[1];
+        switch (backend.compareToSolution(suspicion)) {
+            case SUCCESS:
+                viewModel.cardColor = Color.GREEN;
+                Toast.makeText(getContext(), "YOU WIN!!!", Toast.LENGTH_LONG).show();
+                break;
+            case SEMIFAILED:
+                viewModel.cardColor = Color.YELLOW;
+                if (viewModel.numberOfTries > 1)
+                    Toast.makeText(getContext(), "KINDA WRONG!!!", Toast.LENGTH_SHORT).show();
+                viewModel.numberOfTries -= 1;
+                break;
+            case FAILED:
+                viewModel.cardColor = Color.RED;
+                if (viewModel.numberOfTries > 1)
+                    Toast.makeText(getContext(), "WRONG!!!", Toast.LENGTH_SHORT).show();
+                viewModel.numberOfTries -= 1;
+                break;
+            case INVALID:
+                Toast.makeText(getContext(), "INVALID SELECTION!!!", Toast.LENGTH_SHORT).show();
+                return;
+        }
+        textNumber.setText(String.format(Locale.ROOT,"Guesses Left: %d", viewModel.numberOfTries));
+        if (viewModel.numberOfTries == 0) {
+            Toast.makeText(getContext(), "YOU LOSE!!!", Toast.LENGTH_LONG).show();
+            viewModel.numberOfTries = -1;
+        }
+        cardview.setCardBackgroundColor(viewModel.cardColor);
     }
 
     private void saveSuspicionState(Drawable drawable, String category, String tag) {
