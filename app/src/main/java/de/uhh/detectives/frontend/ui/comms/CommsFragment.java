@@ -1,10 +1,14 @@
 package de.uhh.detectives.frontend.ui.comms;
 
 import android.animation.ObjectAnimator;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,49 +16,69 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCommsBinding;
+import de.uhh.detectives.frontend.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.ChatMessage;
 import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class CommsFragment extends Fragment {
+    private TcpMessageService tcpMessageService;
+
+    private final ServiceConnection connection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // This is called when the connection with the service has been
+            // established, giving us the service object we can use to
+            // interact with the service.  Because we have bound to a explicit
+            // service that we know is running in our own process, we can
+            // cast its IBinder to a concrete class and directly access it.
+            tcpMessageService = ((TcpMessageService.LocalBinder)service).getService();
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            // This is called when the connection with the service has been
+            // unexpectedly disconnected -- that is, its process crashed.
+            // Because it is running in our same process, we should never
+            // see this happen.
+            tcpMessageService = null;
+        }
+    };
 
     private AppDatabase db;
     private UserData user;
     private FragmentCommsBinding binding;
 
+    private List<ChatMessage> chatMessages;
+
     private CommsAdapter commsAdapter;
-    private CommsViewModel viewModel;
     private BottomNavigationView navBar;
     private CommsAnimation animate;
 
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("hh:mm", Locale.ROOT);
     private static final Long DUMMY_USER_ID = 123456789L;
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        viewModel = new ViewModelProvider(this).get(CommsViewModel.class);
         navBar = getActivity().findViewById(R.id.nav_view);
 
-        setUpDefaults();
+        Intent intent = new Intent(getActivity(), TcpMessageService.class);
+        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        EventBus.getDefault().register(this);
 
         binding = FragmentCommsBinding.inflate(getLayoutInflater());
 
@@ -62,19 +86,14 @@ public class CommsFragment extends Fragment {
 
         db = AppDatabase.getDatabase(getContext());
         user = db.getUserDataRepository().findFirst();
+        chatMessages = db.getChatMessageRepository().getAll();
         initChat(root);
 
         return root;
     }
 
-    public void setUpDefaults() {
-       if (viewModel.chatMessages == null) {
-           viewModel.chatMessages = new ArrayList<>();
-       }
-    }
-
     private void initChat(View root){
-        commsAdapter = new CommsAdapter(viewModel.chatMessages, user.getUserId());
+        commsAdapter = new CommsAdapter(chatMessages, user.getUserId());
         binding.chatRecyclerView.setAdapter(commsAdapter);
 
         ObjectAnimator animationInput = ObjectAnimator.ofFloat(root.findViewById(R.id.inputMessage), "translationY", 130f);
@@ -103,91 +122,33 @@ public class CommsFragment extends Fragment {
             }
         });
         binding.layoutSend.setOnClickListener(v -> {
-            final ChatMessage chatMessage = createMessage(binding.inputMessage.getText().toString(), user.getUserId());
-            final Thread thread = new Thread(sendMessageToServer(chatMessage));
-            thread.start();
-            // for now we'll put it here, because the thread uses the same method
-            binding.inputMessage.setText(null);
+            final String input = binding.inputMessage.getText().toString();
+            if (!input.isEmpty()){
+                ChatMessage chatMessage = new ChatMessage(user.getUserId(), input);
+                tcpMessageService.sendMessageToServer(chatMessage);
+                binding.inputMessage.setText(null);
+            }
         });
-
-        final Handler handler = new Handler();
-        // handler.post(listenForMessage(commsAdapter, handler));
-    }
-
-    private ChatMessage createMessage(final String message, final Long userId) {
-        if (message.isEmpty()) {
-            return null;
-        }
-        final long currentTime = System.currentTimeMillis();
-        final ChatMessage chatMessage = new ChatMessage(userId, currentTime);
-//        chatMessage.receiverId = receiverId.getUserId();
-        chatMessage.setDateTime(SDF.format(new Date(currentTime)));
-        chatMessage.setMessage(message);
-        return chatMessage;
     }
 
     private void sendMessageToUi(final ChatMessage chatMessage) {
-        viewModel.chatMessages.add(chatMessage);
-        commsAdapter.notifyItemInserted(viewModel.chatMessages.size());
-        binding.chatRecyclerView.smoothScrollToPosition(viewModel.chatMessages.size());
+        chatMessages.add(chatMessage);
+        commsAdapter.notifyItemInserted(chatMessages.size());
+        binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size());
     }
 
-    private void listenForMessage(final CommsAdapter adapter, final Handler handler) {
-        // TODO: subscribe to Backend for messages
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void receiveMessage(final ChatMessageEvent chatMessageEvent) {
+        ChatMessage chatMessage = chatMessageEvent.getMessage();
+        sendMessageToUi(chatMessage);
     }
 
-    private Runnable sendMessageToServer(final ChatMessage message) {
-        return new Runnable() {
-            private Socket socket = null;
-            private String host = "dos-wins-04.informatik.uni-hamburg.de";
-            private int port = 22527;
-
-            @Override
-            public void run() {
-                System.out.println("starting thread");
-                ObjectOutputStream out = null;
-                BufferedReader in = null;
-                try {
-                    socket = new Socket(host, port);
-                    out = new ObjectOutputStream(socket.getOutputStream());
-                    in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                } catch (UnknownHostException e) {
-                    System.err.println("Don't know about host: " + host);
-                    System.exit(1);
-                } catch (IOException e) {
-                    System.err.println("Couldn't get I/O for host: " + host);
-                    System.exit(1);
-                }
-                try {
-                    String serverInput;
-                    out.writeObject(message.toString());
-                    serverInput = in.readLine();
-                    getActivity().runOnUiThread(receiveMessage(serverInput));
-                    out.close();
-                    in.close();
-                    socket.close();
-                } catch (IOException ignored) {
-                    // handle connection failure
-                }
-            }
-        };
-    }
-
-    private Runnable receiveMessage(final String message) {
-        return () -> {
-            // TODO: create message from server String instead of just sending string to chat
-            ChatMessage chatMessage;
-            if (message.contains(user.getUserId() + "")) {
-                chatMessage = createMessage(message, user.getUserId());
-            } else {
-                chatMessage = createMessage(message, DUMMY_USER_ID);
-            }
-            sendMessageToUi(chatMessage);
-        };
-    }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        getActivity().unbindService(connection);
+        EventBus.getDefault().unregister(this);
     }
 }

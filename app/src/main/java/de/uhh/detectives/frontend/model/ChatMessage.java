@@ -1,17 +1,55 @@
 package de.uhh.detectives.frontend.model;
 
-public class ChatMessage {
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+
+import java.util.Date;
+import java.util.Locale;
+
+@Entity
+public class ChatMessage implements Serializable {
+    @PrimaryKey(autoGenerate = true)
+    private int chatMessageId;
+
     private Long senderId;
     private Long receiverId;
     private String message;
     private Long timestamp;
     private String dateTime;
 
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("hh:mm", Locale.ROOT);
+
     public ChatMessage() {}
 
-    public ChatMessage(final Long senderId, final Long timestamp) {
-        this.senderId = senderId;
-        this.timestamp = timestamp;
+    public ChatMessage(final Long userId, final String inputMessage ) {
+        this.senderId = userId;
+
+        final long currentTime = System.currentTimeMillis();
+        this.timestamp = currentTime;
+
+        this.dateTime = SDF.format(new Date(currentTime));
+        this.message = inputMessage;
+    }
+
+    public ChatMessage(ParsedMessage parsedMessage) {
+        this.senderId = parsedMessage.getSenderId();
+
+        final long currentTime = System.currentTimeMillis();
+        this.timestamp = currentTime;
+
+        this.dateTime = SDF.format(new Date(currentTime));
+        this.message = parsedMessage.getMessage();
+    }
+
+    public int getChatMessageId() {
+        return chatMessageId;
+    }
+
+    public void setChatMessageId(int chatMessageId) {
+        this.chatMessageId = chatMessageId;
     }
 
     public Long getSenderId() {
