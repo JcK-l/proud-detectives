@@ -1,9 +1,9 @@
 package de.uhh.detectives.backend.service.impl;
 
-import de.uhh.detectives.backend.model.EmptyMessage;
-import de.uhh.detectives.backend.model.Message;
-import de.uhh.detectives.backend.service.api.MessageService;
-import de.uhh.detectives.backend.service.api.MessageType;
+import de.uhh.detectives.backend.model.messaging.EmptyMessage;
+import de.uhh.detectives.backend.model.messaging.Message;
+import de.uhh.detectives.backend.service.api.messaging.MessageService;
+import de.uhh.detectives.backend.service.api.messaging.MessageType;
 import de.uhh.detectives.backend.service.api.TcpMessageService;
 import de.uhh.detectives.backend.service.api.adapter.MessageAdapter;
 import org.slf4j.Logger;

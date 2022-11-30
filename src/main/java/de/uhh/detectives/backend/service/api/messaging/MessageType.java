@@ -1,4 +1,4 @@
-package de.uhh.detectives.backend.service.api;
+package de.uhh.detectives.backend.service.api.messaging;
 
 
 /**
@@ -7,5 +7,6 @@ package de.uhh.detectives.backend.service.api;
 public enum MessageType {
     UNKNOWN,
     CHAT_MESSAGE,
-    REGISTER_MESSAGE
+    REGISTER_MESSAGE,
+    JOIN_GAME_MESSAGE
 }

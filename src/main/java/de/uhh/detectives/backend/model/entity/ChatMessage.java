@@ -1,7 +1,7 @@
 package de.uhh.detectives.backend.model.entity;
 
-import de.uhh.detectives.backend.model.Message;
-import de.uhh.detectives.backend.service.api.MessageType;
+import de.uhh.detectives.backend.model.messaging.Message;
+import de.uhh.detectives.backend.service.api.messaging.MessageType;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

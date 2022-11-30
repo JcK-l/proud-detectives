@@ -1,7 +1,7 @@
 package de.uhh.detectives.backend.service.api.adapter;
 
-import de.uhh.detectives.backend.model.Message;
-import de.uhh.detectives.backend.service.api.MessageType;
+import de.uhh.detectives.backend.model.messaging.Message;
+import de.uhh.detectives.backend.service.api.messaging.MessageType;
 
 public interface MessageAdapter {
     boolean accepts(final MessageType type);

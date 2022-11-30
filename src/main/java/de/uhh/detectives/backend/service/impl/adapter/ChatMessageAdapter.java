@@ -1,9 +1,8 @@
 package de.uhh.detectives.backend.service.impl.adapter;
 
 import de.uhh.detectives.backend.model.entity.ChatMessage;
-import de.uhh.detectives.backend.model.Message;
-import de.uhh.detectives.backend.model.entity.Player;
-import de.uhh.detectives.backend.service.api.MessageType;
+import de.uhh.detectives.backend.model.messaging.Message;
+import de.uhh.detectives.backend.service.api.messaging.MessageType;
 import org.springframework.stereotype.Component;
 
 @Component

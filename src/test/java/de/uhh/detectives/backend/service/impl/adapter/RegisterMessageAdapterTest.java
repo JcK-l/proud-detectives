@@ -1,9 +1,9 @@
 package de.uhh.detectives.backend.service.impl.adapter;
 
-import de.uhh.detectives.backend.model.Message;
+import de.uhh.detectives.backend.model.messaging.Message;
 import de.uhh.detectives.backend.model.entity.Player;
-import de.uhh.detectives.backend.model.RegisterMessage;
-import de.uhh.detectives.backend.service.api.MessageType;
+import de.uhh.detectives.backend.model.messaging.RegisterMessage;
+import de.uhh.detectives.backend.service.api.messaging.MessageType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,7 +29,7 @@ public class RegisterMessageAdapterTest {
     public void testConstructFromFields(){
         // given
         final String[] fields = new String[] {
-                "TYPE:CHAT_MESSAGE",
+                "TYPE:REGISTER_MESSAGE",
                 "userId=123456789",
                 "pseudonym=testPseudonym",
                 "prename=testPrename",

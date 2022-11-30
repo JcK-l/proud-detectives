@@ -1,8 +1,8 @@
-package de.uhh.detectives.backend.service.impl;
+package de.uhh.detectives.backend.service.impl.messaging;
 
 import de.uhh.detectives.backend.model.entity.ChatMessage;
 import de.uhh.detectives.backend.model.entity.Player;
-import de.uhh.detectives.backend.model.RegisterMessage;
+import de.uhh.detectives.backend.model.messaging.RegisterMessage;
 import de.uhh.detectives.backend.repository.PlayerRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,7 +52,7 @@ public class RegisterMessageServiceImplTest {
         final String result = testee.handle(registerMessage);
 
         // then
-        assertEquals("ACKNOWLEDGED", result);
+        assertEquals("TYPE:REGISTER_MESSAGE;status=200;result=ACKNOWLEDGED", result);
         verify(playerRepository).save(captor.capture());
         final Player player = captor.getValue();
 

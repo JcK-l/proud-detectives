@@ -33,12 +33,11 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Long generateGame(final Long timestamp) {
+    public void generateGame(final Long timestamp) {
         final Game game = new Game(timestamp);
         generateSolution(game);
         LOG.info(String.format("saving generated game with ID: %d", game.getGameId()));
-        gameRepository.save(game);
-        return game.getGameId();
+        gameRepository.saveAndFlush(game);
     }
 
     @Override
@@ -48,25 +47,27 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public void registerPlayer(final Long userId) {
+    public Game registerPlayer(final Long userId) {
+        final Game activeGameForPlayer = findActiveGameForUser(userId);
+        if (activeGameForPlayer != null) {
+            LOG.error(String.format("User %d already in a game. Will not register him/her for a new one.", userId));
+            return null;
+        }
         final List<Game> nonStartedGames = gameRepository.findAllByStartedFalse();
         if (nonStartedGames.size() != 1) {
             LOG.error(String.format("not exactly one active non-started game available for the user %d to join.", userId));
-            return;
+            return null;
         }
         final Game nonStartedGame = nonStartedGames.get(0);
         final Optional<Player> player = playerRepository.findById(userId);
         if (player.isEmpty()) {
             LOG.error(String.format("No registered user with id %d found in the database.", userId));
-            return;
-        }
-        if (nonStartedGame.getParticipants().contains(player.get())) {
-            LOG.warn(String.format("Player %d already registered for game %d.", userId, nonStartedGame.getGameId()));
-            return;
+            return null;
         }
         nonStartedGame.getParticipants().add(player.get());
         gameRepository.save(nonStartedGame);
         LOG.info(String.format("registered user %d for game %d", userId, nonStartedGame.getGameId()));
+        return nonStartedGame;
     }
 
     @Override
@@ -97,7 +98,7 @@ public class GameServiceImpl implements GameService {
                 .filter(game -> game.getParticipants().contains(playerOptional.get()))
                 .toList();
         if (gamesForUser.size() != 1) {
-            LOG.error(String.format("not exactly one active game was found for the user %d.", userId));
+            LOG.warn(String.format("not exactly one active game was found for the user %d.", userId));
             return null;
         }
         return gamesForUser.get(0);
