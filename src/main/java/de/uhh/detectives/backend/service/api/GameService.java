@@ -1,17 +1,36 @@
 package de.uhh.detectives.backend.service.api;
 
-import java.util.List;
+import de.uhh.detectives.backend.model.entity.Game;
 
 public interface GameService {
 
-    Long findActiveGameForUser(final Long userId);
 
+    /**
+     * Finds the active game for a user
+     *
+     * @param userId the id of the user, the game is searched for
+     * @return active game that the user participates in or NULL if none is found
+     */
+    Game findActiveGameForUser(final Long userId);
+
+    /**
+     * Searches for a game that is neither started nor completed yet that users can register for
+     *
+     * @return boolean if a joinable game is available
+     */
     boolean isJoinableGameAvailable();
 
     void registerPlayer(final Long userId);
-    List<Long> findUsersForGame(final Long gameId);
 
     Long generateGame(final Long timestamp);
 
-    void startGame(final Long userIdOfStartingUser);
+    /**
+     * After generating the hints for a game, the game is started the started game is returned.
+     *
+     * @param userIdOfStartingUser userId of user who wants to start the game
+     * @param longitudeOfUser Longitude of user Location
+     * @param latitudeOfUser Latitude of user Location
+     * @return started game
+     */
+    Game startGame(final Long userIdOfStartingUser, final Float longitudeOfUser, final Float latitudeOfUser);
 }

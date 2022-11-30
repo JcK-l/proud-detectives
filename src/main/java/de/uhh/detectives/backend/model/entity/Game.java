@@ -1,8 +1,12 @@
 package de.uhh.detectives.backend.model.entity;
 
+import de.uhh.detectives.backend.model.Hint;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -10,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@NoArgsConstructor
 public class Game implements Serializable {
 
     @Serial
@@ -24,12 +29,12 @@ public class Game implements Serializable {
     private String weapon;
 
     private List<Player> participants;
-
-    public Game() {}
+    private List<Hint> hints;
 
     public Game(final Long timestamp) {
         this.gameId = timestamp;
         this.participants = new ArrayList<>();
+        this.hints = new ArrayList<>();
     }
 
     @Id
@@ -91,5 +96,14 @@ public class Game implements Serializable {
 
     public void setParticipants(List<Player> participants) {
         this.participants = participants;
+    }
+
+    @Transient
+    public List<Hint> getHints() {
+        return hints;
+    }
+
+    public void setHints(List<Hint> hints) {
+        this.hints = hints;
     }
 }

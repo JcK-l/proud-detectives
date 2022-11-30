@@ -1,5 +1,7 @@
 package de.uhh.detectives.backend.tcp;
 
+import de.uhh.detectives.backend.model.entity.Game;
+import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.service.api.GameService;
 import de.uhh.detectives.backend.service.api.TcpMessageService;
 import org.slf4j.Logger;
@@ -46,9 +48,9 @@ public class ClientHandler implements Runnable {
                 }
                 final String toBroadcast = tcpMessageService.receiveMessage(inputMessage);
                 if (toBroadcast != null) {
-                    final Long gameId = gameService.findActiveGameForUser(clientUserId);
-                    final List<Long> userIds = gameService.findUsersForGame(gameId);
-                    LOG.info("Broadcasting message " + toBroadcast + " to users of game with id " + gameId);
+                    final Game game = gameService.findActiveGameForUser(clientUserId);
+                    final List<Long> userIds = game.getParticipants().stream().map(Player::getId).toList();
+                    LOG.info("Broadcasting message " + toBroadcast + " to users of game with id " + game.getGameId());
                     server.broadcastMessage(toBroadcast, userIds);
                 }
             }
