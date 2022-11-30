@@ -6,6 +6,7 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,12 +16,21 @@ public class Game implements Serializable {
     private static final long serialVersionUID = 2040661693437304598L;
 
     private Long gameId;
+    private boolean completed;
+    private boolean started;
 
     private String culprit;
     private String location;
     private String weapon;
 
     private List<Player> participants;
+
+    public Game() {}
+
+    public Game(final Long timestamp) {
+        this.gameId = timestamp;
+        this.participants = new ArrayList<>();
+    }
 
     @Id
     public Long getGameId() {
@@ -29,6 +39,22 @@ public class Game implements Serializable {
 
     public void setGameId(Long gameId) {
         this.gameId = gameId;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
     }
 
     @NotNull
