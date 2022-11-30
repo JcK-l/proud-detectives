@@ -1,7 +1,7 @@
 package de.uhh.detectives.backend.service.impl.adapter;
 
 import de.uhh.detectives.backend.model.Message;
-import de.uhh.detectives.backend.model.Player;
+import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.model.RegisterMessage;
 import de.uhh.detectives.backend.service.api.MessageType;
 import org.junit.jupiter.api.Test;

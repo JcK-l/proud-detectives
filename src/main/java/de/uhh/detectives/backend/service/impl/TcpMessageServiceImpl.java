@@ -29,10 +29,10 @@ public class TcpMessageServiceImpl implements TcpMessageService {
 
     @Override
     public String receiveMessage(final String messageString) {
-        LOG.info("deciphering message: " + messageString);
         final Message message = decipherMessage(messageString);
         for (final MessageService messageService : messageServices) {
             if (messageService.accepts(message.getType())) {
+                LOG.info(String.format("processing message of type %s", message.getType()));
                 return messageService.handle(message);
             }
         }
@@ -41,6 +41,7 @@ public class TcpMessageServiceImpl implements TcpMessageService {
     }
 
     private Message decipherMessage(final String messageString) {
+        LOG.info("deciphering message");
         try {
             final String[] fields = messageString.split(";");
             final MessageType type = MessageType.valueOf(fields[0].substring(5));
@@ -49,7 +50,8 @@ public class TcpMessageServiceImpl implements TcpMessageService {
                     return messageAdapter.constructFromFields(fields);
                 }
             }
-        } catch (IllegalArgumentException e) {
+        // catching any exceptions since we don't want a client to close only because it sends one wrongly formatted message
+        } catch (Exception e) {
             LOG.error(String.format("could not decipher message %s", messageString));
         }
         return new EmptyMessage();

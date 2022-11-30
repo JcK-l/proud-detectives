@@ -1,6 +1,6 @@
 package de.uhh.detectives.backend.service.api;
 
-import de.uhh.detectives.backend.model.Player;
+import de.uhh.detectives.backend.model.entity.Player;
 
 public interface RegisterMessageService extends MessageService {
 

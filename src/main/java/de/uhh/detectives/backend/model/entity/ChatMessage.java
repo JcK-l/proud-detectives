@@ -1,5 +1,6 @@
-package de.uhh.detectives.backend.model;
+package de.uhh.detectives.backend.model.entity;
 
+import de.uhh.detectives.backend.model.Message;
 import de.uhh.detectives.backend.service.api.MessageType;
 
 import javax.persistence.Entity;
