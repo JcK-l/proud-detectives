@@ -2,6 +2,7 @@ package de.uhh.detectives.backend.service.impl.adapter;
 
 import de.uhh.detectives.backend.model.entity.ChatMessage;
 import de.uhh.detectives.backend.model.Message;
+import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.service.api.MessageType;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,8 @@ public class ChatMessageAdapter extends AbstractMessageAdapter {
     private static final String STRING_MESSAGE_CONTENT = "message";
     private static final int INDEX_TIMESTAMP = 4;
     private static final String STRING_TIMESTAMP = "timestamp";
+    private static final int INDEX_SENDER_PSEUDONYM = 5;
+    private static final String STRING_SENDER_PSEUDONYM = "senderPseudonym";
 
     private static final char IDENTIFIER_VALUE_SEPERATOR = '=';
     private static final String FIELD_DELIMITER = ";";
@@ -40,12 +43,13 @@ public class ChatMessageAdapter extends AbstractMessageAdapter {
     }
 
     public String toBroadcastString(final ChatMessage message) {
-        final String[] fields = new String[5];
+        final String[] fields = new String[6];
         fields[INDEX_MESSAGE_TYPE] = STRING_TYPE + message.getType();
         fields[INDEX_SENDER_ID] = STRING_SENDER_ID + IDENTIFIER_VALUE_SEPERATOR + message.getSenderId();
         fields[INDEX_RECEIVER_PSEUDONYM] = STRING_RECEIVER_PSEUDONYM + IDENTIFIER_VALUE_SEPERATOR + message.getReceiverPseudonym();
         fields[INDEX_MESSAGE_CONTENT] = STRING_MESSAGE_CONTENT + IDENTIFIER_VALUE_SEPERATOR + message.getMessageContent();
         fields[INDEX_TIMESTAMP] = STRING_TIMESTAMP + IDENTIFIER_VALUE_SEPERATOR + message.getTimestamp();
+        fields[INDEX_SENDER_PSEUDONYM] = STRING_SENDER_PSEUDONYM + IDENTIFIER_VALUE_SEPERATOR + message.getSenderPseudonym();
         return String.join(FIELD_DELIMITER, fields);
     }
 }

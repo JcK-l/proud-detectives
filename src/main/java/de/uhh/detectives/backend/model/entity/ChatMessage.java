@@ -19,6 +19,7 @@ public class ChatMessage implements Serializable, Message {
 
     private Long messageId;
     private Long senderId;
+    private String senderPseudonym;
     private String receiverPseudonym;
     private Long timestamp;
     private String messageContent;
@@ -40,6 +41,15 @@ public class ChatMessage implements Serializable, Message {
 
     public void setSenderId(Long senderId) {
         this.senderId = senderId;
+    }
+
+    @Transient
+    public String getSenderPseudonym() {
+        return senderPseudonym;
+    }
+
+    public void setSenderPseudonym(String senderPseudonym) {
+        this.senderPseudonym = senderPseudonym;
     }
 
     public String getReceiverPseudonym() {
