@@ -54,9 +54,10 @@ public class ChatMessageAdapterTest {
     @Test
     public void testToBroadcastString() {
         // given
-        final String expected = "TYPE:CHAT_MESSAGE;senderId=1669494958668;receiverId=tester;message=this is a test message;timestamp=1669505325493";
+        final String expected = "TYPE:CHAT_MESSAGE;senderId=1669494958668;receiverId=tester;message=this is a test message;timestamp=1669505325493;senderPseudonym=Mr. Tester";
         final ChatMessage chatMessage = new ChatMessage();
         chatMessage.setSenderId(1669494958668L);
+        chatMessage.setSenderPseudonym("Mr. Tester");
         chatMessage.setReceiverPseudonym("tester");
         chatMessage.setMessageContent("this is a test message");
         chatMessage.setTimestamp(1669505325493L);
