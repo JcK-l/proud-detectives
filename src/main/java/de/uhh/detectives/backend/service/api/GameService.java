@@ -20,9 +20,20 @@ public interface GameService {
      */
     boolean isJoinableGameAvailable();
 
-    void registerPlayer(final Long userId);
+    /**
+     * Searches for a joinable game and registers the player for it.
+     *
+     * @param userId id of the player
+     * @return the game that the player was registered for or NULL if any problems occur
+     */
+    Game registerPlayer(final Long userId);
 
-    Long generateGame(final Long timestamp);
+    /**
+     * generates a new game including a murder weapon, location and culprit and saves it in the database
+     *
+     * @param timestamp the timestamp will be used as id for the game
+     */
+    void generateGame(final Long timestamp);
 
     /**
      * After generating the hints for a game, the game is started the started game is returned.

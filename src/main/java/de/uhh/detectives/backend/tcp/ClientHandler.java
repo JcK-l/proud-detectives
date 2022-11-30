@@ -11,7 +11,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ClientHandler implements Runnable {
 
@@ -45,18 +46,32 @@ public class ClientHandler implements Runnable {
                 LOG.info("Receiving message " + inputMessage);
                 if (inputMessage.contains("OPEN_CONNECTION_FOR:")) {
                     clientUserId = Long.valueOf(inputMessage.substring(inputMessage.indexOf(':') + 1));
+                    continue;
                 }
                 final String toBroadcast = tcpMessageService.receiveMessage(inputMessage);
-                if (toBroadcast != null) {
-                    final Game game = gameService.findActiveGameForUser(clientUserId);
-                    final List<Long> userIds = game.getParticipants().stream().map(Player::getId).toList();
-                    LOG.info("Broadcasting message " + toBroadcast + " to users of game with id " + game.getGameId());
-                    server.broadcastMessage(toBroadcast, userIds);
+                broadcastToClient(toBroadcast);
+                final Game activeGameForUser = gameService.findActiveGameForUser(clientUserId);
+                if (toBroadcast != null && activeGameForUser != null) {
+                    broadcastToOtherPlayers(toBroadcast, activeGameForUser);
                 }
             }
             shutdown();
         } catch (final ClassNotFoundException | IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void broadcastToClient(final String message) {
+        out.println(message);
+    }
+
+    private void broadcastToOtherPlayers(final String toBroadcast, final Game game) {
+        out.println(toBroadcast);
+        if (toBroadcast != null && game != null) {
+            final Set<Long> userIds = game.getParticipants().stream().map(Player::getId).collect(Collectors.toSet());
+            userIds.remove(clientUserId);
+            LOG.info("Broadcasting message " + toBroadcast + " to users of game with id " + game.getGameId());
+            server.broadcastMessage(toBroadcast, userIds);
         }
     }
 

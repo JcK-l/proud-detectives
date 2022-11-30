@@ -1,13 +1,13 @@
 package de.uhh.detectives.backend.service.impl;
 
 import de.uhh.detectives.backend.model.entity.ChatMessage;
-import de.uhh.detectives.backend.service.api.ChatMessageService;
-import de.uhh.detectives.backend.service.api.MessageService;
-import de.uhh.detectives.backend.service.api.MessageType;
-import de.uhh.detectives.backend.service.api.RegisterMessageService;
+import de.uhh.detectives.backend.service.api.messaging.MessageService;
+import de.uhh.detectives.backend.service.api.messaging.MessageType;
 import de.uhh.detectives.backend.service.api.adapter.MessageAdapter;
 import de.uhh.detectives.backend.service.impl.adapter.ChatMessageAdapter;
 import de.uhh.detectives.backend.service.impl.adapter.RegisterMessageAdapter;
+import de.uhh.detectives.backend.service.impl.messaging.ChatMessageServiceImpl;
+import de.uhh.detectives.backend.service.impl.messaging.RegisterMessageServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -31,10 +31,10 @@ public class TcpMessageServiceImplTest {
     public void testDecipherChatMessage() {
         // Given
         final List<MessageService> messageServices = new ArrayList<>();
-        final ChatMessageService chatMessageService = mock(ChatMessageService.class);
+        final ChatMessageServiceImpl chatMessageService = mock(ChatMessageServiceImpl.class);
         when(chatMessageService.accepts(eq(MessageType.CHAT_MESSAGE))).thenReturn(true);
         messageServices.add(chatMessageService);
-        final RegisterMessageService registerMessageService = mock(RegisterMessageService.class);
+        final RegisterMessageServiceImpl registerMessageService = mock(RegisterMessageServiceImpl.class);
         messageServices.add(registerMessageService);
 
         final List<MessageAdapter> messageAdapters = new ArrayList<>();
@@ -67,9 +67,9 @@ public class TcpMessageServiceImplTest {
     public void testDecipherMessageOfUnrecognizedType() {
         // Given
         final List<MessageService> messageServices = new ArrayList<>();
-        final ChatMessageService chatMessageService = mock(ChatMessageService.class);
+        final ChatMessageServiceImpl chatMessageService = mock(ChatMessageServiceImpl.class);
         messageServices.add(chatMessageService);
-        final RegisterMessageService registerMessageService = mock(RegisterMessageService.class);
+        final RegisterMessageServiceImpl registerMessageService = mock(RegisterMessageServiceImpl.class);
         messageServices.add(registerMessageService);
 
         final List<MessageAdapter> messageAdapters = new ArrayList<>();

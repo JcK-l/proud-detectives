@@ -1,6 +1,6 @@
-package de.uhh.detectives.backend.service.api;
+package de.uhh.detectives.backend.service.api.messaging;
 
-import de.uhh.detectives.backend.model.Message;
+import de.uhh.detectives.backend.model.messaging.Message;
 
 public interface MessageService {
 

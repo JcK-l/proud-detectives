@@ -47,15 +47,14 @@ public class GameServiceImplTest {
     public void testGameGeneration() {
         // given
         final Long timestamp = 111111111L;
-        when(gameRepository.save(any())).thenReturn(new Game(timestamp));
+        when(gameRepository.saveAndFlush(any())).thenReturn(new Game(timestamp));
         final ArgumentCaptor<Game> captor = ArgumentCaptor.forClass(Game.class);
 
         // when
-        final Long gameId = testee.generateGame(timestamp);
+        testee.generateGame(timestamp);
 
         // then
-        assertEquals(timestamp, gameId);
-        verify(gameRepository).save(captor.capture());
+        verify(gameRepository).saveAndFlush(captor.capture());
         final Game actual = captor.getValue();
         assertEquals(timestamp, actual.getGameId());
         assertNotNull(actual.getParticipants());
@@ -80,15 +79,41 @@ public class GameServiceImplTest {
     }
 
     @Test
+    public void registerPlayerAlreadyInGame() {
+        // given
+        final Player player = new Player();
+        player.setId(USER_ID);
+        when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player));
+
+        final List<Game> activeGames = new ArrayList<>();
+        activeGames.add(new Game(11111111L));
+        activeGames.get(0).getParticipants().add(player);
+        when(gameRepository.findAllByCompletedFalse()).thenReturn(activeGames);
+
+        // when
+        final Game game = testee.registerPlayer(USER_ID);
+
+        // then
+        verify(gameRepository, times(0)).findAllByStartedFalse();
+        verify(gameRepository, times(0)).save(any());
+        verify(gameRepository, times(0)).saveAndFlush(any());
+        assertNull(game);
+
+    }
+
+    @Test
     public void testRegisterPlayerDoesNotFindGame() {
         // given
+        final Player player = new Player();
+        player.setId(USER_ID);
+        when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player));
         when(gameRepository.findAllByStartedFalse()).thenReturn(Collections.emptyList());
 
         // when
         testee.registerPlayer(USER_ID);
 
         // then
-        verify(playerRepository, times(0)).findById(anyLong());
+        verify(playerRepository).findById(anyLong());
         verify(gameRepository, times(0)).save(any());
     }
 
@@ -104,28 +129,7 @@ public class GameServiceImplTest {
         testee.registerPlayer(USER_ID);
 
         // then
-        verify(playerRepository).findById(anyLong());
-        verify(gameRepository, times(0)).save(any());
-    }
-
-    @Test
-    public void testPlayerAlreadyRegistered() {
-        // given
-        final List<Game> joinableGames = new ArrayList<>();
-        final Game game = new Game(1111111111L);
-        final Player player = new Player();
-        player.setId(USER_ID);
-        game.getParticipants().add(player);
-        joinableGames.add(game);
-
-        when(gameRepository.findAllByStartedFalse()).thenReturn(joinableGames);
-        when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player));
-
-        // when
-        testee.registerPlayer(USER_ID);
-
-        // then
-        verify(playerRepository).findById(eq(USER_ID));
+        verify(playerRepository, times(2)).findById(anyLong());
         verify(gameRepository, times(0)).save(any());
     }
 
@@ -146,7 +150,7 @@ public class GameServiceImplTest {
         testee.registerPlayer(USER_ID);
 
         // then
-        verify(playerRepository).findById(eq(USER_ID));
+        verify(playerRepository, times(2)).findById(eq(USER_ID));
         verify(gameRepository).save(captor.capture());
         final Game savedGame = captor.getValue();
         assertEquals(1, savedGame.getParticipants().size());

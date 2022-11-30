@@ -1,0 +1,1 @@
+TYPE:REGISTER_MESSAGE;userId=123456789;pseudonym=testPseudonym;prename=testPrename;surname=testSurname

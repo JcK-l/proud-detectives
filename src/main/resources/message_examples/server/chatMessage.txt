@@ -1,0 +1,1 @@
+TYPE:CHAT_MESSAGE;senderId=1669494958668;receiverId=tester;message=this is a test message;timestamp=1669505325493;senderPseudonym=Mr. Tester

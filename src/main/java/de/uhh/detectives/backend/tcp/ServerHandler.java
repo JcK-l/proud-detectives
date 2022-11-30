@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,7 +32,7 @@ public class ServerHandler implements Runnable {
         this.gameService = gameService;
     }
 
-    public void broadcastMessage(final String message, final List<Long> userIds) {
+    public void broadcastMessage(final String message, final Set<Long> userIds) {
         for (final ClientHandler handler : connections) {
             if (handler.isClosed()) {
                 connections.remove(handler);
