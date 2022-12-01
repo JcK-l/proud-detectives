@@ -19,6 +19,7 @@ public class ChatMessage implements Serializable {
     private String message;
     private Long timestamp;
     private String dateTime;
+    private String pseudonym;
 
     private static final SimpleDateFormat SDF = new SimpleDateFormat("hh:mm", Locale.ROOT);
 
@@ -42,6 +43,14 @@ public class ChatMessage implements Serializable {
 
         this.dateTime = SDF.format(new Date(currentTime));
         this.message = parsedMessage.getMessage();
+    }
+
+    public String getPseudonym() {
+        return pseudonym;
+    }
+
+    public void setPseudonym(String pseudonym) {
+        this.pseudonym = pseudonym;
     }
 
     public int getChatMessageId() {

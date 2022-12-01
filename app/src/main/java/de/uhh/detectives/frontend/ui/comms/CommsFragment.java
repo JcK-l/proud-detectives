@@ -1,12 +1,10 @@
 package de.uhh.detectives.frontend.ui.comms;
 
-import android.animation.ObjectAnimator;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.LayoutInflater;
@@ -14,10 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -25,13 +20,12 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCommsBinding;
+import de.uhh.detectives.frontend.databinding.FragmentCommsSoftkeyboardBinding;
 import de.uhh.detectives.frontend.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.ChatMessage;
 import de.uhh.detectives.frontend.model.UserData;
@@ -62,6 +56,7 @@ public class CommsFragment extends Fragment {
     private AppDatabase db;
     private UserData user;
     private FragmentCommsBinding binding;
+    private FragmentCommsSoftkeyboardBinding bindingTransition;
 
     private List<ChatMessage> chatMessages;
 
@@ -81,8 +76,12 @@ public class CommsFragment extends Fragment {
         EventBus.getDefault().register(this);
 
         binding = FragmentCommsBinding.inflate(getLayoutInflater());
+        bindingTransition = FragmentCommsSoftkeyboardBinding.inflate(getLayoutInflater());
 
         View root = binding.getRoot();
+        View rootTransition = bindingTransition.getRoot();
+
+        animate = new CommsAnimation(root, rootTransition);
 
         db = AppDatabase.getDatabase(getContext());
         user = db.getUserDataRepository().findFirst();
@@ -95,17 +94,6 @@ public class CommsFragment extends Fragment {
     private void initChat(View root){
         commsAdapter = new CommsAdapter(chatMessages, user.getUserId());
         binding.chatRecyclerView.setAdapter(commsAdapter);
-
-        ObjectAnimator animationInput = ObjectAnimator.ofFloat(root.findViewById(R.id.inputMessage), "translationY", 130f);
-        ObjectAnimator animationSend = ObjectAnimator.ofFloat(root.findViewById(R.id.layoutSend), "translationY", 130f);
-        ObjectAnimator animationBackground = ObjectAnimator.ofFloat(root.findViewById(R.id.viewBackground), "translationY", 130f);
-        ObjectAnimator animationRecycler = ObjectAnimator.ofFloat(root.findViewById(R.id.chatRecyclerView), "translationY", 130f);
-
-        List<ObjectAnimator> animations = new ArrayList<>(Arrays.asList(animationInput, animationSend, animationBackground, animationRecycler));
-        Drawable background_flat = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.background_content_chat, null);
-        Drawable background_bubble = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.background_content_chat_bubble, null);
-
-        animate = new CommsAnimation(animations, root.findViewById(R.id.viewBackground), background_flat, background_bubble);
 
         root.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             Rect r = new Rect();
