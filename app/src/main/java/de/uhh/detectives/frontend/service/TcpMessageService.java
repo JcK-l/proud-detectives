@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
@@ -17,20 +18,30 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import de.uhh.detectives.frontend.model.ChatMessage;
-import de.uhh.detectives.frontend.event.ChatMessageEvent;
-import de.uhh.detectives.frontend.model.ParsedMessage;
+import de.uhh.detectives.frontend.model.Message.MessageType;
+import de.uhh.detectives.frontend.model.Message.api.Message;
+import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
+import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
+import de.uhh.detectives.frontend.model.event.RegisterMessageEvent;
+import de.uhh.detectives.frontend.model.event.api.MessageEvent;
 
 public class TcpMessageService extends Service {
     private Looper serviceLooper;
     private final IBinder binder = new LocalBinder();
+    private List<MessageEvent> messageEventList = new ArrayList<>();
+    private UserData user;
 
     private final Object syncObject = new Object();
     private Socket socket = null;
     private BufferedReader in;
     ObjectOutputStream out;
     private final String host = "dos-wins-04.informatik.uni-hamburg.de";
+//    private final String host = "10.0.2.2";
     private final int port = 22527;
 
     public class LocalBinder extends Binder {
@@ -48,6 +59,8 @@ public class TcpMessageService extends Service {
         // background priority so CPU-intensive work doesn't disrupt our UI.
         Thread threadTcpConnection = new Thread(establishTcpConnection());
         threadTcpConnection.start();
+
+        messageEventList.addAll(Arrays.asList(new ChatMessageEvent(), new JoinGameMessageEvent(), new RegisterMessageEvent()));
     }
 
     @Override
@@ -71,17 +84,16 @@ public class TcpMessageService extends Service {
         Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
     }
 
-    public void sendMessageToServer(final ChatMessage message) {
+    public void sendMessageToServer(final Message message) {
         final Thread thread = new Thread(sendMessage(message));
         thread.start();
     }
 
-    public void syncDatabase(){
-        // TODO:
-        return;
+    public void setUser(UserData user) {
+        this.user = user;
     }
 
-    public void registerUser() {
+    public void syncDatabase(){
         // TODO:
         return;
     }
@@ -91,9 +103,10 @@ public class TcpMessageService extends Service {
         return;
     }
 
-    private Runnable sendMessage(final ChatMessage message) {
+    private Runnable sendMessage(final Message message) {
         return () -> {
             try {
+                out.writeObject("OPEN_CONNECTION_FOR:" + user.getUserId());
                 out.writeObject(message.toString());
             } catch (IOException ignored) {
                 // handle connection failure
@@ -114,23 +127,23 @@ public class TcpMessageService extends Service {
             while(true){
                 try {
                     serverInput = in.readLine();
-                    ParsedMessage parsedMessage = new ParsedMessage(serverInput);
-                    switch (parsedMessage.getMessageType()){
-                        case CHAT_MESSAGE:
-                            ChatMessage chatMessage = new ChatMessage(parsedMessage);
-                            ChatMessageEvent chatMessageEvent = new ChatMessageEvent(chatMessage);
-                            EventBus.getDefault().post(chatMessageEvent);
-                            break;
-                        case REGISTER_MESSAGE:
-                            break;
-                        case UNKNOWN:
-                            break;
+                    Log.i("Message", "got Message: " + serverInput);
+                    MessageType messageType = MessageType.valueOf(getMessageTypeFromResponse(serverInput));
+                    for (final MessageEvent messageEvent : messageEventList) {
+                        if (messageEvent.accepts(messageType)) {
+                            EventBus.getDefault().post(messageEvent.generateMessageEvent(serverInput));
+                        }
                     }
-                } catch (IOException e) {
+                } catch (IOException | IllegalArgumentException e) {
                     e.printStackTrace();
                 }
             }
         };
+    }
+
+    private String getMessageTypeFromResponse(String serverInput) {
+        String[] tokens = serverInput.split(";");
+        return tokens[0].substring(tokens[0].indexOf(":") + 1);
     }
 
     private Runnable establishTcpConnection() {

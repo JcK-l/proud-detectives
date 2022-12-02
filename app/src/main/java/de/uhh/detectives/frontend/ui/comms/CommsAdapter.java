@@ -11,7 +11,7 @@ import java.util.List;
 
 import de.uhh.detectives.frontend.databinding.ItemContainerRecievedMessageBinding;
 import de.uhh.detectives.frontend.databinding.ItemContainerSentMassageBinding;
-import de.uhh.detectives.frontend.model.ChatMessage;
+import de.uhh.detectives.frontend.model.Message.ChatMessage;
 
 public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final List<ChatMessage> chatMessages;
