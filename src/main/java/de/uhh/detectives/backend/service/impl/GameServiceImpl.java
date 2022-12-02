@@ -71,7 +71,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game startGame(final Long userIdOfStartingUser, final Float longitudeOfUser, final Float latitudeOfUser) {
+    public Game startGame(final Long userIdOfStartingUser, final Double longitudeOfUser, final Double latitudeOfUser) {
         final Game game = findActiveGameForUser(userIdOfStartingUser);
         if (game == null) {
             LOG.error(String.format("No game found for user %d, so none can be started!", userIdOfStartingUser));
@@ -172,7 +172,7 @@ public class GameServiceImpl implements GameService {
         game.setHints(allHints);
     }
 
-    private void generateHintLocations(final Game game, final Float longitudeOfUser, final Float latitudeOfUser) {
+    private void generateHintLocations(final Game game, final Double longitudeOfUser, final Double latitudeOfUser) {
         // TODO define playing area
         // TODO generate random points in playing area for hint locations
         // for now put them all on start

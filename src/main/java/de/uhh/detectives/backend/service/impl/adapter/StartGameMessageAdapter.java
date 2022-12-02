@@ -23,8 +23,8 @@ public class StartGameMessageAdapter extends AbstractMessageAdapter {
 
         final StartGameMessage startGameMessage = new StartGameMessage();
         startGameMessage.setUserId(readLong(fields[INDEX_USER_ID]));
-        startGameMessage.setLongitude(readFloat(fields[INDEX_LONGITUDE]));
-        startGameMessage.setLatitude(readFloat(fields[INDEX_LATITUDE]));
+        startGameMessage.setLongitude(readDouble(fields[INDEX_LONGITUDE]));
+        startGameMessage.setLatitude(readDouble(fields[INDEX_LATITUDE]));
         return startGameMessage;
     }
 }

@@ -231,7 +231,7 @@ public class GameServiceImplTest {
         when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
 
         // when
-        final Game result = testee.startGame(USER_ID, 9.993682f, 53.551086f);
+        final Game result = testee.startGame(USER_ID, 9.993682d, 53.551086d);
 
         // then
         verify(playerRepository).findById(anyLong());
@@ -270,7 +270,7 @@ public class GameServiceImplTest {
         when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
 
         // when
-        final Game result = testee.startGame(1L, 9.993682f, 53.551086f);
+        final Game result = testee.startGame(1L, 9.993682d, 53.551086d);
 
         // then
         verify(playerRepository).findById(anyLong());

@@ -14,7 +14,7 @@ public abstract class AbstractMessageAdapter implements MessageAdapter {
         return Long.parseLong(longString);
     }
 
-    protected Float readFloat(final String floatString) {
-        return Float.parseFloat(floatString);
+    protected Double readDouble(final String DoubleString) {
+        return Double.parseDouble(DoubleString);
     }
 }

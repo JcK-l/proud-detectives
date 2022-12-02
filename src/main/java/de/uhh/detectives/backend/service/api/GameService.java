@@ -43,5 +43,5 @@ public interface GameService {
      * @param latitudeOfUser Latitude of user Location
      * @return started game
      */
-    Game startGame(final Long userIdOfStartingUser, final Float longitudeOfUser, final Float latitudeOfUser);
+    Game startGame(final Long userIdOfStartingUser, final Double longitudeOfUser, final Double latitudeOfUser);
 }

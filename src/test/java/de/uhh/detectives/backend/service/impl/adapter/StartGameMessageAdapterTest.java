@@ -37,8 +37,8 @@ public class StartGameMessageAdapterTest {
 
         final StartGameMessage expected = new StartGameMessage();
         expected.setUserId(123456789L);
-        expected.setLongitude(-0.158670367f);
-        expected.setLatitude(51.52406527f);
+        expected.setLongitude(-0.158670367d);
+        expected.setLatitude(51.52406527d);
 
         // when
         final Message message = testee.constructFromFields(fields);

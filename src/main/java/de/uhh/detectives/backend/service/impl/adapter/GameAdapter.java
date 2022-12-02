@@ -68,8 +68,8 @@ public class GameAdapter {
         appendValueForIdentifier(builder, identifier, value);
     }
 
-    private void appendValueForIdentifier(final StringBuilder builder, final String identifier, final Float floatValue) {
-        final String value = floatValue == null ? "null" : floatValue.toString();
+    private void appendValueForIdentifier(final StringBuilder builder, final String identifier, final Double doubleValue) {
+        final String value = doubleValue == null ? "null" : doubleValue.toString();
         appendValueForIdentifier(builder, identifier, value);
     }
 

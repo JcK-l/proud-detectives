@@ -13,8 +13,8 @@ public class StartGameMessage implements Serializable, Message {
     private static final long serialVersionUID = 5602367142978805368L;
 
     private Long userId;
-    private Float longitude;
-    private Float latitude;
+    private Double longitude;
+    private Double latitude;
 
     @Override
     public MessageType getType() {

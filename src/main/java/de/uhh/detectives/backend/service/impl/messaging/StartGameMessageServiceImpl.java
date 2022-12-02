@@ -37,8 +37,8 @@ public class StartGameMessageServiceImpl implements MessageService {
     public String handle(final Message message) {
         final StartGameMessage startGameMessage = (StartGameMessage) message;
         final Long userId = startGameMessage.getUserId();
-        final Float latitude = startGameMessage.getLatitude();
-        final Float longitude = startGameMessage.getLongitude();
+        final Double latitude = startGameMessage.getLatitude();
+        final Double longitude = startGameMessage.getLongitude();
         final Game game = gameService.startGame(userId, longitude, latitude);
         if (game == null) {
             return "TYPE:" + MessageType.START_GAME_MESSAGE + ";status=418;gameId=null";

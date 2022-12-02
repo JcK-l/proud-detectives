@@ -38,11 +38,11 @@ public class GameAdapterTest {
         final Hint hint1 = new Hint(Culprit.DENNIS_GATOW);
         hint1.setPossessor(player1);
         final Hint hint2 = new Hint(Location.SPEISEZIMMER);
-        hint2.setLongitude(9.985102f);
-        hint2.setLatitude(53.541350f);
+        hint2.setLongitude(9.985102d);
+        hint2.setLatitude(53.541350d);
         final Hint hint3 = new Hint(Culprit.KLARA_PORZ);
-        hint3.setLongitude(9.994611f);
-        hint3.setLatitude(53.540005f);
+        hint3.setLongitude(9.994611d);
+        hint3.setLatitude(53.540005d);
         final Hint hint4 = new Hint(Weapon.DOLCH);
         hint4.setPossessor(player2);
         final Hint hint5 = new Hint(Weapon.SEIL);
@@ -50,11 +50,11 @@ public class GameAdapterTest {
         final Hint hint6 = new Hint(Location.EINGANGSHALLE);
         hint6.setPossessor(player4);
         final Hint hint7 = new Hint(Weapon.PISTOLE);
-        hint7.setLongitude(9.996113f);
-        hint7.setLatitude(53.540358f);
+        hint7.setLongitude(9.996113d);
+        hint7.setLatitude(53.540358d);
         final Hint hint8 = new Hint(Weapon.PISTOLE);
-        hint7.setLongitude(9.993576f);
-        hint7.setLatitude(53.539909f);
+        hint7.setLongitude(9.993576d);
+        hint7.setLatitude(53.539909d);
         game.setHints(Arrays.asList(hint1, hint2, hint3, hint4, hint5, hint6, hint7, hint8));
 
 
@@ -71,7 +71,7 @@ public class GameAdapterTest {
                     "category=Weapon;description=Dolch;possessorId=234;longitude=null;latitude=null;" +
                     "category=Weapon;description=Seil;possessorId=345;longitude=null;latitude=null;" +
                     "category=Location;description=Eingangshalle;possessorId=456;longitude=null;latitude=null;" +
-                    "category=Weapon;description=Pistole;possessorId=null;longitude=9.993576;latitude=53.53991;" +
+                    "category=Weapon;description=Pistole;possessorId=null;longitude=9.993576;latitude=53.539909;" +
                     "category=Weapon;description=Pistole;possessorId=null;longitude=null;latitude=null;" +
                 "]", actual);
     }

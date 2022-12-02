@@ -47,8 +47,8 @@ public class StartGameMessageServiceImplTest {
     public void testHandleNoGameFoundToStart(){
         // given
         final Long playerId = 123456789L;
-        final Float playerLongitude = -0.158670367f;
-        final Float playerLatitude = 51.52406527f;
+        final Double playerLongitude = -0.158670367d;
+        final Double playerLatitude = 51.52406527d;
         final StartGameMessage startGameMessage = new StartGameMessage();
         startGameMessage.setUserId(playerId);
         startGameMessage.setLongitude(playerLongitude);
@@ -68,8 +68,8 @@ public class StartGameMessageServiceImplTest {
     public void testHandle(){
         // given
         final Long playerId = 123456789L;
-        final Float playerLongitude = -0.158670367f;
-        final Float playerLatitude = 51.52406527f;
+        final Double playerLongitude = -0.158670367d;
+        final Double playerLatitude = 51.52406527d;
         final StartGameMessage startGameMessage = new StartGameMessage();
         startGameMessage.setUserId(playerId);
         startGameMessage.setLongitude(playerLongitude);

@@ -10,8 +10,8 @@ public class Hint {
     private HintItem item;
     private Player possessor;
 
-    private Float longitude;
-    private Float latitude;
+    private Double longitude;
+    private Double latitude;
 
     public Hint(final HintItem item) {
         this.item = item;
