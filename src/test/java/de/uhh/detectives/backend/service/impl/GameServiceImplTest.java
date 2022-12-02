@@ -213,7 +213,7 @@ public class GameServiceImplTest {
     public void testStartGame() {
         // given
         final Player player1 = new Player();
-        player1.setId(1L);
+        player1.setId(USER_ID);
         when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player1));
         final Player player2 = new Player();
         player2.setId(2L);
@@ -231,7 +231,7 @@ public class GameServiceImplTest {
         when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
 
         // when
-        final Game result = testee.startGame(gameId, 9.993682f, 53.551086f);
+        final Game result = testee.startGame(USER_ID, 9.993682f, 53.551086f);
 
         // then
         verify(playerRepository).findById(anyLong());
@@ -246,5 +246,36 @@ public class GameServiceImplTest {
         final List<Hint> hintsInRandomLocations = result.getHints().stream()
                 .filter(hint -> hint.getLatitude() != null && hint.getLongitude() != null).toList();
         assertEquals(36, hintsInRandomLocations.size());
+    }
+
+    @Test
+    public void testStartGamePlayerHasNoGame() {
+        // given
+        final Player player1 = new Player();
+        player1.setId(1L);
+        when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player1));
+        final Player player2 = new Player();
+        player2.setId(2L);
+        final Player player3 = new Player();
+        player3.setId(3L);
+        final Player player4 = new Player();
+        player4.setId(4L);
+
+        final Long gameId = 11111111L;
+        final Game game = new Game(gameId);
+        game.setWeapon("Pistole");
+        game.setLocation("Arbeitszimmer");
+        game.setCulprit("Tom Gruen");
+        game.setParticipants(Arrays.asList(player2, player3, player4));
+        when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
+
+        // when
+        final Game result = testee.startGame(1L, 9.993682f, 53.551086f);
+
+        // then
+        verify(playerRepository).findById(anyLong());
+        verify(gameRepository).findAllByCompletedFalse();
+        verify(gameRepository, times(0)).save(any());
+        assertNull(result);
     }
 }

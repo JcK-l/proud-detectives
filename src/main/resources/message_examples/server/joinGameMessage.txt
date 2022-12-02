@@ -1,0 +1,3 @@
+TYPE:JOIN_GAME;status=418;gameId=null
+
+TYPE:JOIN_GAME;status=200;gameId=111111111
