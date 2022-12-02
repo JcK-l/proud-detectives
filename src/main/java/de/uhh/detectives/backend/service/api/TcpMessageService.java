@@ -12,7 +12,6 @@ public interface TcpMessageService {
      *
      * @param message the message that was sent from the client
      * @return a return message as String from the server or NULL
-     *         return messages have the same format as incoming messages
      */
     String receiveMessage(final String message);
 

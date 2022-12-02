@@ -79,4 +79,22 @@ public class JoinGameMessageServiceImplTest {
         assertEquals("TYPE:JOIN_GAME_MESSAGE;status=200;gameId=111111111", result);
     }
 
+    @Test
+    public void testHandlePlayerAlreadyInGame() {
+        // given
+        final Long playerId = 123456789L;
+        final JoinGameMessage joinGameMessage = new JoinGameMessage();
+        joinGameMessage.setSenderId(playerId);
+
+        when(gameService.isJoinableGameAvailable()).thenReturn(true);
+        when(gameService.registerPlayer(eq(playerId))).thenReturn(null);
+
+        // when
+        final String result = testee.handle(joinGameMessage);
+
+        // then
+        verify(gameService).registerPlayer(eq(playerId));
+        assertEquals("TYPE:JOIN_GAME_MESSAGE;status=418;gameId=null", result);
+    }
+
 }

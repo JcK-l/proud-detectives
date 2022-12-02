@@ -66,7 +66,6 @@ public class ClientHandler implements Runnable {
     }
 
     private void broadcastToOtherPlayers(final String toBroadcast, final Game game) {
-        out.println(toBroadcast);
         if (toBroadcast != null && game != null) {
             final Set<Long> userIds = game.getParticipants().stream().map(Player::getId).collect(Collectors.toSet());
             userIds.remove(clientUserId);
