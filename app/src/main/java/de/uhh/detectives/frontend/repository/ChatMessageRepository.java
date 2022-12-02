@@ -6,8 +6,7 @@ import androidx.room.Query;
 
 import java.util.List;
 
-import de.uhh.detectives.frontend.model.ChatMessage;
-import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.model.Message.ChatMessage;
 
 @Dao
 public interface ChatMessageRepository {

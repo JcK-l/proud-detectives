@@ -26,8 +26,8 @@ import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCommsBinding;
 import de.uhh.detectives.frontend.databinding.FragmentCommsSoftkeyboardBinding;
-import de.uhh.detectives.frontend.event.ChatMessageEvent;
-import de.uhh.detectives.frontend.model.ChatMessage;
+import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
+import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
@@ -36,19 +36,10 @@ public class CommsFragment extends Fragment {
 
     private final ServiceConnection connection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
-            // This is called when the connection with the service has been
-            // established, giving us the service object we can use to
-            // interact with the service.  Because we have bound to a explicit
-            // service that we know is running in our own process, we can
-            // cast its IBinder to a concrete class and directly access it.
             tcpMessageService = ((TcpMessageService.LocalBinder)service).getService();
         }
 
         public void onServiceDisconnected(ComponentName className) {
-            // This is called when the connection with the service has been
-            // unexpectedly disconnected -- that is, its process crashed.
-            // Because it is running in our same process, we should never
-            // see this happen.
             tcpMessageService = null;
         }
     };
@@ -112,7 +103,7 @@ public class CommsFragment extends Fragment {
         binding.layoutSend.setOnClickListener(v -> {
             final String input = binding.inputMessage.getText().toString();
             if (!input.isEmpty()){
-                ChatMessage chatMessage = new ChatMessage(user.getUserId(), input);
+                ChatMessage chatMessage = new ChatMessage(user,null,input);
                 tcpMessageService.sendMessageToServer(chatMessage);
                 binding.inputMessage.setText(null);
             }
