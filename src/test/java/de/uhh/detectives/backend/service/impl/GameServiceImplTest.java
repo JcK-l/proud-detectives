@@ -5,24 +5,29 @@ import de.uhh.detectives.backend.model.entity.Game;
 import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.repository.GameRepository;
 import de.uhh.detectives.backend.repository.PlayerRepository;
+import de.uhh.detectives.backend.service.api.LocationGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.geo.Point;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -40,6 +45,9 @@ public class GameServiceImplTest {
 
     @Mock
     private PlayerRepository playerRepository;
+
+    @Mock
+    private LocationGenerator locationGenerator;
     
     private static final Long USER_ID = 123L;
 
@@ -230,6 +238,15 @@ public class GameServiceImplTest {
         game.setParticipants(Arrays.asList(player1, player2, player3, player4));
         when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
 
+        final Point location1 = new Point(9.994611d, 53.540005d);
+        final Point location2 = new Point(9.985102d, 53.541350d);
+        when(locationGenerator.generateInCircle(any(), anyInt(), anyInt(), any()))
+                .thenReturn(Arrays.asList(
+                        location1, location2, location1, location2, location1, location2, location1, location2, location1, location2,
+                        location1, location2, location1, location2, location1, location2, location1, location2, location1, location2,
+                        location1, location2, location1, location2, location1, location2, location1, location2, location1, location2,
+                        location1, location2, location1, location2, location1, location2));
+
         // when
         final Game result = testee.startGame(USER_ID, 9.993682d, 53.551086d);
 
@@ -246,6 +263,14 @@ public class GameServiceImplTest {
         final List<Hint> hintsInRandomLocations = result.getHints().stream()
                 .filter(hint -> hint.getLatitude() != null && hint.getLongitude() != null).toList();
         assertEquals(36, hintsInRandomLocations.size());
+        final Set<Double> longitudes = hintsInRandomLocations.stream().map(Hint::getLongitude).collect(Collectors.toSet());
+        assertEquals(2, longitudes.size());
+        assertTrue(longitudes.contains(9.994611d));
+        assertTrue(longitudes.contains(9.985102d));
+        final Set<Double> latitudes = hintsInRandomLocations.stream().map(Hint::getLatitude).collect(Collectors.toSet());
+        assertEquals(2, latitudes.size());
+        assertTrue(latitudes.contains(53.540005d));
+        assertTrue(latitudes.contains(53.541350d));
     }
 
     @Test

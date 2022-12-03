@@ -9,8 +9,10 @@ import de.uhh.detectives.backend.model.enumeration.Weapon;
 import de.uhh.detectives.backend.repository.GameRepository;
 import de.uhh.detectives.backend.repository.PlayerRepository;
 import de.uhh.detectives.backend.service.api.GameService;
+import de.uhh.detectives.backend.service.api.LocationGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,12 +26,16 @@ public class GameServiceImpl implements GameService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GameServiceImpl.class);
 
+    private static final int PLAYING_AREA_RADIUS_IN_METER = 2000;
+
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
+    private final LocationGenerator locationGenerator;
 
-    public GameServiceImpl(final GameRepository gameRepository, final PlayerRepository playerRepository) {
+    public GameServiceImpl(final GameRepository gameRepository, final PlayerRepository playerRepository, final LocationGenerator locationGenerator) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
+        this.locationGenerator = locationGenerator;
     }
 
     @Override
@@ -165,7 +171,7 @@ public class GameServiceImpl implements GameService {
         final List<Hint> allHints = new ArrayList<>();
         for (final Hint hint : game.getHints()) {
             if (hint.getPossessor() == null) {
-               allHints.add(hint);
+                allHints.add(new Hint(hint.getItem()));
             }
             allHints.add(hint);
         }
@@ -173,14 +179,17 @@ public class GameServiceImpl implements GameService {
     }
 
     private void generateHintLocations(final Game game, final Double longitudeOfUser, final Double latitudeOfUser) {
-        // TODO define playing area
-        // TODO generate random points in playing area for hint locations
-        // for now put them all on start
-        for (final Hint hint : game.getHints()) {
-            if (hint.getPossessor() == null) {
-                hint.setLongitude(longitudeOfUser);
-                hint.setLatitude(latitudeOfUser);
-            }
+        final Point center = new Point(longitudeOfUser, latitudeOfUser);
+        final List<Hint> hintsWithoutPossessors = game.getHints().stream()
+                .filter(hint -> hint.getPossessor() == null)
+                .toList();
+        final Random random = ThreadLocalRandom.current();
+        final List<Point> randomLocations = locationGenerator.generateInCircle(center, PLAYING_AREA_RADIUS_IN_METER,
+                hintsWithoutPossessors.size(), random);
+
+        for (int i = 0; i < hintsWithoutPossessors.size(); i++) {
+            hintsWithoutPossessors.get(i).setLongitude(randomLocations.get(i).getX());
+            hintsWithoutPossessors.get(i).setLatitude(randomLocations.get(i).getY());
         }
     }
 }
