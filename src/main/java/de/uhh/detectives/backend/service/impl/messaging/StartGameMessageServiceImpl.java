@@ -50,6 +50,7 @@ public class StartGameMessageServiceImpl implements MessageService {
     }
 
     private String getPlayerPseudonyms(final List<Player> players) {
-        return Strings.join(players, ',');
+        final List<String> pseudonyms = players.stream().map(Player::getPseudonym).toList();
+        return Strings.join(pseudonyms, ',');
     }
 }
