@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -20,18 +21,33 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCommsBinding;
 import de.uhh.detectives.frontend.databinding.FragmentCommsSoftkeyboardBinding;
-import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class CommsFragment extends Fragment {
+
+    private AppDatabase db;
+    private  UserData user;
+
+    private FragmentCommsBinding binding;
+    private FragmentCommsSoftkeyboardBinding bindingTransition;
+
+    private List<ChatMessage> chatMessages;
+
+    private BottomNavigationView navBar;
+    private CommsAnimation animate;
+    private ViewPager2 viewPager2;
+    private ViewPagerAdapter viewPagerAdapter;
+
     private TcpMessageService tcpMessageService;
 
     private final ServiceConnection connection = new ServiceConnection() {
@@ -44,19 +60,6 @@ public class CommsFragment extends Fragment {
         }
     };
 
-    private AppDatabase db;
-    private UserData user;
-    private FragmentCommsBinding binding;
-    private FragmentCommsSoftkeyboardBinding bindingTransition;
-
-    private List<ChatMessage> chatMessages;
-
-    private CommsAdapter commsAdapter;
-    private BottomNavigationView navBar;
-    private CommsAnimation animate;
-
-    private static final Long DUMMY_USER_ID = 123456789L;
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -64,6 +67,7 @@ public class CommsFragment extends Fragment {
 
         Intent intent = new Intent(getActivity(), TcpMessageService.class);
         getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
         EventBus.getDefault().register(this);
 
         binding = FragmentCommsBinding.inflate(getLayoutInflater());
@@ -83,8 +87,23 @@ public class CommsFragment extends Fragment {
     }
 
     private void initChat(View root){
-        commsAdapter = new CommsAdapter(chatMessages, user.getUserId());
-        binding.chatRecyclerView.setAdapter(commsAdapter);
+
+        viewPager2 = root.findViewById(R.id.viewPager);
+
+        viewPagerAdapter = new ViewPagerAdapter(getContext(), new ArrayList<>(), chatMessages, getActivity());
+
+        viewPager2.setAdapter(viewPagerAdapter);
+
+        binding.layoutSend.setOnClickListener(
+            view -> {
+                final String input = binding.inputMessage.getText().toString();
+                if (!input.isEmpty()){
+                    binding.inputMessage.setText(null);
+                    ChatMessage chatMessage = new ChatMessage(user,null,input);
+                    tcpMessageService.sendMessageToServer(chatMessage);
+                }
+            });
+
 
         root.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             Rect r = new Rect();
@@ -100,20 +119,12 @@ public class CommsFragment extends Fragment {
                 navBar.setVisibility(View.VISIBLE);
             }
         });
-        binding.layoutSend.setOnClickListener(v -> {
-            final String input = binding.inputMessage.getText().toString();
-            if (!input.isEmpty()){
-                ChatMessage chatMessage = new ChatMessage(user,null,input);
-                tcpMessageService.sendMessageToServer(chatMessage);
-                binding.inputMessage.setText(null);
-            }
-        });
     }
 
     private void sendMessageToUi(final ChatMessage chatMessage) {
         chatMessages.add(chatMessage);
-        commsAdapter.notifyItemInserted(chatMessages.size());
-        binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size());
+        viewPagerAdapter.notifyDataSetChanged();
+//        binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size());
     }
 
 
@@ -127,7 +138,7 @@ public class CommsFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getActivity().unbindService(connection);
         EventBus.getDefault().unregister(this);
+        getActivity().unbindService(connection);
     }
 }
