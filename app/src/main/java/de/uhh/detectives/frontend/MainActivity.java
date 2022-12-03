@@ -12,8 +12,7 @@ import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
-import de.uhh.detectives.frontend.location.api.LocationHandler;
-import de.uhh.detectives.frontend.location.impl.LocationHandlerImpl;
+import de.uhh.detectives.frontend.location.LocationHandler;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.repository.UserDataRepository;
 
@@ -29,21 +28,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        locationHandler = new LocationHandler(this, savedInstanceState);
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        locationHandler = new LocationHandlerImpl(this.getApplicationContext(), this);
-
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(
                     R.id.cluesGuessesFragment,
                     R.id.hintsFragment,
-                    R.id.mapsFragment,
                     R.id.commsFragment)
                 .build();
-
+        locationHandler.setMapGeofence(this);
         final NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment_activity_main);
         Objects.requireNonNull(navHostFragment);
@@ -56,10 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
     public Long getGameStartTime() {
         return gameStartTime;
-    }
-
-    public LocationHandler getLocationHandler() {
-        return locationHandler;
     }
 
     private void setUpDatabase() {
