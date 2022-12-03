@@ -1,5 +1,6 @@
 package de.uhh.detectives.frontend;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,13 +16,11 @@ import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
+import de.uhh.detectives.frontend.location.LocationHandler;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
-import de.uhh.detectives.frontend.location.LocationHandler;
-import de.uhh.detectives.frontend.model.UserData;
-import de.uhh.detectives.frontend.repository.UserDataRepository;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,8 +53,6 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        locationHandler = new LocationHandlerImpl(this.getApplicationContext(), this);
-
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(
                     R.id.cluesGuessesFragment,
@@ -69,16 +66,11 @@ public class MainActivity extends AppCompatActivity {
         final NavController navController = navHostFragment.getNavController();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
-
-        setUpDatabase();
     }
 
     public Long getGameStartTime() {
         return gameStartTime;
     }
-
-    private void setUpDatabase() {
-        db = AppDatabase.getDatabase(getApplicationContext());
 
     @Subscribe
     public void addChatmessageToDatabase(ChatMessageEvent chatMessageEvent) {
