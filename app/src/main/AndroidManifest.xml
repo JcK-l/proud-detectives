@@ -33,6 +33,9 @@
         <activity
             android:name=".LoginActivity"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".WaitingRoomActivity"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

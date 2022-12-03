@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,8 +14,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
+import de.uhh.detectives.frontend.databinding.ActivityLoginJoinGameBinding;
 import de.uhh.detectives.frontend.databinding.ActivityLoginRegisterBinding;
-import de.uhh.detectives.frontend.databinding.ActivityLoginStartgameBinding;
 import de.uhh.detectives.frontend.model.Message.JoinGameMessage;
 import de.uhh.detectives.frontend.model.Message.RegisterMessage;
 import de.uhh.detectives.frontend.model.UserData;
@@ -28,7 +27,7 @@ import de.uhh.detectives.frontend.service.TcpMessageService;
 public class LoginActivity extends AppCompatActivity {
 
     private ActivityLoginRegisterBinding bindingRegister;
-    private ActivityLoginStartgameBinding bindingStartgame;
+    private ActivityLoginJoinGameBinding bindingJoinGame;
     private TcpMessageService tcpMessageService;
     private UserDataRepository userDataRepository;
 
@@ -58,10 +57,10 @@ public class LoginActivity extends AppCompatActivity {
         db = AppDatabase.getDatabase(getApplicationContext());
         userDataRepository = db.getUserDataRepository();
 
-        bindingStartgame = ActivityLoginStartgameBinding.inflate(getLayoutInflater());
+        bindingJoinGame = ActivityLoginJoinGameBinding.inflate(getLayoutInflater());
 
         if (userDataRepository.findFirst() == null) {
-            user = new UserData(System.currentTimeMillis(), "testPseudonym", "testPrename", "testSurname");
+            user = new UserData(System.currentTimeMillis(), "Tim", "testPrename", "testSurname");
 
             bindingRegister = ActivityLoginRegisterBinding.inflate(getLayoutInflater());
             setContentView(bindingRegister.getRoot());
@@ -74,10 +73,10 @@ public class LoginActivity extends AppCompatActivity {
             );
         } else {
             user = userDataRepository.findFirst();
-            setContentView(bindingStartgame.getRoot());
+            setContentView(bindingJoinGame.getRoot());
         }
 
-        bindingStartgame.buttonStartgame.setOnClickListener(
+        bindingJoinGame.buttonJoinGame.setOnClickListener(
                 view -> {
                     tcpMessageService.setUser(user);
                     tcpMessageService.sendMessageToServer(new JoinGameMessage(user));
@@ -97,25 +96,37 @@ public class LoginActivity extends AppCompatActivity {
         }
         userDataRepository.insertAll(user);
 
-        setContentView(bindingStartgame.getRoot());
+        setContentView(bindingJoinGame.getRoot());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void receiveMessageStartgame(final JoinGameMessageEvent joinGameMessageEvent) {
+    public void receiveMessageJoinGame(final JoinGameMessageEvent joinGameMessageEvent) {
         JoinGameMessage joinGameMessage = joinGameMessageEvent.getMessage();
 
         // Server is a teapot
         if (joinGameMessage.getStatus() == 418) {
+            startWaitingRoom(new String[0]);
             finish();
             return;
         }
+
+        assert joinGameMessage.getPlayerNames() != null;
+        int namesCount = joinGameMessage.getPlayerNames().size();
+        String[] names = joinGameMessage.getPlayerNames().toArray(new String[namesCount]);
 
         if (!(joinGameMessage.getStatus() == 200)) {
             tcpMessageService.sendMessageToServer(new JoinGameMessage(user));
             return;
         }
 
+        startWaitingRoom(names);
         finish();
+    }
+
+    private void startWaitingRoom(String[] names) {
+        Intent intentWaitingRoom = new Intent(this, WaitingRoomActivity.class);
+        intentWaitingRoom.putExtra("names", names);
+        startActivity(intentWaitingRoom);
     }
 
     @Override

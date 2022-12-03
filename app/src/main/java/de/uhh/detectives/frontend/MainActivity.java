@@ -19,7 +19,9 @@ import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
 import de.uhh.detectives.frontend.location.api.LocationHandler;
 import de.uhh.detectives.frontend.location.impl.LocationHandlerImpl;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
+import de.uhh.detectives.frontend.model.Message.StartGameMessage;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
+import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
@@ -43,9 +45,8 @@ public class MainActivity extends AppCompatActivity {
         Intent intentService = new Intent(this, TcpMessageService.class);
         startService(intentService);
 
-        Intent intentActivity = new Intent(this, LoginActivity.class);
-        startActivity(intentActivity);
-
+        Intent intentLogin = new Intent(this, LoginActivity.class);
+        startActivity(intentLogin);
 
         db = AppDatabase.getDatabase(getApplicationContext());
         chatMessageRepository = db.getChatMessageRepository();
@@ -85,6 +86,11 @@ public class MainActivity extends AppCompatActivity {
     public void addChatmessageToDatabase(ChatMessageEvent chatMessageEvent) {
         ChatMessage chatMessage = chatMessageEvent.getMessage();
         chatMessageRepository.insert(chatMessage);
+    }
+
+    @Subscribe
+    public void doSomethingWithStartGameEvent(StartGameMessageEvent startGameMessageEvent) {
+        StartGameMessage chatMessage = startGameMessageEvent.getMessage();
     }
 
     @Override

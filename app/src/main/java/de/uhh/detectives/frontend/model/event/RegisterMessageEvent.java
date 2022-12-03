@@ -13,6 +13,7 @@ public class RegisterMessageEvent implements MessageEvent {
         this.message = message;
     }
 
+    @Override
     public RegisterMessage getMessage() {
         return message;
     }

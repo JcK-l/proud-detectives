@@ -50,15 +50,11 @@ public class ChatMessage implements Serializable, Message {
             tokens[i] = tokens[i].substring(tokens[i].indexOf("=") + 1);
         }
 
-        try {
-            this.senderId = Long.parseLong(tokens[1]);
-            this.receiverId = (tokens[2].equals("null")) ? null : Long.parseLong(tokens[2]);
-            this.message = tokens[3];
-            this.timestamp = Long.parseLong(tokens[4]);
-            this.pseudonym = tokens[5];
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.senderId = Long.parseLong(tokens[1]);
+        this.receiverId = (tokens[2].equals("null")) ? null : Long.parseLong(tokens[2]);
+        this.message = tokens[3];
+        this.timestamp = Long.parseLong(tokens[4]);
+        this.pseudonym = tokens[5];
         final long currentTime = System.currentTimeMillis();
         this.dateTime = SDF.format(new Date(currentTime));
     }
