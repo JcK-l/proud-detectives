@@ -38,7 +38,7 @@ public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     )
             );
         } else {
-            return new RecievedMessageViewHolder(
+            return new ReceivedMessageViewHolder(
                     ItemContainerRecievedMessageBinding.inflate(
                             LayoutInflater.from(parent.getContext()),
                             parent,
@@ -53,7 +53,7 @@ public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         if (getItemViewType(position) == VIEW_TYPE_SENT) {
             ((SentMessageViewHolder) holder).setData(chatMessages.get(position));
         } else {
-            ((RecievedMessageViewHolder) holder).setData(chatMessages.get(position));
+            ((ReceivedMessageViewHolder) holder).setData(chatMessages.get(position));
         }
     }
 
@@ -85,10 +85,10 @@ public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    static class RecievedMessageViewHolder extends RecyclerView.ViewHolder {
+    static class ReceivedMessageViewHolder extends RecyclerView.ViewHolder {
         private final ItemContainerRecievedMessageBinding binding;
 
-        RecievedMessageViewHolder
+        ReceivedMessageViewHolder
                 (ItemContainerRecievedMessageBinding itemContainerRecievedMessageBinding) {
             super(itemContainerRecievedMessageBinding.getRoot());
             binding = itemContainerRecievedMessageBinding;

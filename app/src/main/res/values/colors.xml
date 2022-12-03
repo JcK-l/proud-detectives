@@ -20,4 +20,6 @@
     <color name='icon_background'>#20FFFFFF</color>
     <color name='error'>#B00020</color>
     <color name='recieved_message_background'>#090D16</color>
+    <color name='on_map_background'>#128308</color>
+    <color name='left_map_background'>#B00020</color>
 </resources>

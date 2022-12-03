@@ -10,10 +10,6 @@
         android:icon="@drawable/ic_hints"
         android:title="Hints" />
     <item
-        android:id="@+id/mapsFragment"
-        android:icon="@drawable/ic_maps"
-        android:title="Map" />
-    <item
         android:id="@+id/commsFragment"
         android:icon="@drawable/ic_comms"
         android:title="Communication" />
