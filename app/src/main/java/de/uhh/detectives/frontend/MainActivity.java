@@ -8,10 +8,17 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
+import de.uhh.detectives.frontend.model.Message.ChatMessage;
+import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
+import de.uhh.detectives.frontend.repository.ChatMessageRepository;
+import de.uhh.detectives.frontend.service.TcpMessageService;
 import de.uhh.detectives.frontend.location.LocationHandler;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.repository.UserDataRepository;
@@ -23,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     // LocationHandler in MainActivity einmal initialisieren, um state zu halten
     private LocationHandler locationHandler;
+    private ChatMessageRepository chatMessageRepository;
 
     private final static Long gameStartTime = System.currentTimeMillis();
 
@@ -31,8 +39,22 @@ public class MainActivity extends AppCompatActivity {
         locationHandler = new LocationHandler(this, savedInstanceState);
         super.onCreate(savedInstanceState);
 
+        EventBus.getDefault().register(this);
+
+        Intent intentService = new Intent(this, TcpMessageService.class);
+        startService(intentService);
+
+        Intent intentActivity = new Intent(this, LoginActivity.class);
+        startActivity(intentActivity);
+
+
+        db = AppDatabase.getDatabase(getApplicationContext());
+        chatMessageRepository = db.getChatMessageRepository();
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        locationHandler = new LocationHandlerImpl(this.getApplicationContext(), this);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(
@@ -58,13 +80,15 @@ public class MainActivity extends AppCompatActivity {
     private void setUpDatabase() {
         db = AppDatabase.getDatabase(getApplicationContext());
 
-        // TODO: generate userId on start screen
-        // but for now lookup if there is a user already and if not, generate one
-        final UserDataRepository userDataRepository = db.getUserDataRepository();
-        if (userDataRepository.findFirst() == null) {
-            final UserData user = new UserData();
-            userDataRepository.insertAll(user);
-        }
+    @Subscribe
+    public void addChatmessageToDatabase(ChatMessageEvent chatMessageEvent) {
+        ChatMessage chatMessage = chatMessageEvent.getMessage();
+        chatMessageRepository.insert(chatMessage);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 }

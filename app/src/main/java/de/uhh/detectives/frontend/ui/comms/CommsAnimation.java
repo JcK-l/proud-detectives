@@ -1,38 +1,46 @@
 package de.uhh.detectives.frontend.ui.comms;
 
-import android.animation.ObjectAnimator;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
+import android.transition.TransitionManager;
 import android.view.View;
 
-import java.util.List;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
+
+import de.uhh.detectives.frontend.R;
 
 public class CommsAnimation {
     private boolean isOn;
     private boolean isOff;
-    private View background;
-    private Drawable background_flat;
-    private Drawable background_bubble;
 
-    final private List<ObjectAnimator> animations;
+    private ConstraintLayout constraintLayout;
+    private ConstraintLayout constraintLayoutTransition;
+    private ConstraintSet constraintSet1;
+    private ConstraintSet constraintSet2;
 
-    CommsAnimation(List<ObjectAnimator> animations, View background, Drawable background_flat, Drawable background_bubble) {
-        this.animations = animations;
-        this.background = background;
-        this.background_flat = background_flat;
-        this.background_bubble = background_bubble;
+    private View divider;
+
+    CommsAnimation(View root, View rootTransitition) {
+        this.constraintLayout = root.findViewById(R.id.constraint_comms);
+        this.constraintLayoutTransition = rootTransitition.findViewById(R.id.constraint_comms_transition);
+        this.constraintSet1 = new ConstraintSet();
+        this.constraintSet2 = new ConstraintSet();
         this.isOff = true;
         this.isOn = false;
 
-        animations.forEach(animation -> animation.setDuration(500));
+        constraintSet1.clone(constraintLayout);
+        constraintSet2.clone(constraintLayoutTransition);
+
+        divider = constraintLayout.findViewById(R.id.divider);
     }
 
     public void setKeyboardOn() {
         this.isOn = true;
         if (isOff) {
             isOff = false;
-            animations.forEach(ObjectAnimator::start);
-            background.setBackground(background_bubble);
+            TransitionManager.beginDelayedTransition(constraintLayout);
+            constraintSet2.applyTo(constraintLayout);
+            TransitionManager.endTransitions(constraintLayout);
+            divider.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -40,8 +48,10 @@ public class CommsAnimation {
         isOff = true;
         if (isOn) {
             isOn = false;
-            animations.forEach(ObjectAnimator::reverse);
-            background.setBackground(background_flat);
+            TransitionManager.beginDelayedTransition(constraintLayout);
+            constraintSet1.applyTo(constraintLayout);
+            TransitionManager.endTransitions(constraintLayout);
+            divider.setVisibility(View.VISIBLE);
         }
     }
 }

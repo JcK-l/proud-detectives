@@ -10,10 +10,34 @@ public class UserData implements Serializable {
     @PrimaryKey
     private long userId;
 
-    private String nickname;
+    private String pseudonym;
+    private String prename;
+    private String surname;
 
     public UserData() {
-        this.userId = System.currentTimeMillis();
+    }
+
+    public UserData(long userId, String pseudonym, String prename, String surname) {
+        this.userId = userId;
+        this.pseudonym = pseudonym;
+        this.prename = prename;
+        this.surname = surname;
+    }
+
+    public String getPrename() {
+        return prename;
+    }
+
+    public void setPrename(String prename) {
+        this.prename = prename;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
     public long getUserId() {
@@ -24,11 +48,11 @@ public class UserData implements Serializable {
         this.userId = userId;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getPseudonym() {
+        return pseudonym;
     }
 
-    public void setNickname(final String nickname) {
-        this.nickname = nickname;
+    public void setPseudonym(final String pseudonym) {
+        this.pseudonym = pseudonym;
     }
 }
