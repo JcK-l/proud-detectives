@@ -1,12 +1,16 @@
 package de.uhh.detectives.backend.service.impl.messaging;
 
 import de.uhh.detectives.backend.model.entity.Game;
+import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.model.messaging.JoinGameMessage;
 import de.uhh.detectives.backend.model.messaging.Message;
 import de.uhh.detectives.backend.service.api.GameService;
 import de.uhh.detectives.backend.service.api.messaging.MessageService;
 import de.uhh.detectives.backend.service.api.messaging.MessageType;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class JoinGameMessageServiceImpl implements MessageService {
@@ -34,7 +38,12 @@ public class JoinGameMessageServiceImpl implements MessageService {
             return "TYPE:" + MessageType.JOIN_GAME_MESSAGE + ";status=418;gameId=null";
         } else {
             final Long gameId = game.getGameId();
-            return "TYPE:" + MessageType.JOIN_GAME_MESSAGE + ";status=200;gameId=" + gameId;
+            return "TYPE:" + MessageType.JOIN_GAME_MESSAGE + ";status=200;gameId=" + gameId + ";players=" + getPlayerPseudonyms(game.getParticipants());
         }
+    }
+
+    private String getPlayerPseudonyms(final List<Player> players) {
+        final List<String> pseudonyms = players.stream().map(Player::getPseudonym).toList();
+        return Strings.join(pseudonyms, ',');
     }
 }
