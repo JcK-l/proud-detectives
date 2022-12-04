@@ -20,6 +20,9 @@
     <color name='icon_background'>#20FFFFFF</color>
     <color name='error'>#B00020</color>
     <color name='recieved_message_background'>#090D16</color>
-    <color name='on_map_background'>#128308</color>
-    <color name='left_map_background'>#B00020</color>
+    <color name='correct_guess'>#FF1FFF1F</color>
+    <color name='wrong_guess'>#FFFF1F1F</color>
+    <color name='mixed_guess'>#FFFFFF1F</color>
+    <color name='minesweeper_correct'>#AF1FFF1F</color>
+    <color name='minesweeper_wrong'>#AFFF1F1F</color>
 </resources>

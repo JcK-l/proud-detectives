@@ -4,5 +4,6 @@ public enum MessageType {
     UNKNOWN,
     CHAT_MESSAGE,
     REGISTER_MESSAGE,
-    JOIN_GAME_MESSAGE
+    JOIN_GAME_MESSAGE,
+    START_GAME_MESSAGE
 }
