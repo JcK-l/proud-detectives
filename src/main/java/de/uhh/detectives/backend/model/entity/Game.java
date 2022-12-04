@@ -23,6 +23,7 @@ public class Game implements Serializable {
 
     private Long gameId;
     private boolean completed;
+    private Long winnerId;
     private boolean started;
 
     private String culprit;
@@ -53,6 +54,14 @@ public class Game implements Serializable {
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    public Long getWinnerId() {
+        return winnerId;
+    }
+
+    public void setWinnerId(Long winnerId) {
+        this.winnerId = winnerId;
     }
 
     public boolean isStarted() {

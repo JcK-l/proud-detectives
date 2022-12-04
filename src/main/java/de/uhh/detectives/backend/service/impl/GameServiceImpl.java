@@ -110,6 +110,16 @@ public class GameServiceImpl implements GameService {
         return gamesForUser.get(0);
     }
 
+    @Override
+    public Game endGame(final Long winnerId) {
+        final Game game = findActiveGameForUser(winnerId);
+        game.setCompleted(true);
+        game.setWinnerId(winnerId);
+        LOG.info(String.format("Game %d ended and the winner was %d.", game.getGameId(), game.getWinnerId()));
+        gameRepository.saveAndFlush(game);
+        return game;
+    }
+
     private void generateSolution(final Game game) {
         final Random random = ThreadLocalRandom.current();
         final int culpritRandomIndex = random.nextInt(0, Culprit.values().length);
