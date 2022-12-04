@@ -1,6 +1,7 @@
 package de.uhh.detectives.frontend.model;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
@@ -17,6 +18,7 @@ public class UserData implements Serializable {
     public UserData() {
     }
 
+    @Ignore
     public UserData(long userId, String pseudonym, String prename, String surname) {
         this.userId = userId;
         this.pseudonym = pseudonym;

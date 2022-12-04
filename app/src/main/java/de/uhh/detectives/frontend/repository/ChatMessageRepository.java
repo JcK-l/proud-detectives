@@ -10,6 +10,10 @@ import de.uhh.detectives.frontend.model.Message.ChatMessage;
 
 @Dao
 public interface ChatMessageRepository {
+
+    @Query("DELETE FROM ChatMessage")
+    void deleteAll();
+
     @Insert
     void insertAll(final ChatMessage... messages);
 
