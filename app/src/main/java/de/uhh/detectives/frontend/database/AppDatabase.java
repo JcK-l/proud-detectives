@@ -18,7 +18,7 @@ import de.uhh.detectives.frontend.repository.SolutionRepository;
 import de.uhh.detectives.frontend.repository.UserDataRepository;
 
 @Database(entities = {UserData.class, ChatMessage.class, Player.class, Hint.class, Solution.class}
-        , version = 1, exportSchema = false)
+        , version = 2, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
@@ -34,6 +34,7 @@ public abstract class AppDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             INSTANCE = Room.databaseBuilder(context, AppDatabase.class, "detectives-db")
                     .allowMainThreadQueries()
+                    .fallbackToDestructiveMigration()
                     .build();
         }
         return INSTANCE;

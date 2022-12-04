@@ -1,73 +1,142 @@
 package de.uhh.detectives.frontend.location;
 
-
+import android.Manifest;
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
 
-import com.google.android.gms.common.api.ApiException;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofenceStatusCodes;
+import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.location.LocationServices;
+
+import de.uhh.detectives.frontend.location.impl.LocationHandlerImpl;
+import de.uhh.detectives.frontend.permissionhelper.LocationPermissionHandler;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
+
 
 public class GeofenceHandler extends ContextWrapper {
-    private PendingIntent pendingIntent;
-    private Context context;
+    private static final String KEY_LOCATION = "location";
+    private static final int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
+    private static final String TAG = "MapActivity";
 
-    public GeofenceHandler(Context base) {
-        super(base);
-        this.context = base;
-    }
+    private String geofenceID = "0";
 
-    public GeofencingRequest getGeofencingRequest(Geofence geofence) {
-        return new GeofencingRequest.Builder()
-                .addGeofence(geofence)
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_EXIT
-                        | GeofencingRequest.INITIAL_TRIGGER_ENTER)
-                .build();
-    }
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private Location lastKnownLocation;
 
-    public Geofence getGeofence(String ID, LatLng latLng, float radius, int transitionTypes) {
-        return new Geofence.Builder()
-                //Position and Radius of the Geofence
-                .setCircularRegion(latLng.latitude, latLng.longitude, radius)
-                //ID of the Geofence which is unique
-                .setRequestId(ID)
-                //set Transition-types of interest
-                .setTransitionTypes(transitionTypes)
-                //LoiteringDelay = after that Time(ms) Geofencing state is switched from enter to dwell
-                .setLoiteringDelay(3000)
-                //Our Circles will never expire
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .build();
-    }
+    private GeofencingClient geofencingClient;
+    private GeofenceHelper geofenceHelper;
+    private PushMessageHandler pushMessageHandler;
+    private LocationPermissionHandler locationPermissionHandler;
 
+    private LocationHandlerImpl locationHandler;
 
-    public PendingIntent getPendingIntent() {
-        if (pendingIntent != null) {
-            return pendingIntent;
+    public GeofenceHandler(final Activity activity, Bundle savedInstanceState) {
+        super(activity);
+        locationPermissionHandler = new LocationPermissionHandler(activity);
+        pushMessageHandler = new PushMessageHandler(activity);
+        //fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
+        geofencingClient = LocationServices.getGeofencingClient(activity);
+        geofenceHelper = new GeofenceHelper(activity);
+        locationHandler = new LocationHandlerImpl(activity.getApplicationContext(), activity);
+
+        onCreate(activity);
+
+        if (savedInstanceState != null) {
+            lastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
         }
-        Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
-        pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
-                PendingIntent.FLAG_MUTABLE);
-        return pendingIntent;
     }
 
-    public String getErrorString(Exception e) {
-        if (e instanceof ApiException) {
-            ApiException apiException = (ApiException) e;
-            switch (apiException.getStatusCode()) {
-                case GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE:
-                    return "GEOFENCE_IS_NOT_AVAILABLE";
-                case GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES:
-                    return "GEOFENCE_TOO_MANY_GEOFENCE'S";
-                case GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS:
-                    return "GEOFENCE_TOO_MANY_PENDING_INTENTS";
+    private final GeofenceBroadcastReceiver receiver = new GeofenceBroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "Setting ID now");
+            int transitionType = intent.getIntExtra("incomingTransition", 0);
+            switch (transitionType) {
+                case 1:
+                    Log.d(TAG, "erste aktivität");
+                    break;
+                case 2:
+                    Log.d(TAG, "andere aktivität");
+                    break;
+                default:
+                    Log.d(TAG, "TransitionType did not match ENTER or EXIT");
             }
         }
-        return e.getLocalizedMessage();
+    };
+
+    private void onCreate(Activity activity){
+       // locationHandler.enableLocationUpdates(activity);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.intent.action.IDReceiver");
+        Log.d(TAG, "Register receiver now");
+        registerReceiver(receiver, filter);
+    }
+
+
+    public void placeGeofence(Activity activity, Geofence geofence) {
+        //checking and asking for BackgroundLocationPermission
+        if (Build.VERSION.SDK_INT >= 29) {
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                addGeofence(activity, geofence);
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission
+                        .ACCESS_BACKGROUND_LOCATION)) {
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission
+                            .ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                } else {
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission
+                            .ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                }
+            }
+        } else {
+            addGeofence(activity, geofence);
+        }
+    }
+
+    private void addGeofence(Activity activity, Geofence geofence) {
+        GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
+        PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        geofencingClient.addGeofences(geofencingRequest, pendingIntent)
+                .addOnSuccessListener(unused -> {
+                    Log.d(TAG, "onSuccess: Geofence Added");
+                })
+                .addOnFailureListener(e -> {
+                    String errorMessage = geofenceHelper.getErrorString(e);
+                    Log.d(TAG, "onFailure" + errorMessage);
+                });
+    }
+
+
+
+    /**
+     * Generates a unique ID (during a Session)
+     *
+     * @return GeofenceID starting at 1
+     */
+    private String generateGeofenceID() {
+        int id = Integer.parseInt(geofenceID);
+        id++;
+        geofenceID = String.valueOf(id);
+        return geofenceID;
     }
 
 }
