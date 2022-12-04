@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import de.uhh.detectives.frontend.R;
@@ -90,9 +91,48 @@ public class CommsFragment extends Fragment {
 
         viewPager2 = root.findViewById(R.id.viewPager);
 
-        viewPagerAdapter = new ViewPagerAdapter(getContext(), new ArrayList<>(), chatMessages, getActivity());
+        viewPagerAdapter = new ViewPagerAdapter(getContext(), Arrays.asList(23423L, 324324L), chatMessages, getActivity());
 
         viewPager2.setAdapter(viewPagerAdapter);
+        final float MIN_SCALE = 0.75f;
+
+        viewPager2.setPageTransformer(
+                (view, position) -> {
+                    int pageWidth = view.getWidth();
+
+                    if (position < -1) { // [-Infinity,-1)
+                        // This page is way off-screen to the left.
+                        view.setAlpha(0f);
+
+                    } else if (position <= 0) { // [-1,0]
+                        // Use the default slide transition when moving to the left page
+                        view.setAlpha(1f);
+                        view.setTranslationX(0f);
+                        view.setTranslationZ(0f);
+                        view.setScaleX(1f);
+                        view.setScaleY(1f);
+
+                    } else if (position <= 1) { // (0,1]
+                        // Fade the page out.
+                        view.setAlpha(1 - position);
+
+                        // Counteract the default slide transition
+                        view.setTranslationX(pageWidth * -position);
+                        // Move it behind the left page
+                        view.setTranslationZ(-1f);
+
+                        // Scale the page down (between MIN_SCALE and 1)
+                        float scaleFactor = MIN_SCALE
+                                + (1 - MIN_SCALE) * (1 - Math.abs(position));
+                        view.setScaleX(scaleFactor);
+                        view.setScaleY(scaleFactor);
+
+                    } else { // (1,+Infinity]
+                        // This page is way off-screen to the right.
+                        view.setAlpha(0f);
+                    }
+                }
+        );
 
         binding.layoutSend.setOnClickListener(
             view -> {
@@ -123,6 +163,8 @@ public class CommsFragment extends Fragment {
 
     private void sendMessageToUi(final ChatMessage chatMessage) {
         chatMessages.add(chatMessage);
+        Log.d("test", String.valueOf(viewPager2.getCurrentItem()));
+//        viewPagerAdapter.notifyItemChanged(viewPager2.getCurrentItem());
         viewPagerAdapter.notifyDataSetChanged();
 //        binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size());
     }
