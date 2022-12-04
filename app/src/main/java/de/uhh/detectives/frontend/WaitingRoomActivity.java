@@ -77,8 +77,9 @@ public class WaitingRoomActivity extends AppCompatActivity {
         if (joinGameMessage.getPlayerNames() == null) return;
 
         db.getPlayerRepository().deleteAll();
-        for (final String name : joinGameMessage.getPlayerNames()){
-            db.getPlayerRepository().insert(new Player(System.currentTimeMillis(), name));
+        for (int i = 0; i < joinGameMessage.getPlayerNames().size(); i++){
+            db.getPlayerRepository().insert(new Player(System.currentTimeMillis() + i,
+                    joinGameMessage.getPlayerNames().get(i)));
         }
     }
 
@@ -89,7 +90,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         if (!(startGameMessage.getStatus() == 200)) {
             return;
         }
-        db.getPlayerRepository().deleteAll();
+
         finish();
     }
 

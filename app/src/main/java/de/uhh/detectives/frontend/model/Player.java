@@ -1,6 +1,7 @@
 package de.uhh.detectives.frontend.model;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
@@ -16,12 +17,14 @@ public class Player implements Serializable {
     public Player() {}
 
     // create Player
+    @Ignore
     public Player(final Long id, final String pseudonym) {
        this.id = id;
        this.pseudonym = pseudonym;
     }
 
     // parse Player
+    @Ignore
     public Player(final String stringToParse) {
         String[] tokens = stringToParse.split(";");
         for (int i = 0; i < tokens.length; i++) {

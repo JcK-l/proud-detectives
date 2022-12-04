@@ -15,7 +15,7 @@ public interface PlayerRepository {
     void deleteAll();
 
     @Insert
-    void insertAll(final Player... players);
+    void insertAll(final List<Player> players);
 
     @Insert
     void insert(final Player player);

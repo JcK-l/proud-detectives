@@ -89,8 +89,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    public void doSomethingWithStartGameEvent(StartGameMessageEvent startGameMessageEvent) {
-        StartGameMessage chatMessage = startGameMessageEvent.getMessage();
+    public void saveInfoFromServerOnStartGame(StartGameMessageEvent startGameMessageEvent) {
+        StartGameMessage startGameMessage = startGameMessageEvent.getMessage();
+
+        db.getChatMessageRepository().deleteAll();
+        db.getPlayerRepository().deleteAll();
+
+        db.getPlayerRepository().insertAll(startGameMessage.getPlayers());
+        db.getSolutionRepository().insert(startGameMessage.getSolution());
+        db.getHintRepository().insertAll(startGameMessage.getHints());
     }
 
     @Override

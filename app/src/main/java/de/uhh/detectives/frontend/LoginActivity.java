@@ -6,8 +6,13 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.Editable;
+import android.text.TextWatcher;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -60,15 +65,77 @@ public class LoginActivity extends AppCompatActivity {
         bindingJoinGame = ActivityLoginJoinGameBinding.inflate(getLayoutInflater());
 
         if (userDataRepository.findFirst() == null) {
-            user = new UserData(System.currentTimeMillis(), "Tim", "testPrename", "testSurname");
+
+            TextInputLayout prenameLayout, surnameLayout, pseudonymLayout;
+            TextInputEditText prenameText, surnameText, pseudonymText;
 
             bindingRegister = ActivityLoginRegisterBinding.inflate(getLayoutInflater());
             setContentView(bindingRegister.getRoot());
 
+            prenameLayout = bindingRegister.prenameLayout;
+            surnameLayout = bindingRegister.surnameLayout;
+            pseudonymLayout = bindingRegister.pseudonymLayout;
+
+            prenameText = bindingRegister.prenameInput;
+            surnameText = bindingRegister.surnameInput;
+            pseudonymText = bindingRegister.pseudonymInput;
+
+            pseudonymText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if (editable.length() > pseudonymLayout.getCounterMaxLength()) {
+                        pseudonymLayout.setError("Player Name is too long");
+                    } else {
+                        pseudonymLayout.setError(null);
+                    }
+                }
+            });
+
             bindingRegister.buttonRegister.setOnClickListener(
                     view -> {
-                        tcpMessageService.setUser(user);
-                        tcpMessageService.sendMessageToServer(new RegisterMessage(user));
+                        boolean canSend = true;
+                        prenameLayout.setError(null);
+                        surnameLayout.setError(null);
+
+                        if (pseudonymText.getText().toString().length() <=
+                                pseudonymLayout.getCounterMaxLength()) {
+                            pseudonymLayout.setError(null);
+                        } else {
+                            canSend = false;
+                        }
+
+                        if (prenameText.getText().toString().equals("")) {
+                            prenameLayout.setError("This field can't be emtpy");
+                            canSend = false;
+                        }
+                        if (surnameText.getText().toString().equals("")) {
+                            surnameLayout.setError("This field can't be emtpy");
+                            canSend = false;
+                        }
+                        if (pseudonymText.getText().toString().equals("")) {
+                            pseudonymLayout.setError("This field can't be emtpy");
+                            canSend = false;
+                        }
+
+                        if (canSend) {
+                            String prename = prenameText.getText().toString();
+                            String surname = surnameText.getText().toString();
+                            String pseudonym = pseudonymText.getText().toString();
+                            user = new UserData(System.currentTimeMillis(), pseudonym, prename, surname);
+
+                            tcpMessageService.setUser(user);
+                            tcpMessageService.sendMessageToServer(new RegisterMessage(user));
+                        }
                     }
             );
         } else {

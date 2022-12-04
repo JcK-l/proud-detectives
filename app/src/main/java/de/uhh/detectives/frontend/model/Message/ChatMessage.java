@@ -2,6 +2,7 @@ package de.uhh.detectives.frontend.model.Message;
 
 import androidx.annotation.Nullable;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
@@ -31,6 +32,7 @@ public class ChatMessage implements Serializable, Message {
     public ChatMessage() {}
 
     // Create ChatMessage
+    @Ignore
     public ChatMessage(final UserData user, @Nullable Long receiverId, final String message) {
         this.senderId = user.getUserId();
         this.pseudonym = user.getPseudonym();
@@ -44,6 +46,7 @@ public class ChatMessage implements Serializable, Message {
     }
 
     // Parse ChatMessage
+    @Ignore
     public ChatMessage(String messageToParse) {
         String[] tokens = messageToParse.split(";");
         for (int i = 1; i < tokens.length; i++) {

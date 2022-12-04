@@ -31,7 +31,6 @@ import de.uhh.detectives.frontend.model.Message.StartGameMessage;
 import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
-import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class StartGameFragment extends Fragment {
@@ -114,30 +113,13 @@ public class StartGameFragment extends Fragment {
 
         if (joinGameMessage.getPlayerNames() == null) return;
 
-        db.getPlayerRepository().deleteAll();
-        for (final String name : joinGameMessage.getPlayerNames()){
-            db.getPlayerRepository().insert(new Player(System.currentTimeMillis(), name));
-        }
-
         players.clear();
-        players.addAll(db.getPlayerRepository().getAll());
+        for (final String name : joinGameMessage.getPlayerNames()){
+            players.add(new Player(System.currentTimeMillis(), name));
+        }
 
         startGameAdapter.notifyDataSetChanged();
     }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void receiveMessageStartGame(final StartGameMessageEvent startGameMessageEvent) {
-        StartGameMessage startGameMessage = startGameMessageEvent.getMessage();
-
-        if (!(startGameMessage.getStatus() == 200)) {
-            tcpMessageService.sendMessageToServer(new StartGameMessage(user,
-                    location.getLongitude(), location.getLatitude()));
-            return;
-        }
-        db.getPlayerRepository().deleteAll();
-        getActivity().finish();
-    }
-
 
     @Override
     public void onDestroyView() {

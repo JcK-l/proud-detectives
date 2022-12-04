@@ -3,8 +3,10 @@ package de.uhh.detectives.frontend.model.Message;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.uhh.detectives.frontend.model.Hint;
 import de.uhh.detectives.frontend.model.Message.api.Message;
 import de.uhh.detectives.frontend.model.Player;
+import de.uhh.detectives.frontend.model.Solution;
 import de.uhh.detectives.frontend.model.UserData;
 
 public class StartGameMessage implements Message {
@@ -66,6 +68,13 @@ public class StartGameMessage implements Message {
         this.weapon = variableTokens[5];
     }
 
+    public Solution getSolution() {
+        Solution solution = new Solution();
+        solution.setWeapon(weapon);
+        solution.setCulprit(culprit);
+        solution.setLocation(location);
+        return solution;
+    }
 
     public Long getUserId() {
         return userId;
@@ -120,43 +129,4 @@ public class StartGameMessage implements Message {
         return MessageType.START_GAME_MESSAGE;
     }
 
-    private static class Hint {
-        private final String category;
-        private final String description;
-        private final Long possessorId;
-        private final Double longitude;
-        private final Double latitude;
-
-        public Hint(final String stringToParse) {
-            String[] tokens = stringToParse.split(";");
-            for (int i = 0; i < tokens.length; i++) {
-                tokens[i] = tokens[i].substring(tokens[i].indexOf("=") + 1);
-            }
-            this.category = tokens[0];
-            this.description = tokens[1];
-            this.possessorId = (tokens[2].equals("null")) ? null : Long.parseLong(tokens[2]);
-            this.longitude = (tokens[3].equals("null")) ? null : Double.parseDouble(tokens[3]);
-            this.latitude = (tokens[4].equals("null")) ? null : Double.parseDouble(tokens[4]);
-        }
-
-        public String getCategory() {
-            return category;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public Long getPossessorId() {
-            return possessorId;
-        }
-
-        public Double getLongitude() {
-            return longitude;
-        }
-
-        public Double getLatitude() {
-            return latitude;
-        }
-    }
 }
