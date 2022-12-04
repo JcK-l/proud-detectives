@@ -9,15 +9,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
 import de.uhh.detectives.frontend.R;
-import de.uhh.detectives.frontend.ui.clues_and_guesses.Cell;
 
 public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapter.CluesGuessesViewHolder> {
 
@@ -35,7 +34,7 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
     public CluesGuessesAdapter.CluesGuessesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         final LayoutInflater inflater = LayoutInflater.from(context);
         final View view = inflater.inflate(R.layout.item_cell, parent, false);
-        return new CluesGuessesAdapter.CluesGuessesViewHolder(view);
+        return new CluesGuessesAdapter.CluesGuessesViewHolder(view, context);
     }
 
     @Override
@@ -53,10 +52,12 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
     public static class CluesGuessesViewHolder extends RecyclerView.ViewHolder {
 
         final ImageView imageView;
+        final Context context;
 
-        public CluesGuessesViewHolder(@NonNull View itemView) {
+        public CluesGuessesViewHolder(@NonNull View itemView, final Context context) {
             super(itemView);
             imageView = itemView.findViewById(R.id.item_cell_value);
+            this.context = context;
         }
 
         public void bind(final Cell cell){
@@ -86,11 +87,11 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
             return view -> {
                 switch (cell.getState()){
                     case NEUTRAL:
-                        itemView.setBackgroundColor(Color.RED);
+                        itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.minesweeper_wrong));
                         cell.setState(CellState.NEGATIVE);
                         break;
                     case NEGATIVE:
-                        itemView.setBackgroundColor(Color.GREEN);
+                        itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.minesweeper_correct));
                         cell.setState(CellState.POSITIVE);
                         break;
                     case POSITIVE:
@@ -107,10 +108,10 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
                     itemView.setBackgroundColor(Color.WHITE);
                     break;
                 case NEGATIVE:
-                    itemView.setBackgroundColor(Color.RED);
+                    itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.minesweeper_wrong));
                     break;
                 case POSITIVE:
-                    itemView.setBackgroundColor(Color.GREEN);
+                    itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.minesweeper_correct));
                     break;
             }
         }
