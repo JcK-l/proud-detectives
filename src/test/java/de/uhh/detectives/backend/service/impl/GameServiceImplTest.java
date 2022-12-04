@@ -303,4 +303,38 @@ public class GameServiceImplTest {
         verify(gameRepository, times(0)).save(any());
         assertNull(result);
     }
+
+    @Test
+    public void testEndGame() {
+        // given
+        final Player player1 = new Player();
+        player1.setId(1L);
+        final Player player2 = new Player();
+        player2.setId(2L);
+        final Player player3 = new Player();
+        player3.setId(USER_ID);
+        final Player player4 = new Player();
+        player4.setId(4L);
+
+        final Long gameId = 11111111L;
+        final Game game = new Game(gameId);
+        game.setStarted(true);
+        game.setParticipants(Arrays.asList(player1, player2, player3, player4));
+        when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player3));
+        when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
+
+        final ArgumentCaptor<Game> captor = ArgumentCaptor.forClass(Game.class);
+
+        // when
+        testee.endGame(USER_ID);
+
+        // then
+        verify(gameRepository).saveAndFlush(captor.capture());
+        final Game actual = captor.getValue();
+        assertNotNull(actual);
+        assertEquals(4, actual.getParticipants().size());
+        assertTrue(actual.isStarted());
+        assertTrue(actual.isCompleted());
+        assertEquals(USER_ID, actual.getWinnerId());
+    }
 }

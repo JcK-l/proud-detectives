@@ -44,4 +44,13 @@ public interface GameService {
      * @return started game
      */
     Game startGame(final Long userIdOfStartingUser, final Double longitudeOfUser, final Double latitudeOfUser);
+
+    /**
+     * sets the completed value for a given game and persists it, so that the game is no longer regarded as active by
+     * the findActiveGameForUser function.
+     *
+     * @param winnerId the id of the user that won the game
+     * @return ended game or NULL if the user has no active game to end
+     */
+    Game endGame(final Long winnerId);
 }
