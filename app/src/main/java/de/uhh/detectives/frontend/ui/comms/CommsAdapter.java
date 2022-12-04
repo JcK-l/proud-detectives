@@ -1,6 +1,7 @@
 package de.uhh.detectives.frontend.ui.comms;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -8,10 +9,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.databinding.ItemContainerRecievedMessageBinding;
 import de.uhh.detectives.frontend.databinding.ItemContainerSentMassageBinding;
-import de.uhh.detectives.frontend.model.ChatMessage;
+import de.uhh.detectives.frontend.model.Message.ChatMessage;
 
 public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final List<ChatMessage> chatMessages;
@@ -92,12 +92,17 @@ public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 (ItemContainerRecievedMessageBinding itemContainerRecievedMessageBinding) {
             super(itemContainerRecievedMessageBinding.getRoot());
             binding = itemContainerRecievedMessageBinding;
+            View root = binding.getRoot();
+            root.setOnLongClickListener( view -> {
+                // TODO: create direct message
+                return true;
+            });
         }
 
         void setData(ChatMessage chatMessage) {
             binding.textMessage.setText(chatMessage.getMessage());
             binding.textDateTime.setText(chatMessage.getDateTime());
-            binding.userNameSpace.setText(R.string.sample_name);
+            binding.userNameSpace.setText(chatMessage.getPseudonym());
         }
     }
 }
