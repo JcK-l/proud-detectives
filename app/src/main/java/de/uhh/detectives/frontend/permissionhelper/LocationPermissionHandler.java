@@ -1,4 +1,4 @@
-package de.uhh.detectives.frontend.PermissionHelper;
+package de.uhh.detectives.frontend.permissionhelper;
 
 import android.Manifest;
 import android.content.Context;
@@ -21,7 +21,7 @@ public class LocationPermissionHandler extends ContextWrapper {
     }
 
     public void askFineLocationPermissions() {
-        Dexter.withContext(this).withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+        Dexter.withContext(this).withPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                 .withListener(new PermissionListener() {
                     @Override
                     public void onPermissionGranted(

@@ -14,15 +14,18 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class GeofenceHandler extends ContextWrapper {
     private PendingIntent pendingIntent;
+    private Context context;
 
     public GeofenceHandler(Context base) {
         super(base);
+        this.context = base;
     }
 
     public GeofencingRequest getGeofencingRequest(Geofence geofence) {
         return new GeofencingRequest.Builder()
                 .addGeofence(geofence)
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_EXIT)
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_EXIT
+                        | GeofencingRequest.INITIAL_TRIGGER_ENTER)
                 .build();
     }
 
@@ -35,10 +38,9 @@ public class GeofenceHandler extends ContextWrapper {
                 //set Transition-types of interest
                 .setTransitionTypes(transitionTypes)
                 //LoiteringDelay = after that Time(ms) Geofencing state is switched from enter to dwell
-                .setLoiteringDelay(500)
+                .setLoiteringDelay(3000)
                 //Our Circles will never expire
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setNotificationResponsiveness(1000)
                 .build();
     }
 
@@ -48,7 +50,7 @@ public class GeofenceHandler extends ContextWrapper {
             return pendingIntent;
         }
         Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
-        pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
+        pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
                 PendingIntent.FLAG_MUTABLE);
         return pendingIntent;
     }

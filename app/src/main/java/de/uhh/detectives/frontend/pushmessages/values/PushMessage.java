@@ -1,4 +1,4 @@
-package de.uhh.detectives.frontend.pushMessages.values;
+package de.uhh.detectives.frontend.pushmessages.values;
 
 import android.app.Notification;
 

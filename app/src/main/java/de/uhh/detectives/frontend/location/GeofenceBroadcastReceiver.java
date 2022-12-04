@@ -13,7 +13,7 @@ import com.google.android.gms.location.GeofencingEvent;
 
 import java.util.List;
 
-import de.uhh.detectives.frontend.pushMessages.services.PushMessageHandler;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
 
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "GeofenceBroadcastReceiv";
@@ -51,6 +51,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "GEOFENCE_TRANSITION_ENTER");
+                pushMessageHandler.pushEnteredMapMessage();
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 Toast.makeText(context, "GEOFENCE_TRANSITION_DWELL", Toast.LENGTH_SHORT).show();
@@ -66,5 +67,6 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                 Log.d(TAG, "geofencingEvent was Null");
         }
     }
+
 }
 
