@@ -15,6 +15,7 @@ public class StartGameMessage implements Serializable, Message {
     private Long userId;
     private Double longitude;
     private Double latitude;
+    private Integer radius;
 
     @Override
     public MessageType getType() {

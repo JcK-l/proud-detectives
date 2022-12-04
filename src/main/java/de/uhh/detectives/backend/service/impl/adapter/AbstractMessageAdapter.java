@@ -14,6 +14,10 @@ public abstract class AbstractMessageAdapter implements MessageAdapter {
         return Long.parseLong(longString);
     }
 
+    protected Integer readInt(final String intString) {
+        return Integer.parseInt(intString);
+    }
+
     protected Double readDouble(final String DoubleString) {
         return Double.parseDouble(DoubleString);
     }

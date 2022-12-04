@@ -240,7 +240,9 @@ public class GameServiceImplTest {
 
         final Point location1 = new Point(9.994611d, 53.540005d);
         final Point location2 = new Point(9.985102d, 53.541350d);
-        when(locationGenerator.generateInCircle(any(), anyInt(), anyInt(), any()))
+        final Integer defaultPlayingAreaSize = 2000;
+        final Integer amount = 36;
+        when(locationGenerator.generateInCircle(any(), eq(defaultPlayingAreaSize), eq(amount), any()))
                 .thenReturn(Arrays.asList(
                         location1, location2, location1, location2, location1, location2, location1, location2, location1, location2,
                         location1, location2, location1, location2, location1, location2, location1, location2, location1, location2,
@@ -248,7 +250,7 @@ public class GameServiceImplTest {
                         location1, location2, location1, location2, location1, location2));
 
         // when
-        final Game result = testee.startGame(USER_ID, 9.993682d, 53.551086d);
+        final Game result = testee.startGame(USER_ID, 9.993682d, 53.551086d, null);
 
         // then
         verify(playerRepository).findById(anyLong());
@@ -295,7 +297,7 @@ public class GameServiceImplTest {
         when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
 
         // when
-        final Game result = testee.startGame(1L, 9.993682d, 53.551086d);
+        final Game result = testee.startGame(1L, 9.993682d, 53.551086d, null);
 
         // then
         verify(playerRepository).findById(anyLong());
