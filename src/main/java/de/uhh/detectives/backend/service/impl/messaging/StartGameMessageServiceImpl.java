@@ -39,7 +39,8 @@ public class StartGameMessageServiceImpl implements MessageService {
         final Long userId = startGameMessage.getUserId();
         final Double latitude = startGameMessage.getLatitude();
         final Double longitude = startGameMessage.getLongitude();
-        final Game game = gameService.startGame(userId, longitude, latitude);
+        final Integer playingFieldRadius = startGameMessage.getRadius();
+        final Game game = gameService.startGame(userId, longitude, latitude, playingFieldRadius);
         if (game == null) {
             return "TYPE:" + MessageType.START_GAME_MESSAGE + ";status=418;gameId=null";
         } else {

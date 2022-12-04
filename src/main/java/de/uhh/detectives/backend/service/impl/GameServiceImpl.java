@@ -77,7 +77,8 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game startGame(final Long userIdOfStartingUser, final Double longitudeOfUser, final Double latitudeOfUser) {
+    public Game startGame(final Long userIdOfStartingUser, final Double longitudeOfUser, final Double latitudeOfUser,
+                          final Integer playingFieldRadius) {
         final Game game = findActiveGameForUser(userIdOfStartingUser);
         if (game == null) {
             LOG.error(String.format("No game found for user %d, so none can be started!", userIdOfStartingUser));
@@ -86,7 +87,7 @@ public class GameServiceImpl implements GameService {
         game.setHints(generateHints(game));
         giveOneHintToEachPlayer(game);
         doubleHintsNotInPlayerPossession(game);
-        generateHintLocations(game, longitudeOfUser, latitudeOfUser);
+        generateHintLocations(game, longitudeOfUser, latitudeOfUser, playingFieldRadius);
         game.setStarted(true);
         gameRepository.save(game);
         return game;
@@ -188,13 +189,15 @@ public class GameServiceImpl implements GameService {
         game.setHints(allHints);
     }
 
-    private void generateHintLocations(final Game game, final Double longitudeOfUser, final Double latitudeOfUser) {
+    private void generateHintLocations(final Game game, final Double longitudeOfUser, final Double latitudeOfUser,
+                                       final Integer playingFieldRadius) {
         final Point center = new Point(longitudeOfUser, latitudeOfUser);
         final List<Hint> hintsWithoutPossessors = game.getHints().stream()
                 .filter(hint -> hint.getPossessor() == null)
                 .toList();
         final Random random = ThreadLocalRandom.current();
-        final List<Point> randomLocations = locationGenerator.generateInCircle(center, PLAYING_AREA_RADIUS_IN_METER,
+        final int radius = playingFieldRadius == null ? PLAYING_AREA_RADIUS_IN_METER : playingFieldRadius;
+        final List<Point> randomLocations = locationGenerator.generateInCircle(center, radius,
                 hintsWithoutPossessors.size(), random);
 
         for (int i = 0; i < hintsWithoutPossessors.size(); i++) {

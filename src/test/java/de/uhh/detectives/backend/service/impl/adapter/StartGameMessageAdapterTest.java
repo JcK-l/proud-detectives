@@ -50,4 +50,31 @@ public class StartGameMessageAdapterTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void testConstructFromFieldsWithRadius(){
+        // given
+        final String[] fields = new String[] {
+                "TYPE:START_GAME_MESSAGE",
+                "userId=123456789",
+                "longitude=-0.158670367",
+                "latitude=51.52406527",
+                "radius=42"
+        };
+
+        final StartGameMessage expected = new StartGameMessage();
+        expected.setUserId(123456789L);
+        expected.setLongitude(-0.158670367d);
+        expected.setLatitude(51.52406527d);
+        expected.setRadius(42);
+
+        // when
+        final Message message = testee.constructFromFields(fields);
+
+        // then
+        assertTrue(message instanceof StartGameMessage);
+
+        final StartGameMessage actual = (StartGameMessage) message;
+        assertEquals(expected, actual);
+    }
+
 }

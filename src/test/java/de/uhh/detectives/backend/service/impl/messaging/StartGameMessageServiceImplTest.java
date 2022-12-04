@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,18 +50,20 @@ public class StartGameMessageServiceImplTest {
         final Long playerId = 123456789L;
         final Double playerLongitude = -0.158670367d;
         final Double playerLatitude = 51.52406527d;
+        final Integer playingFieldSize = 500;
         final StartGameMessage startGameMessage = new StartGameMessage();
         startGameMessage.setUserId(playerId);
         startGameMessage.setLongitude(playerLongitude);
         startGameMessage.setLatitude(playerLatitude);
+        startGameMessage.setRadius(playingFieldSize);
 
-        when(gameService.startGame(eq(playerId), eq(playerLongitude), eq(playerLatitude))).thenReturn(null);
+        when(gameService.startGame(eq(playerId), eq(playerLongitude), eq(playerLatitude), eq(playingFieldSize))).thenReturn(null);
 
         // when
         final String result = testee.handle(startGameMessage);
 
         // then
-        verify(gameService).startGame(eq(playerId), eq(playerLongitude), eq(playerLatitude));
+        verify(gameService).startGame(eq(playerId), eq(playerLongitude), eq(playerLatitude), eq(playingFieldSize));
         assertEquals("TYPE:START_GAME_MESSAGE;status=418;gameId=null", result);
     }
 
@@ -76,14 +79,14 @@ public class StartGameMessageServiceImplTest {
         startGameMessage.setLatitude(playerLatitude);
 
         final Game game = new Game(111111222222L);
-        when(gameService.startGame(eq(playerId), eq(playerLongitude), eq(playerLatitude))).thenReturn(game);
+        when(gameService.startGame(eq(playerId), eq(playerLongitude), eq(playerLatitude), isNull())).thenReturn(game);
         when(gameAdapter.serialize(game)).thenReturn("gameId=111111222222");
 
         // when
         final String result = testee.handle(startGameMessage);
 
         // then
-        verify(gameService).startGame(eq(playerId), eq(playerLongitude), eq(playerLatitude));
+        verify(gameService).startGame(eq(playerId), eq(playerLongitude), eq(playerLatitude), isNull());
         assertEquals("TYPE:START_GAME_MESSAGE;status=200;gameId=111111222222", result);
     }
 }

@@ -41,9 +41,11 @@ public interface GameService {
      * @param userIdOfStartingUser userId of user who wants to start the game
      * @param longitudeOfUser Longitude of user Location
      * @param latitudeOfUser Latitude of user Location
+     * @param playingFieldRadius radius of the playing area in meters
      * @return started game
      */
-    Game startGame(final Long userIdOfStartingUser, final Double longitudeOfUser, final Double latitudeOfUser);
+    Game startGame(final Long userIdOfStartingUser, final Double longitudeOfUser, final Double latitudeOfUser,
+                   final Integer playingFieldRadius);
 
     /**
      * sets the completed value for a given game and persists it, so that the game is no longer regarded as active by
