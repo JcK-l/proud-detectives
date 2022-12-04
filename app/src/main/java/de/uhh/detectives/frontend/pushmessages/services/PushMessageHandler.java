@@ -11,6 +11,7 @@ import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.pushmessages.values.EnteredMapMessage;
 import de.uhh.detectives.frontend.pushmessages.values.FindHintMessage;
 import de.uhh.detectives.frontend.pushmessages.values.MapExitMessage;
+import de.uhh.detectives.frontend.pushmessages.values.WinGamePushMessage;
 
 public class PushMessageHandler {
     private static final String LOCATION_CHANNEL_ID = "LocChan";
@@ -24,9 +25,9 @@ public class PushMessageHandler {
         this.context = context;
         notificationManager = context.getSystemService(NotificationManager.class);
         if (notificationManager.areNotificationsEnabled()) {
-            createLocationNotificationChannel();
-            createGameEventNotificationChannel();
         }
+        createLocationNotificationChannel();
+        createGameEventNotificationChannel();
         notificationManagerCompat = NotificationManagerCompat.from(context);
     }
 
@@ -58,6 +59,11 @@ public class PushMessageHandler {
                     .getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+    public void pushWinGameMessage(final String winner) {
+        WinGamePushMessage winGamePushMessage = new WinGamePushMessage(context, winner);
+        notificationManagerCompat.notify(122, winGamePushMessage.getNotification());
     }
 
     public void pushMapExitMessage() {

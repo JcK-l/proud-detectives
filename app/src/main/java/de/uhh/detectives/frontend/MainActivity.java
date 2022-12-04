@@ -21,8 +21,12 @@ import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
 import de.uhh.detectives.frontend.location.MapGeofence;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
+import de.uhh.detectives.frontend.model.Message.WinGameMessage;
+import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
+import de.uhh.detectives.frontend.model.event.WinGameMessageEvent;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
@@ -35,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     // LocationHandler in MainActivity einmal initialisieren, um state zu halten
     private MapGeofence mapGeofence;
     private ChatMessageRepository chatMessageRepository;
+
+    private PushMessageHandler pushMessageHandler;
 
     private final static Long gameStartTime = System.currentTimeMillis();
 
@@ -53,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
         db = AppDatabase.getDatabase(getApplicationContext());
         chatMessageRepository = db.getChatMessageRepository();
+
+        pushMessageHandler = new PushMessageHandler(getApplicationContext());
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -102,6 +110,19 @@ public class MainActivity extends AppCompatActivity {
         db.getPlayerRepository().insertAll(startGameMessage.getPlayers());
         db.getSolutionRepository().insert(startGameMessage.getSolution());
         db.getHintRepository().insertAll(startGameMessage.getHints());
+    }
+
+    @Subscribe
+    public void receiveWinGameMessage(WinGameMessageEvent winGameMessageEvent) {
+        WinGameMessage winGameMessage = winGameMessageEvent.getMessage();
+        Player winner = db.getPlayerRepository().getPlayerWithUserId(winGameMessage.getWinnerId());
+
+        pushMessageHandler.pushWinGameMessage(winner.getPseudonym());
+
+        getViewModelStore().clear();
+
+        Intent intentLogin = new Intent(this, LoginActivity.class);
+        startActivity(intentLogin);
     }
 
     @Override

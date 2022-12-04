@@ -23,6 +23,9 @@ public interface PlayerRepository {
     @Query("SELECT * FROM Player")
     List<Player> getAll();
 
+    @Query("SELECT * FROM Player WHERE id == :userId")
+    Player getPlayerWithUserId(Long userId);
+
     @Query("SELECT * FROM Player LIMIT 1")
     Player findFirst();
 }

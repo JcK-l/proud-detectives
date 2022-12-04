@@ -36,6 +36,7 @@ import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCluesGuessesBinding;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
+import de.uhh.detectives.frontend.model.Message.WinGameMessage;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 import de.uhh.detectives.frontend.service.TcpMessageService;
@@ -158,7 +159,7 @@ public class CluesGuessesFragment extends Fragment {
         };
         cardview.setOnClickListener( view -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle("Guess").setMessage("Do you want to confirm you selection?").setPositiveButton("Yes", dialogClickListener)
+            builder.setTitle("Guess").setMessage("Do you want to confirm your selection?").setPositiveButton("Yes", dialogClickListener)
                     .setNegativeButton("No", dialogClickListener).show();
         });
 
@@ -247,7 +248,7 @@ public class CluesGuessesFragment extends Fragment {
                 String message = "I won the game with: " + String.valueOf(solutionVerifier.getSolutionWithAmongus());
 
                 // this will be replaced once we get EndGameMessage going
-                tcpMessageService.sendMessageToServer(new ChatMessage(user, null, message));
+                tcpMessageService.sendMessageToServer(new WinGameMessage(user.getUserId()));
                 break;
             case SEMIFAILED:
                 viewModel.cardColor = R.color.mixed_guess;
