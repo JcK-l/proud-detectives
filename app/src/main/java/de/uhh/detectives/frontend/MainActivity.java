@@ -20,6 +20,7 @@ import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
 import de.uhh.detectives.frontend.location.MapGeofence;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
+import de.uhh.detectives.frontend.model.Message.DirectMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
 import de.uhh.detectives.frontend.model.Message.WinGameMessage;
 import de.uhh.detectives.frontend.model.Player;
@@ -95,9 +96,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Subscribe
-    public void addChatmessageToDatabase(ChatMessageEvent chatMessageEvent) {
+    public void receiveChatMessage(ChatMessageEvent chatMessageEvent) {
         ChatMessage chatMessage = chatMessageEvent.getMessage();
         chatMessageRepository.insert(chatMessage);
+
+        // listen for messages directed at us
+        if (chatMessage.getReceiverId() != null && chatMessage.getReceiverId().equals(db.getUserDataRepository().findFirst().getUserId())) {
+            DirectMessage directMessage = new DirectMessage(chatMessage.getSenderId().toString(), chatMessage.getPseudonym());
+            directMessage.setPosition(0);
+
+            db.getDirectMessageRepository().prepareForInsertion();
+            db.getDirectMessageRepository().insert(directMessage);
+        }
     }
 
     @Subscribe
@@ -123,6 +133,10 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intentLogin = new Intent(this, LoginActivity.class);
         startActivity(intentLogin);
+    }
+
+    @Override
+    public void onBackPressed() {
     }
 
     @Override

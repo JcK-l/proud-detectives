@@ -7,16 +7,19 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
 
 import de.uhh.detectives.frontend.databinding.ItemContainerRecievedMessageBinding;
 import de.uhh.detectives.frontend.databinding.ItemContainerSentMassageBinding;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
+import de.uhh.detectives.frontend.model.Message.DirectMessage;
+import de.uhh.detectives.frontend.model.event.DirectMessageEvent;
 
 public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final List<ChatMessage> chatMessages;
     private final long senderId;
-    private long receivedId;
 
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
@@ -87,22 +90,27 @@ public class CommsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     static class ReceivedMessageViewHolder extends RecyclerView.ViewHolder {
         private final ItemContainerRecievedMessageBinding binding;
+        private final View root;
 
         ReceivedMessageViewHolder
                 (ItemContainerRecievedMessageBinding itemContainerRecievedMessageBinding) {
             super(itemContainerRecievedMessageBinding.getRoot());
             binding = itemContainerRecievedMessageBinding;
-            View root = binding.getRoot();
-            root.setOnLongClickListener( view -> {
-                // TODO: create direct message
-                return true;
-            });
+            root = binding.getRoot();
         }
 
         void setData(ChatMessage chatMessage) {
             binding.textMessage.setText(chatMessage.getMessage());
             binding.textDateTime.setText(chatMessage.getDateTime());
             binding.userNameSpace.setText(chatMessage.getPseudonym());
+
+            root.setOnLongClickListener( view -> {
+                String senderId = chatMessage.getSenderId().toString();
+                String pseudonym = chatMessage.getPseudonym();
+                DirectMessage directMessage = new DirectMessage(senderId, pseudonym);
+                EventBus.getDefault().post(new DirectMessageEvent(directMessage));
+                return true;
+            });
         }
     }
 }

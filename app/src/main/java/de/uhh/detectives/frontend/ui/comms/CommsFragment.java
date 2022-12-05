@@ -13,26 +13,55 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCommsBinding;
 import de.uhh.detectives.frontend.databinding.FragmentCommsSoftkeyboardBinding;
-import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
+import de.uhh.detectives.frontend.model.Message.DirectMessage;
 import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
+import de.uhh.detectives.frontend.model.event.DirectMessageEvent;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class CommsFragment extends Fragment {
+
+    private AppDatabase db;
+    private  UserData user;
+
+    private FragmentCommsBinding binding;
+    private FragmentCommsSoftkeyboardBinding bindingTransition;
+
+    private List<ChatMessage> chatMessages;
+    private List<DirectMessage> directMessages;
+
+    private List<Long> playerIds;
+    private List<String> playerNames;
+
+    private BottomNavigationView navBar;
+    private CommsAnimation animate;
+    private ViewPager2 viewPager2;
+    private TabLayout tabLayout;
+    private TabLayoutMediator tabLayoutMediator;
+    private ViewPagerAdapter viewPagerAdapter;
+
     private TcpMessageService tcpMessageService;
+
+    private final float MIN_SCALE = 0.75f;
 
     private final ServiceConnection connection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -44,19 +73,6 @@ public class CommsFragment extends Fragment {
         }
     };
 
-    private AppDatabase db;
-    private UserData user;
-    private FragmentCommsBinding binding;
-    private FragmentCommsSoftkeyboardBinding bindingTransition;
-
-    private List<ChatMessage> chatMessages;
-
-    private CommsAdapter commsAdapter;
-    private BottomNavigationView navBar;
-    private CommsAnimation animate;
-
-    private static final Long DUMMY_USER_ID = 123456789L;
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -64,6 +80,7 @@ public class CommsFragment extends Fragment {
 
         Intent intent = new Intent(getActivity(), TcpMessageService.class);
         getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
         EventBus.getDefault().register(this);
 
         binding = FragmentCommsBinding.inflate(getLayoutInflater());
@@ -77,14 +94,93 @@ public class CommsFragment extends Fragment {
         db = AppDatabase.getDatabase(getContext());
         user = db.getUserDataRepository().findFirst();
         chatMessages = db.getChatMessageRepository().getAll();
+        directMessages = db.getDirectMessageRepository().getAll();
+
+        directMessages.sort(Comparator.comparing(DirectMessage::getPosition));
+
+        playerIds = new ArrayList<>();
+        playerNames = new ArrayList<>();
+        for (final DirectMessage directMessage : directMessages) {
+            playerIds.add(directMessage.getId());
+            playerNames.add(directMessage.getPseudonym());
+        }
+
+
         initChat(root);
 
         return root;
     }
 
     private void initChat(View root){
-        commsAdapter = new CommsAdapter(chatMessages, user.getUserId());
-        binding.chatRecyclerView.setAdapter(commsAdapter);
+
+        viewPager2 = root.findViewById(R.id.viewPager);
+
+        viewPagerAdapter = new ViewPagerAdapter(getContext(), playerIds, chatMessages, getActivity());
+
+        viewPager2.setAdapter(viewPagerAdapter);
+
+        viewPager2.setPageTransformer(
+                (view, position) -> {
+                    int pageWidth = view.getWidth();
+
+                    if (position < -1) { // [-Infinity,-1)
+                        // This page is way off-screen to the left.
+                        view.setAlpha(0f);
+
+                    } else if (position <= 0) { // [-1,0]
+                        // Use the default slide transition when moving to the left page
+                        view.setAlpha(1f);
+                        view.setTranslationX(0f);
+                        view.setTranslationZ(0f);
+                        view.setScaleX(1f);
+                        view.setScaleY(1f);
+
+                    } else if (position <= 1) { // (0,1]
+                        // Fade the page out.
+                        view.setAlpha(1 - position);
+
+                        // Counteract the default slide transition
+                        view.setTranslationX(pageWidth * -position);
+                        // Move it behind the left page
+                        view.setTranslationZ(-1f);
+
+                        // Scale the page down (between MIN_SCALE and 1)
+                        float scaleFactor = MIN_SCALE
+                                + (1 - MIN_SCALE) * (1 - Math.abs(position));
+                        view.setScaleX(scaleFactor);
+                        view.setScaleY(scaleFactor);
+
+                    } else { // (1,+Infinity]
+                        // This page is way off-screen to the right.
+                        view.setAlpha(0f);
+                    }
+                }
+        );
+
+        tabLayout = binding.viewTabs.findViewById(R.id.tabLayout);
+        tabLayoutMediator = new TabLayoutMediator(tabLayout, viewPager2,
+                (tab, position) -> {
+                    if (position == 0) {
+                        tab.setText("All Chat");
+                    } else {
+                        tab.setText(playerNames.get(position - 1));
+                    }
+                }
+        );
+        tabLayoutMediator.attach();
+
+        binding.layoutSend.setOnClickListener(
+            view -> {
+                final String input = binding.inputMessage.getText().toString();
+                if (!input.isEmpty()){
+                    binding.inputMessage.setText(null);
+                    int currentPosition = viewPager2.getCurrentItem();
+                    Long receiverId = (currentPosition == 0) ? null : playerIds.get(currentPosition - 1);
+                    ChatMessage chatMessage = new ChatMessage(user, receiverId, input);
+                    tcpMessageService.sendMessageToServer(chatMessage);
+                }
+            });
+
 
         root.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             Rect r = new Rect();
@@ -100,34 +196,45 @@ public class CommsFragment extends Fragment {
                 navBar.setVisibility(View.VISIBLE);
             }
         });
-        binding.layoutSend.setOnClickListener(v -> {
-            final String input = binding.inputMessage.getText().toString();
-            if (!input.isEmpty()){
-                ChatMessage chatMessage = new ChatMessage(user,null,input);
-                tcpMessageService.sendMessageToServer(chatMessage);
-                binding.inputMessage.setText(null);
-            }
-        });
     }
-
-    private void sendMessageToUi(final ChatMessage chatMessage) {
-        chatMessages.add(chatMessage);
-        commsAdapter.notifyItemInserted(chatMessages.size());
-        binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size());
-    }
-
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void receiveMessage(final ChatMessageEvent chatMessageEvent) {
         ChatMessage chatMessage = chatMessageEvent.getMessage();
-        sendMessageToUi(chatMessage);
+        chatMessages.add(chatMessage);
+        viewPagerAdapter.notifyDataSetChanged();
+
+        if (chatMessage.getReceiverId() != null && chatMessage.getReceiverId().equals(user.getUserId())
+        && !playerIds.contains(chatMessage.getSenderId())) {
+            playerIds.add(0, chatMessage.getSenderId());
+            playerNames.add(0, chatMessage.getPseudonym());
+            viewPagerAdapter.notifyItemInserted(1);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void receiveDirectMessage(final DirectMessageEvent directMessageEvent) {
+        DirectMessage directMessage = directMessageEvent.getMessage();
+
+        if (!playerIds.contains(directMessage.getId())) {
+            playerIds.add(0, directMessage.getId());
+            playerNames.add(0, directMessage.getPseudonym());
+
+            directMessage.setPosition(0);
+
+            db.getDirectMessageRepository().prepareForInsertion();
+            db.getDirectMessageRepository().insert(directMessage);
+
+            viewPagerAdapter.notifyItemInserted(1);
+            viewPager2.setCurrentItem(1);
+        }
     }
 
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getActivity().unbindService(connection);
         EventBus.getDefault().unregister(this);
+        getActivity().unbindService(connection);
     }
 }
