@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.PrintWriter;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,31 +23,33 @@ public class ClientHandler implements Runnable {
     private final ServerHandler server;
     private final TcpMessageService tcpMessageService;
     private final GameService gameService;
+    private final ObjectOutputStream out;
+    private final ObjectInputStream in;
 
-    private PrintWriter out;
-    private ObjectInputStream in;
     private Long clientUserId;
 
     public ClientHandler(final ServerHandler server, final Socket client, final TcpMessageService tcpMessageService,
-                         final GameService gameService) {
+                         final ObjectInputStream in, final ObjectOutputStream out, final GameService gameService) {
         this.clientSocket = client;
         this.server = server;
         this.tcpMessageService = tcpMessageService;
         this.gameService = gameService;
+        this.in = in;
+        this.out = out;
     }
 
     @Override
     public void run() {
         try {
-            Object input;
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new ObjectInputStream(clientSocket.getInputStream());
-            while ((input = in.readObject()) != null) {
-                final String inputMessage = (String) input;
+            while (true) {
+                final String inputMessage = in.readUTF();
                 LOG.info("Receiving message " + inputMessage);
                 if (inputMessage.contains("OPEN_CONNECTION_FOR:")) {
                     clientUserId = Long.valueOf(inputMessage.substring(inputMessage.indexOf(':') + 1));
                     continue;
+                }
+                if (inputMessage.contains("CLOSE_CONNECTION_FOR:")) {
+                    break;
                 }
                 final String toBroadcast = tcpMessageService.receiveMessage(inputMessage);
                 broadcastToClient(toBroadcast);
@@ -62,16 +64,18 @@ public class ClientHandler implements Runnable {
                 }
             }
             shutdown();
-        } catch (final ClassNotFoundException | IOException e) {
-            e.printStackTrace();
+        } catch (final IOException e) {
+            LOG.error(e.getMessage());
+            shutdown();
         }
     }
 
-    private void broadcastToClient(final String message) {
-        out.println(message);
+    private void broadcastToClient(final String message) throws IOException {
+        out.writeUTF(message);
+        out.flush();
     }
 
-    private void broadcastToOtherPlayers(final String toBroadcast, final Game game) {
+    private void broadcastToOtherPlayers(final String toBroadcast, final Game game) throws IOException {
         if (toBroadcast != null && game != null) {
             final Set<Long> userIds = game.getParticipants().stream()
                     .map(Participant::getPlayer)
@@ -93,8 +97,9 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void sendMessage(final String message) {
-        out.println(message);
+    public void sendMessage(final String message) throws IOException {
+        out.writeUTF(message);
+        out.flush();
     }
 
     public Long getClientUserId() {
