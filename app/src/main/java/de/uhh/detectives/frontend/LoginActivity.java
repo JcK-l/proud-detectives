@@ -197,6 +197,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         unbindService(connection);

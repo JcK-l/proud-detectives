@@ -48,8 +48,8 @@ public class WaitingRoomActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String[] names = intent.getExtras().getStringArray("names");
-        for (final String name : names){
-            db.getPlayerRepository().insert(new Player(System.currentTimeMillis(), name));
+        for (int i = 0; i < names.length; i++){
+            db.getPlayerRepository().insert(new Player(System.currentTimeMillis() + i, names[i]));
         }
 
         if (!locationHandler.isLocationUpdatesEnabled()) {
@@ -97,6 +97,10 @@ public class WaitingRoomActivity extends AppCompatActivity {
 
     public LocationHandler getLocationHandler() {
         return locationHandler;
+    }
+
+    @Override
+    public void onBackPressed() {
     }
 
     @Override

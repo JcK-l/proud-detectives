@@ -8,16 +8,18 @@ import androidx.room.RoomDatabase;
 
 import de.uhh.detectives.frontend.model.Hint;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
+import de.uhh.detectives.frontend.model.Message.DirectMessage;
 import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.Solution;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
+import de.uhh.detectives.frontend.repository.DirectMessageRepository;
 import de.uhh.detectives.frontend.repository.HintRepository;
 import de.uhh.detectives.frontend.repository.PlayerRepository;
 import de.uhh.detectives.frontend.repository.SolutionRepository;
 import de.uhh.detectives.frontend.repository.UserDataRepository;
 
-@Database(entities = {UserData.class, ChatMessage.class, Player.class, Hint.class, Solution.class}
+@Database(entities = {UserData.class, ChatMessage.class, Player.class, Hint.class, Solution.class, DirectMessage.class}
         , version = 2, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -28,6 +30,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract PlayerRepository getPlayerRepository();
     public abstract HintRepository getHintRepository();
     public abstract SolutionRepository getSolutionRepository();
+    public abstract DirectMessageRepository getDirectMessageRepository();
 
 
     public static AppDatabase getDatabase(final Context context) {

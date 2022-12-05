@@ -30,7 +30,7 @@ public class CommsAnimation {
         constraintSet1.clone(constraintLayout);
         constraintSet2.clone(constraintLayoutTransition);
 
-        divider = constraintLayout.findViewById(R.id.divider);
+//        divider = constraintLayout.findViewById(R.id.divider);
     }
 
     public void setKeyboardOn() {
@@ -40,7 +40,7 @@ public class CommsAnimation {
             TransitionManager.beginDelayedTransition(constraintLayout);
             constraintSet2.applyTo(constraintLayout);
             TransitionManager.endTransitions(constraintLayout);
-            divider.setVisibility(View.INVISIBLE);
+//            divider.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -51,7 +51,7 @@ public class CommsAnimation {
             TransitionManager.beginDelayedTransition(constraintLayout);
             constraintSet1.applyTo(constraintLayout);
             TransitionManager.endTransitions(constraintLayout);
-            divider.setVisibility(View.VISIBLE);
+//            divider.setVisibility(View.VISIBLE);
         }
     }
 }
