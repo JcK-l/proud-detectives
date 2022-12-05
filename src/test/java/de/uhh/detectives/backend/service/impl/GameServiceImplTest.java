@@ -242,6 +242,9 @@ public class GameServiceImplTest {
         game.setWeapon("Pistole");
         game.setLocation("Arbeitszimmer");
         game.setCulprit("Tom Gruen");
+        game.setCenterX(9.993682d);
+        game.setCenterY(53.551086d);
+        game.setRadius(2000);
         game.setParticipants(Arrays.asList(new Participant(player1), new Participant(player2),
                 new Participant(player3), new Participant(player4)));
         when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
@@ -264,6 +267,9 @@ public class GameServiceImplTest {
         verify(playerRepository).findById(anyLong());
         verify(gameRepository).findAllByCompletedFalse();
         verify(gameRepository).save(any());
+        assertEquals(9.993682d, result.getCenterX());
+        assertEquals(53.551086d, result.getCenterY());
+        assertEquals(2000, result.getRadius());
         final List<Hint> hintsInPlayerPossession = result.getHints().stream()
                 .filter(hint -> hint.getPossessor() != null).toList();
         assertEquals(4, hintsInPlayerPossession.size());
