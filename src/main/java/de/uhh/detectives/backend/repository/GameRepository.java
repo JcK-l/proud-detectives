@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface GameRepository extends JpaRepository<Game, Long> {
 
+    List<Game> findAllByCompletedTrue();
     List<Game> findAllByCompletedFalse();
 
     List<Game> findAllByStartedFalse();

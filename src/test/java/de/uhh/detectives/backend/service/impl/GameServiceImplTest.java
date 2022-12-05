@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -49,7 +48,7 @@ public class GameServiceImplTest {
     @Mock
     private LocationGenerator locationGenerator;
     
-    private static final Long USER_ID = 123L;
+    private static final Long USER_ID = 1234567L;
 
     @Test
     public void testGameGeneration() {
@@ -338,5 +337,67 @@ public class GameServiceImplTest {
         assertTrue(actual.isStarted());
         assertTrue(actual.isCompleted());
         assertEquals(USER_ID, actual.getWinnerId());
+    }
+
+    @Test
+    public void testFindLatestButNoGamesCompleted() {
+        // given
+        when(gameRepository.findAllByCompletedTrue()).thenReturn(Collections.emptyList());
+
+        // when
+        final Game actual = testee.findLatestCompletedGameForUser(USER_ID);
+
+        // then
+        assertNull(actual);
+    }
+
+    @Test
+    public void testFindLatestButNoCompletedGameHasUser() {
+        // given
+        final Game game1 = new Game(123L);
+        final Game game2 = new Game(234L);
+        when(gameRepository.findAllByCompletedTrue()).thenReturn(Arrays.asList(game1, game2));
+
+        // when
+        final Game actual = testee.findLatestCompletedGameForUser(USER_ID);
+
+        // then
+        assertNull(actual);
+    }
+
+    @Test
+    public void testFindLatestCompletedGameForUser() {
+        // given
+        final Player player1 = new Player();
+        player1.setId(1L);
+        final Player player2 = new Player();
+        player2.setId(2L);
+        final Player player3 = new Player();
+        player3.setId(USER_ID);
+        final Player player4 = new Player();
+        player4.setId(4L);
+
+        final Game game1 = new Game(123L);
+        game1.setCompleted(true);
+        game1.setParticipants(Arrays.asList(player1, player2, player3, player4));
+        final Game game2 = new Game(345L);
+        game2.setCompleted(true);
+        game2.setParticipants(Arrays.asList(player1, player2, player3, player4));
+        final Game game3 = new Game(234L);
+        game3.setCompleted(true);
+        game3.setParticipants(Arrays.asList(player1, player2, player3, player4));
+        final Game game4 = new Game(777L);
+        game4.setCompleted(true);
+        game4.setParticipants(Arrays.asList(player1, player2, player4));
+
+        when(gameRepository.findAllByCompletedTrue()).thenReturn(Arrays.asList(game1, game2, game3));
+
+        // when
+        final Game actual = testee.findLatestCompletedGameForUser(USER_ID);
+
+        // then
+        assertNotNull(actual);
+        assertTrue(actual.isCompleted());
+        assertEquals(345L, actual.getGameId());
     }
 }

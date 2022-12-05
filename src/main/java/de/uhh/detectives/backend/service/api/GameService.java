@@ -55,4 +55,6 @@ public interface GameService {
      * @return ended game or NULL if the user has no active game to end
      */
     Game endGame(final Long winnerId);
+
+    Game findLatestCompletedGameForUser(final Long userId);
 }
