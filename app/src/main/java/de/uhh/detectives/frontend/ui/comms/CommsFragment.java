@@ -7,7 +7,6 @@ import android.content.ServiceConnection;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +16,15 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import de.uhh.detectives.frontend.R;
@@ -30,8 +32,10 @@ import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCommsBinding;
 import de.uhh.detectives.frontend.databinding.FragmentCommsSoftkeyboardBinding;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
+import de.uhh.detectives.frontend.model.Message.DirectMessage;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
+import de.uhh.detectives.frontend.model.event.DirectMessageEvent;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class CommsFragment extends Fragment {
@@ -43,13 +47,21 @@ public class CommsFragment extends Fragment {
     private FragmentCommsSoftkeyboardBinding bindingTransition;
 
     private List<ChatMessage> chatMessages;
+    private List<DirectMessage> directMessages;
+
+    private List<Long> playerIds;
+    private List<String> playerNames;
 
     private BottomNavigationView navBar;
     private CommsAnimation animate;
     private ViewPager2 viewPager2;
+    private TabLayout tabLayout;
+    private TabLayoutMediator tabLayoutMediator;
     private ViewPagerAdapter viewPagerAdapter;
 
     private TcpMessageService tcpMessageService;
+
+    private final float MIN_SCALE = 0.75f;
 
     private final ServiceConnection connection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -82,6 +94,18 @@ public class CommsFragment extends Fragment {
         db = AppDatabase.getDatabase(getContext());
         user = db.getUserDataRepository().findFirst();
         chatMessages = db.getChatMessageRepository().getAll();
+        directMessages = db.getDirectMessageRepository().getAll();
+
+        directMessages.sort(Comparator.comparing(DirectMessage::getPosition));
+
+        playerIds = new ArrayList<>();
+        playerNames = new ArrayList<>();
+        for (final DirectMessage directMessage : directMessages) {
+            playerIds.add(directMessage.getId());
+            playerNames.add(directMessage.getPseudonym());
+        }
+
+
         initChat(root);
 
         return root;
@@ -91,10 +115,9 @@ public class CommsFragment extends Fragment {
 
         viewPager2 = root.findViewById(R.id.viewPager);
 
-        viewPagerAdapter = new ViewPagerAdapter(getContext(), Arrays.asList(23423L, 324324L), chatMessages, getActivity());
+        viewPagerAdapter = new ViewPagerAdapter(getContext(), playerIds, chatMessages, getActivity());
 
         viewPager2.setAdapter(viewPagerAdapter);
-        final float MIN_SCALE = 0.75f;
 
         viewPager2.setPageTransformer(
                 (view, position) -> {
@@ -134,12 +157,26 @@ public class CommsFragment extends Fragment {
                 }
         );
 
+        tabLayout = binding.viewTabs.findViewById(R.id.tabLayout);
+        tabLayoutMediator = new TabLayoutMediator(tabLayout, viewPager2,
+                (tab, position) -> {
+                    if (position == 0) {
+                        tab.setText("All Chat");
+                    } else {
+                        tab.setText(playerNames.get(position - 1));
+                    }
+                }
+        );
+        tabLayoutMediator.attach();
+
         binding.layoutSend.setOnClickListener(
             view -> {
                 final String input = binding.inputMessage.getText().toString();
                 if (!input.isEmpty()){
                     binding.inputMessage.setText(null);
-                    ChatMessage chatMessage = new ChatMessage(user,null,input);
+                    int currentPosition = viewPager2.getCurrentItem();
+                    Long receiverId = (currentPosition == 0) ? null : playerIds.get(currentPosition - 1);
+                    ChatMessage chatMessage = new ChatMessage(user, receiverId, input);
                     tcpMessageService.sendMessageToServer(chatMessage);
                 }
             });
@@ -161,19 +198,36 @@ public class CommsFragment extends Fragment {
         });
     }
 
-    private void sendMessageToUi(final ChatMessage chatMessage) {
-        chatMessages.add(chatMessage);
-        Log.d("test", String.valueOf(viewPager2.getCurrentItem()));
-//        viewPagerAdapter.notifyItemChanged(viewPager2.getCurrentItem());
-        viewPagerAdapter.notifyDataSetChanged();
-//        binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size());
-    }
-
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void receiveMessage(final ChatMessageEvent chatMessageEvent) {
         ChatMessage chatMessage = chatMessageEvent.getMessage();
-        sendMessageToUi(chatMessage);
+        chatMessages.add(chatMessage);
+        viewPagerAdapter.notifyDataSetChanged();
+
+        if (chatMessage.getReceiverId() != null && chatMessage.getReceiverId().equals(user.getUserId())
+        && !playerIds.contains(chatMessage.getSenderId())) {
+            playerIds.add(0, chatMessage.getSenderId());
+            playerNames.add(0, chatMessage.getPseudonym());
+            viewPagerAdapter.notifyItemInserted(1);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void receiveDirectMessage(final DirectMessageEvent directMessageEvent) {
+        DirectMessage directMessage = directMessageEvent.getMessage();
+
+        if (!playerIds.contains(directMessage.getId())) {
+            playerIds.add(0, directMessage.getId());
+            playerNames.add(0, directMessage.getPseudonym());
+
+            directMessage.setPosition(0);
+
+            db.getDirectMessageRepository().prepareForInsertion();
+            db.getDirectMessageRepository().insert(directMessage);
+
+            viewPagerAdapter.notifyItemInserted(1);
+            viewPager2.setCurrentItem(1);
+        }
     }
 
 
