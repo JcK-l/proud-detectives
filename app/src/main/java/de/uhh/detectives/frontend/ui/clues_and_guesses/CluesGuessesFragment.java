@@ -34,7 +34,6 @@ import java.util.Locale;
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCluesGuessesBinding;
-import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
 import de.uhh.detectives.frontend.model.Message.WinGameMessage;
 import de.uhh.detectives.frontend.model.UserData;
@@ -74,15 +73,13 @@ public class CluesGuessesFragment extends Fragment {
         binding = FragmentCluesGuessesBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        viewModel = new ViewModelProvider(this).get(CluesGuessesViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(CluesGuessesViewModel.class);
 
         db = AppDatabase.getDatabase(getContext());
         user = db.getUserDataRepository().findFirst();
 
         Intent intent = new Intent(getActivity(), TcpMessageService.class);
         getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
-
-        EventBus.getDefault().register(this);
 
         initViews();
         setUpDefaults();
@@ -111,13 +108,6 @@ public class CluesGuessesFragment extends Fragment {
 
         return root;
     }
-
-    @Subscribe
-    public void updateUser(StartGameMessageEvent startGameMessageEvent) {
-        StartGameMessage startGameMessage = startGameMessageEvent.getMessage();
-        user = db.getUserDataRepository().findFirst();
-    }
-
 
     private void setUpDefaults() {
         if (viewModel.cells == null) {
@@ -244,7 +234,6 @@ public class CluesGuessesFragment extends Fragment {
         switch (solutionVerifier.compareToSolution(suspicion)) {
             case SUCCESS:
                 viewModel.cardColor = R.color.correct_guess;
-                Toast.makeText(getContext(), "YOU WIN!!!", Toast.LENGTH_LONG).show();
                 String message = "I won the game with: " + String.valueOf(solutionVerifier.getSolutionWithAmongus());
 
                 // this will be replaced once we get EndGameMessage going
@@ -252,16 +241,10 @@ public class CluesGuessesFragment extends Fragment {
                 break;
             case SEMIFAILED:
                 viewModel.cardColor = R.color.mixed_guess;
-                if (viewModel.numberOfTries < MAX_TRIES - 1) {
-                    Toast.makeText(getContext(), "KINDA WRONG!!!", Toast.LENGTH_SHORT).show();
-                }
                 viewModel.numberOfTries += 1;
                 break;
             case FAILED:
                 viewModel.cardColor = R.color.wrong_guess;
-                if (viewModel.numberOfTries < MAX_TRIES - 1) {
-                    Toast.makeText(getContext(), "WRONG!!!", Toast.LENGTH_SHORT).show();
-                }
                 viewModel.numberOfTries += 1;
                 break;
             case INVALID:
@@ -323,11 +306,11 @@ public class CluesGuessesFragment extends Fragment {
 
         return cells;
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         getActivity().unbindService(connection);
-        EventBus.getDefault().unregister(this);
         binding = null;
     }
 }

@@ -91,6 +91,8 @@ public class WaitingRoomActivity extends AppCompatActivity {
             return;
         }
 
+        Intent intentGame = new Intent(this, GameActivity.class);
+        startActivity(intentGame);
         finish();
     }
 

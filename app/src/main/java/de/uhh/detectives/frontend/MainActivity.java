@@ -1,9 +1,11 @@
 package de.uhh.detectives.frontend;
 
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -62,24 +64,6 @@ public class MainActivity extends AppCompatActivity {
         chatMessageRepository = db.getChatMessageRepository();
 
         pushMessageHandler = new PushMessageHandler(getApplicationContext());
-
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration
-                .Builder(
-                    R.id.cluesGuessesFragment,
-                    R.id.hintsFragment,
-                    R.id.commsFragment)
-                .build();
-
-        final NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.nav_host_fragment_activity_main);
-        Objects.requireNonNull(navHostFragment);
-        final NavController navController = navHostFragment.getNavController();
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.navView, navController);
-
     }
 
     @Override
@@ -128,6 +112,12 @@ public class MainActivity extends AppCompatActivity {
         Player winner = db.getPlayerRepository().getPlayerWithUserId(winGameMessage.getWinnerId());
 
         pushMessageHandler.pushWinGameMessage(winner.getPseudonym());
+
+        db.getPlayerRepository().deleteAll();
+        db.getSolutionRepository().deleteAll();
+        db.getHintRepository().deleteAll();
+        db.getChatMessageRepository().deleteAll();
+        db.getDirectMessageRepository().deleteAll();
 
         getViewModelStore().clear();
 
