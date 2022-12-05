@@ -7,8 +7,10 @@
     <string name="back_on_the_map_message">You are on the map</string>
     <string name="confirm_guess">Confirm Guess</string>
     <string name="sample_name">Bob</string>
-    <string name="channel_name">Location notification channel</string>
-    <string name="map_channel_description">"Channel for notifications for geofence events "</string>
+    <string name="location_channel_name">Location notification channel</string>
+    <string name="game_event_channel_name">Game event channel</string>
+    <string name="notification_channel_description">"Channel for notifications for geofence events "</string>
+    <string name="game_event_channel_description">"Channel for notifications for geofence events "</string>
 
     <string-array name="weapon_names">
         <item>Pistole</item>

@@ -12,8 +12,10 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
@@ -29,6 +31,7 @@ import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.RegisterMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
+import de.uhh.detectives.frontend.model.event.WinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.api.MessageEvent;
 
 public class TcpMessageService extends Service {
@@ -39,8 +42,8 @@ public class TcpMessageService extends Service {
 
     private final Object syncObject = new Object();
     private Socket socket = null;
-    private BufferedReader in;
-    ObjectOutputStream out;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
     private final String host = "dos-wins-04.informatik.uni-hamburg.de";
 //   private final String host = "10.0.2.2";
     private final int port = 22527;
@@ -62,13 +65,11 @@ public class TcpMessageService extends Service {
         threadTcpConnection.start();
 
         messageEventList.addAll(Arrays.asList(new ChatMessageEvent(), new JoinGameMessageEvent(),
-                new RegisterMessageEvent(), new StartGameMessageEvent()));
+                new RegisterMessageEvent(), new StartGameMessageEvent(), new WinGameMessageEvent()));
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
-
         Thread threadListenForMessage = new Thread(listenForMessage());
         threadListenForMessage.start();
 
@@ -108,8 +109,9 @@ public class TcpMessageService extends Service {
     private Runnable sendMessage(final Message message) {
         return () -> {
             try {
-                out.writeObject("OPEN_CONNECTION_FOR:" + user.getUserId());
-                out.writeObject(message.toString());
+                out.writeUTF("OPEN_CONNECTION_FOR:" + user.getUserId());
+                out.writeUTF(message.toString());
+                out.flush();
             } catch (IOException ignored) {
                 // handle connection failure
             }
@@ -128,7 +130,7 @@ public class TcpMessageService extends Service {
             }
             while(true){
                 try {
-                    serverInput = in.readLine();
+                    serverInput = in.readUTF();
                     Log.i("Message", "got Message: " + serverInput);
                     MessageType messageType = MessageType.valueOf(getMessageTypeFromResponse(serverInput));
                     for (final MessageEvent messageEvent : messageEventList) {
@@ -155,7 +157,7 @@ public class TcpMessageService extends Service {
             try {
                 socket = new Socket(host, port);
                 out = new ObjectOutputStream(socket.getOutputStream());
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                in = new ObjectInputStream(socket.getInputStream());
             } catch (UnknownHostException e) {
                 System.err.println("Don't know about host: " + host);
                 System.exit(1);

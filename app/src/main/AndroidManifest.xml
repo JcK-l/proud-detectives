@@ -37,6 +37,9 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".GameActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".LoginActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity

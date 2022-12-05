@@ -1,9 +1,11 @@
 package de.uhh.detectives.frontend;
 
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -22,8 +24,12 @@ import de.uhh.detectives.frontend.location.MapGeofence;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.DirectMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
+import de.uhh.detectives.frontend.model.Message.WinGameMessage;
+import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
+import de.uhh.detectives.frontend.model.event.WinGameMessageEvent;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
@@ -36,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     // LocationHandler in MainActivity einmal initialisieren, um state zu halten
     private MapGeofence mapGeofence;
     private ChatMessageRepository chatMessageRepository;
+
+    private PushMessageHandler pushMessageHandler;
 
     private final static Long gameStartTime = System.currentTimeMillis();
 
@@ -55,23 +63,7 @@ public class MainActivity extends AppCompatActivity {
         db = AppDatabase.getDatabase(getApplicationContext());
         chatMessageRepository = db.getChatMessageRepository();
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration
-                .Builder(
-                    R.id.cluesGuessesFragment,
-                    R.id.hintsFragment,
-                    R.id.commsFragment)
-                .build();
-
-        final NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.nav_host_fragment_activity_main);
-        Objects.requireNonNull(navHostFragment);
-        final NavController navController = navHostFragment.getNavController();
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.navView, navController);
-
+        pushMessageHandler = new PushMessageHandler(getApplicationContext());
     }
 
     @Override
@@ -112,6 +104,25 @@ public class MainActivity extends AppCompatActivity {
         db.getPlayerRepository().insertAll(startGameMessage.getPlayers());
         db.getSolutionRepository().insert(startGameMessage.getSolution());
         db.getHintRepository().insertAll(startGameMessage.getHints());
+    }
+
+    @Subscribe
+    public void receiveWinGameMessage(WinGameMessageEvent winGameMessageEvent) {
+        WinGameMessage winGameMessage = winGameMessageEvent.getMessage();
+        Player winner = db.getPlayerRepository().getPlayerWithUserId(winGameMessage.getWinnerId());
+
+        pushMessageHandler.pushWinGameMessage(winner.getPseudonym());
+
+        db.getPlayerRepository().deleteAll();
+        db.getSolutionRepository().deleteAll();
+        db.getHintRepository().deleteAll();
+        db.getChatMessageRepository().deleteAll();
+        db.getDirectMessageRepository().deleteAll();
+
+        getViewModelStore().clear();
+
+        Intent intentLogin = new Intent(this, LoginActivity.class);
+        startActivity(intentLogin);
     }
 
     @Override

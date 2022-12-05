@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
+import de.uhh.detectives.frontend.GameActivity;
 import de.uhh.detectives.frontend.MainActivity;
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.databinding.FragmentHintsBinding;
@@ -66,9 +67,9 @@ public class HintsFragment extends Fragment {
         // TODO: ask backend for actual hints
         // but for now we just take hints depending on application up-time
         final List<HintModel> hints = new ArrayList<>();
-        final MainActivity mainActivity = (MainActivity) getActivity();
-        if (mainActivity != null && mainActivity.getGameStartTime() != null) {
-            final long applicationUpTime = System.currentTimeMillis() - mainActivity.getGameStartTime();
+        final GameActivity gameActivity = (GameActivity) getActivity();
+        if (gameActivity != null && gameActivity.getGameStartTime() != null) {
+            final long applicationUpTime = System.currentTimeMillis() - gameActivity.getGameStartTime();
             // one hint every 3 seconds
             for (int i = 0; i < applicationUpTime / NOTIFICATION_DELAY; i++) {
                 if (i < hintModels.size()) {
