@@ -16,6 +16,7 @@ import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -121,6 +122,24 @@ public class GameServiceImpl implements GameService {
         return game;
     }
 
+    @Override
+    public Game findLatestCompletedGameForUser(final Long userId) {
+        final List<Game> completedGames = gameRepository.findAllByCompletedTrue();
+        if (completedGames == null || completedGames.isEmpty()) {
+            LOG.info("No completed game(s) found in the database.");
+            return null;
+        }
+        final List<Game> gamesForUser = completedGames.stream()
+                .filter(game -> hasUser(game, userId))
+                .sorted(Comparator.comparingLong(Game::getGameId).reversed())
+                .toList();
+        if (gamesForUser.isEmpty()) {
+            LOG.info(String.format("No completed game found for user %d", userId));
+            return null;
+        }
+        return gamesForUser.get(0);
+    }
+
     private void generateSolution(final Game game) {
         final Random random = ThreadLocalRandom.current();
         final int culpritRandomIndex = random.nextInt(0, Culprit.values().length);
@@ -204,5 +223,10 @@ public class GameServiceImpl implements GameService {
             hintsWithoutPossessors.get(i).setLongitude(randomLocations.get(i).getX());
             hintsWithoutPossessors.get(i).setLatitude(randomLocations.get(i).getY());
         }
+    }
+
+    private boolean hasUser(final Game game, final Long userId) {
+        final Optional<Player> player = game.getParticipants().stream().filter(p -> userId.equals(p.getId())).findAny();
+        return player.isPresent();
     }
 }
