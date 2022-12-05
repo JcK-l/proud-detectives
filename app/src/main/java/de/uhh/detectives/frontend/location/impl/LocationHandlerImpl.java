@@ -34,8 +34,8 @@ public class LocationHandlerImpl implements LocationHandler {
     private static final String ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
 
     private static final int REQUEST_CHECK_SETTINGS = 100;
-    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
-    private static final long FASTET_UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
+    private static final long FASTET_UPDATE_INTERVAL_IN_MILLISECONDS = 500;
     private static final String TAG = LocationHandlerImpl.class.getSimpleName();
 
     private final FusedLocationProviderClient locationClient;
