@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/app_navigation"
+app:startDestination="@id/commsFragment">
+
+<fragment
+    android:id="@+id/commsFragment"
+    android:name="de.uhh.detectives.frontend.ui.comms.CommsFragment"
+    android:label="Communication"
+    tools:layout="@layout/fragment_comms" />
+<fragment
+    android:id="@+id/startGameFragment"
+    android:name="de.uhh.detectives.frontend.ui.start_game.StartGameFragment"
+    android:label="Start Game"
+    tools:layout="@layout/fragment_start_game" />
+</navigation>

@@ -9,6 +9,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -16,10 +18,11 @@ import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
-import de.uhh.detectives.frontend.location.api.LocationHandler;
-import de.uhh.detectives.frontend.location.impl.LocationHandlerImpl;
+import de.uhh.detectives.frontend.location.MapGeofence;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
+import de.uhh.detectives.frontend.model.Message.StartGameMessage;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
+import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
@@ -27,9 +30,10 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private AppDatabase db;
+    private Bundle savedInstanceState;
 
     // LocationHandler in MainActivity einmal initialisieren, um state zu halten
-    private LocationHandler locationHandler;
+    private MapGeofence mapGeofence;
     private ChatMessageRepository chatMessageRepository;
 
     private final static Long gameStartTime = System.currentTimeMillis();
@@ -37,15 +41,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.savedInstanceState = savedInstanceState;
 
         EventBus.getDefault().register(this);
 
         Intent intentService = new Intent(this, TcpMessageService.class);
         startService(intentService);
 
-        Intent intentActivity = new Intent(this, LoginActivity.class);
-        startActivity(intentActivity);
-
+        Intent intentLogin = new Intent(this, LoginActivity.class);
+        startActivity(intentLogin);
 
         db = AppDatabase.getDatabase(getApplicationContext());
         chatMessageRepository = db.getChatMessageRepository();
@@ -53,13 +57,10 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        locationHandler = new LocationHandlerImpl(this.getApplicationContext(), this);
-
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(
                     R.id.cluesGuessesFragment,
                     R.id.hintsFragment,
-                    R.id.mapsFragment,
                     R.id.commsFragment)
                 .build();
 
@@ -72,12 +73,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public Long getGameStartTime() {
-        return gameStartTime;
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mapGeofence = new MapGeofence(this, savedInstanceState);
+        mapGeofence.placeMapGeofence(new LatLng(53.5690, 10.0205),
+                20f);
     }
 
-    public LocationHandler getLocationHandler() {
-        return locationHandler;
+    public Long getGameStartTime() {
+        return gameStartTime;
     }
 
 
@@ -85,6 +90,18 @@ public class MainActivity extends AppCompatActivity {
     public void addChatmessageToDatabase(ChatMessageEvent chatMessageEvent) {
         ChatMessage chatMessage = chatMessageEvent.getMessage();
         chatMessageRepository.insert(chatMessage);
+    }
+
+    @Subscribe
+    public void saveInfoFromServerOnStartGame(StartGameMessageEvent startGameMessageEvent) {
+        StartGameMessage startGameMessage = startGameMessageEvent.getMessage();
+
+        db.getChatMessageRepository().deleteAll();
+        db.getPlayerRepository().deleteAll();
+
+        db.getPlayerRepository().insertAll(startGameMessage.getPlayers());
+        db.getSolutionRepository().insert(startGameMessage.getSolution());
+        db.getHintRepository().insertAll(startGameMessage.getHints());
     }
 
     @Override

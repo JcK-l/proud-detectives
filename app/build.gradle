@@ -41,10 +41,12 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     implementation 'androidx.navigation:navigation-fragment:2.5.3'
     implementation 'androidx.navigation:navigation-ui:2.5.3'
-    implementation 'com.mapbox.maps:android:10.9.1'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
     implementation 'org.greenrobot:eventbus:3.3.1'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.karumi:dexter:6.2.3'
+    implementation("org.greenrobot:eventbus:3.3.1")
 
     //Scalable Size Unit (support for different screen sizes)
 //    implementation 'com.intuit.sdp:sdp-android:1.1.0'

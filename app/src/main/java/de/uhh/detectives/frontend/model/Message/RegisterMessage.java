@@ -36,17 +36,8 @@ public class RegisterMessage implements Message {
             tokens[i] = tokens[i].substring(tokens[i].indexOf("=") + 1);
         }
 
-        try {
-            this.status = Integer.parseInt(tokens[1]);
-            this.result = tokens[2];
-        } catch (Exception ignored) {
-            this.status = 0;
-            this.result = null;
-        }
-        this.userId = null;
-        this.pseudonym = null;
-        this.prename = null;
-        this.surname = null;
+        this.status = Integer.parseInt(tokens[1]);
+        this.result = tokens[2];
     }
 
     @Nullable

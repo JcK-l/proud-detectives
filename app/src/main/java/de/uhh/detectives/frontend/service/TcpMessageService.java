@@ -28,12 +28,13 @@ import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.RegisterMessageEvent;
+import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.api.MessageEvent;
 
 public class TcpMessageService extends Service {
     private Looper serviceLooper;
     private final IBinder binder = new LocalBinder();
-    private List<MessageEvent> messageEventList = new ArrayList<>();
+    private final List<MessageEvent> messageEventList = new ArrayList<>();
     private UserData user;
 
     private final Object syncObject = new Object();
@@ -41,7 +42,7 @@ public class TcpMessageService extends Service {
     private BufferedReader in;
     ObjectOutputStream out;
     private final String host = "dos-wins-04.informatik.uni-hamburg.de";
-//    private final String host = "10.0.2.2";
+//   private final String host = "10.0.2.2";
     private final int port = 22527;
 
     public class LocalBinder extends Binder {
@@ -60,7 +61,8 @@ public class TcpMessageService extends Service {
         Thread threadTcpConnection = new Thread(establishTcpConnection());
         threadTcpConnection.start();
 
-        messageEventList.addAll(Arrays.asList(new ChatMessageEvent(), new JoinGameMessageEvent(), new RegisterMessageEvent()));
+        messageEventList.addAll(Arrays.asList(new ChatMessageEvent(), new JoinGameMessageEvent(),
+                new RegisterMessageEvent(), new StartGameMessageEvent()));
     }
 
     @Override

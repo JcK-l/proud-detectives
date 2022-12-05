@@ -1,11 +1,14 @@
 <resources>
-    <string name="app_name">detectives-frontend</string>
+    <string name="app_name">Stolze Detektive</string>
     <string name="hint_category">Hint category</string>
     <string name="hint_description">Hint description</string>
     <string name="type_a_message">Type a message</string>
-    <string name="mapbox_access_token">pk.eyJ1IjoicGhpbGtpc3RlcnMiLCJhIjoiY2t2c2l0aHlpMmxiajMya2xwNnp4ZWtsNiJ9.mhZpfB64qU2PoMeBAMnowA</string>
+    <string name="map_left_message">You have left the map</string>
+    <string name="back_on_the_map_message">You are on the map</string>
     <string name="confirm_guess">Confirm Guess</string>
     <string name="sample_name">Bob</string>
+    <string name="channel_name">Location notification channel</string>
+    <string name="map_channel_description">"Channel for notifications for geofence events "</string>
 
     <string-array name="weapon_names">
         <item>Pistole</item>
