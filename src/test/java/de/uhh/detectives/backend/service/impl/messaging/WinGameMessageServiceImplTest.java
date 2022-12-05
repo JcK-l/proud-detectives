@@ -1,6 +1,7 @@
 package de.uhh.detectives.backend.service.impl.messaging;
 
 import de.uhh.detectives.backend.model.entity.Game;
+import de.uhh.detectives.backend.model.entity.Participant;
 import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.model.messaging.JoinGameMessage;
 import de.uhh.detectives.backend.model.messaging.Message;
@@ -43,7 +44,7 @@ public class WinGameMessageServiceImplTest {
     }
 
     @Test
-    public void testHandleNoGameFound(){
+    public void testHandleNoGameFound() {
         // given
         final Long playerId = 123456789L;
         final WinGameMessage winGameMessage = new WinGameMessage();
@@ -59,7 +60,7 @@ public class WinGameMessageServiceImplTest {
     }
 
     @Test
-    public void testHandle(){
+    public void testHandle() {
         // given
         final Long playerId = 123456789L;
         final WinGameMessage winGameMessage = new WinGameMessage();
@@ -78,7 +79,8 @@ public class WinGameMessageServiceImplTest {
         final Long gameId = 11111111L;
         final Game game = new Game(gameId);
         game.setWinnerId(playerId);
-        game.setParticipants(Arrays.asList(player1, player2, player3, player4));
+        game.setParticipants(Arrays.asList(new Participant(player1), new Participant(player2),
+                new Participant(player3), new Participant(player4)));
 
         when(gameService.endGame(eq(playerId))).thenReturn(game);
 

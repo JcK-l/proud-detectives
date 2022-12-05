@@ -1,6 +1,7 @@
 package de.uhh.detectives.backend.service.impl.messaging;
 
 import de.uhh.detectives.backend.model.entity.Game;
+import de.uhh.detectives.backend.model.entity.Participant;
 import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.model.messaging.Message;
 import de.uhh.detectives.backend.model.messaging.WinGameMessage;
@@ -42,7 +43,7 @@ public class WinGameMessageServiceImpl implements MessageService {
     }
 
     private String getWinnerPseudonym(final Game game, final Long winnerId) {
-        final List<Player> participants = game.getParticipants();
+        final List<Player> participants = game.getParticipants().stream().map(Participant::getPlayer).toList();
         final Optional<Player> winner = participants.stream().filter(p -> winnerId.equals(p.getId())).findFirst();
         return winner.isEmpty() ? null : winner.get().getPseudonym();
     }

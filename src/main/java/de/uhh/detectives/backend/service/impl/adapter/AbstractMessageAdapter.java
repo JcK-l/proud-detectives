@@ -18,7 +18,11 @@ public abstract class AbstractMessageAdapter implements MessageAdapter {
         return Integer.parseInt(intString);
     }
 
-    protected Double readDouble(final String DoubleString) {
-        return Double.parseDouble(DoubleString);
+    protected Double readDouble(final String doubleString) {
+        return Double.parseDouble(doubleString);
+    }
+
+    protected Boolean readBoolean(final String booleanString) {
+        return Boolean.parseBoolean(booleanString);
     }
 }
