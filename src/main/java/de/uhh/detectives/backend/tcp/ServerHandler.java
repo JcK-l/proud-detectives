@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -32,7 +34,7 @@ public class ServerHandler implements Runnable {
         this.gameService = gameService;
     }
 
-    public void broadcastMessage(final String message, final Set<Long> userIds) {
+    public void broadcastMessage(final String message, final Set<Long> userIds) throws IOException {
         for (final ClientHandler handler : connections) {
             if (handler.isClosed()) {
                 connections.remove(handler);
@@ -47,16 +49,20 @@ public class ServerHandler implements Runnable {
     @Override
     public void run() {
         Socket clientSocket;
+        ObjectOutputStream out;
+        ObjectInputStream in;
         while (true) {
             try {
                 LOG.info("Listening for connections on port " + serverSocket.getLocalPort());
                 clientSocket = serverSocket.accept();
+                out = new ObjectOutputStream(clientSocket.getOutputStream());
+                in = new ObjectInputStream(clientSocket.getInputStream());
                 LOG.info("Somebody connected.");
             } catch (IOException e) {
                 LOG.error("Accept failed.");
                 break;
             }
-            final ClientHandler clientHandler = new ClientHandler(this, clientSocket, tcpMessageService, gameService);
+            final ClientHandler clientHandler = new ClientHandler(this, clientSocket, tcpMessageService, in, out, gameService);
             connections.add(clientHandler);
             threadPool.execute(clientHandler);
         }
