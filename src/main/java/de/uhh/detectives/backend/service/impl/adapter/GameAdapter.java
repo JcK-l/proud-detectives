@@ -13,6 +13,10 @@ public class GameAdapter {
     private static final String LOCATION_STRING = "location";
     private static final String WEAPON_STRING = "weapon";
 
+    private static final String CENTER_X_STRING = "centerX";
+    private static final String CENTER_Y_STRING = "centerY";
+    private static final String RADIUS_STRING = "radius";
+
     private static final String PLAYER_ID_STRING = "id";
     private static final String PLAYER_PSEUDONYM_STRING = "pseudonym";
 
@@ -31,6 +35,10 @@ public class GameAdapter {
         appendValueForIdentifier(builder, CULPRIT_STRING, game.getCulprit());
         appendValueForIdentifier(builder, LOCATION_STRING, game.getLocation());
         appendValueForIdentifier(builder, WEAPON_STRING, game.getWeapon());
+
+        appendValueForIdentifier(builder, CENTER_X_STRING, game.getCenterX());
+        appendValueForIdentifier(builder, CENTER_Y_STRING, game.getCenterY());
+        appendValueForIdentifier(builder, RADIUS_STRING, game.getRadius());
 
         // append players
         builder.append("Players[");
@@ -65,6 +73,11 @@ public class GameAdapter {
 
     private void appendValueForIdentifier(final StringBuilder builder, final String identifier, final Long longValue) {
         final String value = longValue == null ? "null" : longValue.toString();
+        appendValueForIdentifier(builder, identifier, value);
+    }
+
+    private void appendValueForIdentifier(final StringBuilder builder, final String identifier, final Integer intValue) {
+        final String value = intValue == null ? "null" : intValue.toString();
         appendValueForIdentifier(builder, identifier, value);
     }
 

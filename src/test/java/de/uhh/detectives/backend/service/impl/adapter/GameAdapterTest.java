@@ -26,6 +26,10 @@ public class GameAdapterTest {
         game.setLocation("Arbeitszimmer");
         game.setCulprit("Tom Gruen");
 
+        game.setCenterX(9.993682d);
+        game.setCenterY(53.551086d);
+        game.setRadius(399);
+
         final Player player1 = new Player();
         player1.setId(123L);
         final Player player2 = new Player();
@@ -65,6 +69,7 @@ public class GameAdapterTest {
 
         // then
         assertEquals("gameId=11111111;culprit=Tom Gruen;location=Arbeitszimmer;weapon=Pistole;" +
+                "centerX=9.993682;centerY=53.551086;radius=399;" +
                 "Players[id=123;pseudonym=null;id=234;pseudonym=null;id=345;pseudonym=null;id=456;pseudonym=null;]" +
                 "Hints[" +
                     "category=Person;description=Dennis Gatow;possessorId=123;longitude=null;latitude=null;" +

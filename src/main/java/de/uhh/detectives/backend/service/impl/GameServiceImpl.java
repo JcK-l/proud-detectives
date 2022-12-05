@@ -109,7 +109,11 @@ public class GameServiceImpl implements GameService {
         game.setHints(generateHints(game));
         giveOneHintToEachPlayer(game);
         doubleHintsNotInPlayerPossession(game);
-        generateHintLocations(game, longitudeOfUser, latitudeOfUser, playingFieldRadius);
+        final int radius = playingFieldRadius == null ? PLAYING_AREA_RADIUS_IN_METER : playingFieldRadius;
+        generateHintLocations(game, longitudeOfUser, latitudeOfUser, radius);
+        game.setCenterX(longitudeOfUser);
+        game.setCenterY(latitudeOfUser);
+        game.setRadius(radius);
         game.setStarted(true);
         gameRepository.save(game);
         return game;
@@ -237,8 +241,8 @@ public class GameServiceImpl implements GameService {
                 .filter(hint -> hint.getPossessor() == null)
                 .toList();
         final Random random = ThreadLocalRandom.current();
-        final int radius = playingFieldRadius == null ? PLAYING_AREA_RADIUS_IN_METER : playingFieldRadius;
-        final List<Point> randomLocations = locationGenerator.generateInCircle(center, radius,
+
+        final List<Point> randomLocations = locationGenerator.generateInCircle(center, playingFieldRadius,
                 hintsWithoutPossessors.size(), random);
 
         for (int i = 0; i < hintsWithoutPossessors.size(); i++) {

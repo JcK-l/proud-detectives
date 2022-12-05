@@ -30,6 +30,10 @@ public class Game implements Serializable {
     private String location;
     private String weapon;
 
+    private Double centerX;
+    private Double centerY;
+    private Integer radius;
+
     private List<Participant> participants;
     private List<Hint> hints;
 
@@ -97,6 +101,30 @@ public class Game implements Serializable {
 
     public void setWeapon(String weapon) {
         this.weapon = weapon;
+    }
+
+    public Double getCenterX() {
+        return centerX;
+    }
+
+    public void setCenterX(Double centerX) {
+        this.centerX = centerX;
+    }
+
+    public Double getCenterY() {
+        return centerY;
+    }
+
+    public void setCenterY(Double centerY) {
+        this.centerY = centerY;
+    }
+
+    public Integer getRadius() {
+        return radius;
+    }
+
+    public void setRadius(Integer radius) {
+        this.radius = radius;
     }
 
     @OneToMany(fetch = FetchType.EAGER)
