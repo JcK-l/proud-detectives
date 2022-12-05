@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -412,5 +413,64 @@ public class GameServiceImplTest {
         assertNotNull(actual);
         assertTrue(actual.isCompleted());
         assertEquals(345L, actual.getGameId());
+    }
+
+    @Test
+    public void testChangeReadyStatusNoActiveGame() {
+        // given
+        final Player player = new Player();
+        player.setId(USER_ID);
+        when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player));
+        when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.emptyList());
+
+        // when
+        final Game game = testee.changeReadyStatus(USER_ID, true);
+
+        // then
+        verify(playerRepository).findById(eq(USER_ID));
+        verify(participantRepository, times(0)).saveAndFlush(any());
+        assertNull(game);
+    }
+
+    @Test
+    public void testChangeReadyStatus() {
+        // given
+        final Player player = new Player();
+        player.setId(USER_ID);
+        when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player));
+        final Participant participant = new Participant(player);
+        participant.setReady(false);
+
+        final Game expected = new Game(111111111L);
+        final Player player1 = new Player();
+        player1.setId(USER_ID);
+        player1.setPseudonym("Alice");
+        final Participant participant1 = new Participant(player1);
+        participant1.setReady(false);
+        final Player player2 = new Player();
+        player2.setId(USER_ID);
+        player2.setPseudonym("Bob");
+        final Participant participant2 = new Participant(player2);
+        participant2.setReady(true);
+        expected.setParticipants(Arrays.asList(participant, participant1, participant2));
+        when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(expected));
+
+        final ArgumentCaptor<Participant> captor = ArgumentCaptor.forClass(Participant.class);
+
+        // when
+        final Game game = testee.changeReadyStatus(USER_ID, true);
+
+        // then
+        verify(playerRepository).findById(eq(USER_ID));
+        verify(participantRepository).saveAndFlush(captor.capture());
+        final Participant actual = captor.getValue();
+        assertEquals(participant.getPlayer(), actual.getPlayer());
+        assertTrue(actual.isReady());
+
+        assertNotNull(game);
+        assertEquals(3, game.getParticipants().size());
+        assertTrue(game.getParticipants().get(0).isReady());
+        assertFalse(game.getParticipants().get(1).isReady());
+        assertTrue(game.getParticipants().get(2).isReady());
     }
 }

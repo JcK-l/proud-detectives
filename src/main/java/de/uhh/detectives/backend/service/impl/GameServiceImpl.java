@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.Part;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -84,9 +85,17 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game changeReadyStatus(Long userId, boolean ready) {
-        // TODO implement
-        return null;
+    public Game changeReadyStatus(final Long userId, final boolean ready) {
+        final Game game = findActiveGameForUser(userId);
+        if (game == null) {
+            return null;
+        }
+        final Participant participant = game.getParticipants().stream()
+                .filter(p -> userId.equals(p.getPlayer().getId()))
+                .findFirst().orElseThrow();
+        participant.setReady(ready);
+        participantRepository.saveAndFlush(participant);
+        return game;
     }
 
     @Override
