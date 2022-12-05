@@ -2,11 +2,13 @@ package de.uhh.detectives.backend.service.impl;
 
 import de.uhh.detectives.backend.model.Hint;
 import de.uhh.detectives.backend.model.entity.Game;
+import de.uhh.detectives.backend.model.entity.Participant;
 import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.model.enumeration.Culprit;
 import de.uhh.detectives.backend.model.enumeration.Location;
 import de.uhh.detectives.backend.model.enumeration.Weapon;
 import de.uhh.detectives.backend.repository.GameRepository;
+import de.uhh.detectives.backend.repository.ParticipantRepository;
 import de.uhh.detectives.backend.repository.PlayerRepository;
 import de.uhh.detectives.backend.service.api.GameService;
 import de.uhh.detectives.backend.service.api.LocationGenerator;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.Part;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -31,11 +34,14 @@ public class GameServiceImpl implements GameService {
 
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
+    private final ParticipantRepository participantRepository;
     private final LocationGenerator locationGenerator;
 
-    public GameServiceImpl(final GameRepository gameRepository, final PlayerRepository playerRepository, final LocationGenerator locationGenerator) {
+    public GameServiceImpl(final GameRepository gameRepository, final PlayerRepository playerRepository,
+                           final ParticipantRepository participantRepository, final LocationGenerator locationGenerator) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
+        this.participantRepository = participantRepository;
         this.locationGenerator = locationGenerator;
     }
 
@@ -71,10 +77,25 @@ public class GameServiceImpl implements GameService {
             LOG.error(String.format("No registered user with id %d found in the database.", userId));
             return null;
         }
-        nonStartedGame.getParticipants().add(player.get());
+        final Participant participant = participantRepository.saveAndFlush(new Participant(player.get()));
+        nonStartedGame.getParticipants().add(participant);
         gameRepository.save(nonStartedGame);
         LOG.info(String.format("registered user %d for game %d", userId, nonStartedGame.getGameId()));
         return nonStartedGame;
+    }
+
+    @Override
+    public Game changeReadyStatus(final Long userId, final boolean ready) {
+        final Game game = findActiveGameForUser(userId);
+        if (game == null) {
+            return null;
+        }
+        final Participant participant = game.getParticipants().stream()
+                .filter(p -> userId.equals(p.getPlayer().getId()))
+                .findFirst().orElseThrow();
+        participant.setReady(ready);
+        participantRepository.saveAndFlush(participant);
+        return game;
     }
 
     @Override
@@ -103,7 +124,8 @@ public class GameServiceImpl implements GameService {
         }
         final List<Game> activeGames = gameRepository.findAllByCompletedFalse();
         final List<Game> gamesForUser = activeGames.stream()
-                .filter(game -> game.getParticipants().contains(playerOptional.get()))
+                .filter(game -> game.getParticipants().stream()
+                        .map(Participant::getPlayer).toList().contains(playerOptional.get()))
                 .toList();
         if (gamesForUser.size() != 1) {
             LOG.warn(String.format("not exactly one active game was found for the user %d.", userId));
@@ -178,7 +200,7 @@ public class GameServiceImpl implements GameService {
     private void giveOneHintToEachPlayer(final Game game) {
         final List<Integer> randomIndices = generateDistinctRandomIndices(game.getParticipants().size(), game.getHints().size());
         final List<Hint> hints = game.getHints();
-        final List<Player> players = game.getParticipants();
+        final List<Player> players = game.getParticipants().stream().map(Participant::getPlayer).toList();
         for (int i = 0; i < players.size(); i++) {
             final Hint hint = hints.get(randomIndices.get(i));
             hint.setPossessor(players.get(i));
@@ -226,7 +248,9 @@ public class GameServiceImpl implements GameService {
     }
 
     private boolean hasUser(final Game game, final Long userId) {
-        final Optional<Player> player = game.getParticipants().stream().filter(p -> userId.equals(p.getId())).findAny();
+        final Optional<Player> player = game.getParticipants().stream()
+                .map(Participant::getPlayer)
+                .filter(p -> userId.equals(p.getId())).findAny();
         return player.isPresent();
     }
 }

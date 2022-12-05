@@ -2,6 +2,7 @@ package de.uhh.detectives.backend.service.impl.adapter;
 
 import de.uhh.detectives.backend.model.Hint;
 import de.uhh.detectives.backend.model.entity.Game;
+import de.uhh.detectives.backend.model.entity.Participant;
 import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.model.enumeration.Culprit;
 import de.uhh.detectives.backend.model.enumeration.Location;
@@ -33,7 +34,8 @@ public class GameAdapterTest {
         player3.setId(345L);
         final Player player4 = new Player();
         player4.setId(456L);
-        game.setParticipants(Arrays.asList(player1, player2, player3, player4));
+        game.setParticipants(Arrays.asList(new Participant(player1), new Participant(player2),
+                new Participant(player3), new Participant(player4)));
 
         final Hint hint1 = new Hint(Culprit.DENNIS_GATOW);
         hint1.setPossessor(player1);

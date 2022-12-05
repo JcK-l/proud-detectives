@@ -2,8 +2,10 @@ package de.uhh.detectives.backend.service.impl;
 
 import de.uhh.detectives.backend.model.Hint;
 import de.uhh.detectives.backend.model.entity.Game;
+import de.uhh.detectives.backend.model.entity.Participant;
 import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.repository.GameRepository;
+import de.uhh.detectives.backend.repository.ParticipantRepository;
 import de.uhh.detectives.backend.repository.PlayerRepository;
 import de.uhh.detectives.backend.service.api.LocationGenerator;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,6 +50,9 @@ public class GameServiceImplTest {
 
     @Mock
     private LocationGenerator locationGenerator;
+
+    @Mock
+    private ParticipantRepository participantRepository;
     
     private static final Long USER_ID = 1234567L;
 
@@ -94,7 +100,7 @@ public class GameServiceImplTest {
 
         final List<Game> activeGames = new ArrayList<>();
         activeGames.add(new Game(11111111L));
-        activeGames.get(0).getParticipants().add(player);
+        activeGames.get(0).getParticipants().add(new Participant(player));
         when(gameRepository.findAllByCompletedFalse()).thenReturn(activeGames);
 
         // when
@@ -150,6 +156,7 @@ public class GameServiceImplTest {
         final Player player = new Player();
         player.setId(USER_ID);
         when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player));
+        when(participantRepository.saveAndFlush(any())).thenReturn(new Participant(player));
 
         final ArgumentCaptor<Game> captor = ArgumentCaptor.forClass(Game.class);
 
@@ -158,10 +165,11 @@ public class GameServiceImplTest {
 
         // then
         verify(playerRepository, times(2)).findById(eq(USER_ID));
+        verify(participantRepository).saveAndFlush(any());
         verify(gameRepository).save(captor.capture());
         final Game savedGame = captor.getValue();
         assertEquals(1, savedGame.getParticipants().size());
-        assertEquals(USER_ID, savedGame.getParticipants().get(0).getId());
+        assertEquals(USER_ID, savedGame.getParticipants().get(0).getPlayer().getId());
     }
 
     @Test
@@ -204,7 +212,7 @@ public class GameServiceImplTest {
 
         final List<Game> activeGames = new ArrayList<>();
         activeGames.add(new Game(11111111L));
-        activeGames.get(0).getParticipants().add(player);
+        activeGames.get(0).getParticipants().add(new Participant(player));
         when(gameRepository.findAllByCompletedFalse()).thenReturn(activeGames);
 
         // when
@@ -234,7 +242,8 @@ public class GameServiceImplTest {
         game.setWeapon("Pistole");
         game.setLocation("Arbeitszimmer");
         game.setCulprit("Tom Gruen");
-        game.setParticipants(Arrays.asList(player1, player2, player3, player4));
+        game.setParticipants(Arrays.asList(new Participant(player1), new Participant(player2),
+                new Participant(player3), new Participant(player4)));
         when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
 
         final Point location1 = new Point(9.994611d, 53.540005d);
@@ -292,7 +301,7 @@ public class GameServiceImplTest {
         game.setWeapon("Pistole");
         game.setLocation("Arbeitszimmer");
         game.setCulprit("Tom Gruen");
-        game.setParticipants(Arrays.asList(player2, player3, player4));
+        game.setParticipants(Arrays.asList(new Participant(player2), new Participant(player3), new Participant(player4)));
         when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
 
         // when
@@ -320,7 +329,8 @@ public class GameServiceImplTest {
         final Long gameId = 11111111L;
         final Game game = new Game(gameId);
         game.setStarted(true);
-        game.setParticipants(Arrays.asList(player1, player2, player3, player4));
+        game.setParticipants(Arrays.asList(new Participant(player1), new Participant(player2),
+                new Participant(player3), new Participant(player4)));
         when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player3));
         when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
 
@@ -379,16 +389,20 @@ public class GameServiceImplTest {
 
         final Game game1 = new Game(123L);
         game1.setCompleted(true);
-        game1.setParticipants(Arrays.asList(player1, player2, player3, player4));
+        game1.setParticipants(Arrays.asList(new Participant(player1), new Participant(player2),
+                new Participant(player3), new Participant(player4)));
         final Game game2 = new Game(345L);
         game2.setCompleted(true);
-        game2.setParticipants(Arrays.asList(player1, player2, player3, player4));
+        game2.setParticipants(Arrays.asList(new Participant(player1), new Participant(player2),
+                new Participant(player3), new Participant(player4)));
         final Game game3 = new Game(234L);
         game3.setCompleted(true);
-        game3.setParticipants(Arrays.asList(player1, player2, player3, player4));
+        game3.setParticipants(Arrays.asList(new Participant(player1), new Participant(player2),
+                new Participant(player3), new Participant(player4)));
         final Game game4 = new Game(777L);
         game4.setCompleted(true);
-        game4.setParticipants(Arrays.asList(player1, player2, player4));
+        game4.setParticipants(Arrays.asList(new Participant(player1), new Participant(player2),
+                new Participant(player4)));
 
         when(gameRepository.findAllByCompletedTrue()).thenReturn(Arrays.asList(game1, game2, game3));
 
@@ -399,5 +413,64 @@ public class GameServiceImplTest {
         assertNotNull(actual);
         assertTrue(actual.isCompleted());
         assertEquals(345L, actual.getGameId());
+    }
+
+    @Test
+    public void testChangeReadyStatusNoActiveGame() {
+        // given
+        final Player player = new Player();
+        player.setId(USER_ID);
+        when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player));
+        when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.emptyList());
+
+        // when
+        final Game game = testee.changeReadyStatus(USER_ID, true);
+
+        // then
+        verify(playerRepository).findById(eq(USER_ID));
+        verify(participantRepository, times(0)).saveAndFlush(any());
+        assertNull(game);
+    }
+
+    @Test
+    public void testChangeReadyStatus() {
+        // given
+        final Player player = new Player();
+        player.setId(USER_ID);
+        when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player));
+        final Participant participant = new Participant(player);
+        participant.setReady(false);
+
+        final Game expected = new Game(111111111L);
+        final Player player1 = new Player();
+        player1.setId(USER_ID);
+        player1.setPseudonym("Alice");
+        final Participant participant1 = new Participant(player1);
+        participant1.setReady(false);
+        final Player player2 = new Player();
+        player2.setId(USER_ID);
+        player2.setPseudonym("Bob");
+        final Participant participant2 = new Participant(player2);
+        participant2.setReady(true);
+        expected.setParticipants(Arrays.asList(participant, participant1, participant2));
+        when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(expected));
+
+        final ArgumentCaptor<Participant> captor = ArgumentCaptor.forClass(Participant.class);
+
+        // when
+        final Game game = testee.changeReadyStatus(USER_ID, true);
+
+        // then
+        verify(playerRepository).findById(eq(USER_ID));
+        verify(participantRepository).saveAndFlush(captor.capture());
+        final Participant actual = captor.getValue();
+        assertEquals(participant.getPlayer(), actual.getPlayer());
+        assertTrue(actual.isReady());
+
+        assertNotNull(game);
+        assertEquals(3, game.getParticipants().size());
+        assertTrue(game.getParticipants().get(0).isReady());
+        assertFalse(game.getParticipants().get(1).isReady());
+        assertTrue(game.getParticipants().get(2).isReady());
     }
 }

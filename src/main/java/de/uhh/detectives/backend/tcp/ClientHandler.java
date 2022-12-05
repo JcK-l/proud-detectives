@@ -1,6 +1,7 @@
 package de.uhh.detectives.backend.tcp;
 
 import de.uhh.detectives.backend.model.entity.Game;
+import de.uhh.detectives.backend.model.entity.Participant;
 import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.service.api.GameService;
 import de.uhh.detectives.backend.service.api.TcpMessageService;
@@ -72,7 +73,10 @@ public class ClientHandler implements Runnable {
 
     private void broadcastToOtherPlayers(final String toBroadcast, final Game game) {
         if (toBroadcast != null && game != null) {
-            final Set<Long> userIds = game.getParticipants().stream().map(Player::getId).collect(Collectors.toSet());
+            final Set<Long> userIds = game.getParticipants().stream()
+                    .map(Participant::getPlayer)
+                    .map(Player::getId)
+                    .collect(Collectors.toSet());
             userIds.remove(clientUserId);
             LOG.info("Broadcasting message " + toBroadcast + " to users of game with id " + game.getGameId());
             server.broadcastMessage(toBroadcast, userIds);

@@ -28,6 +28,8 @@ public interface GameService {
      */
     Game registerPlayer(final Long userId);
 
+    Game changeReadyStatus(final Long userId, final boolean ready);
+
     /**
      * generates a new game including a murder weapon, location and culprit and saves it in the database
      *

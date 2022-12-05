@@ -2,7 +2,7 @@ package de.uhh.detectives.backend.service.impl.adapter;
 
 import de.uhh.detectives.backend.model.Hint;
 import de.uhh.detectives.backend.model.entity.Game;
-import de.uhh.detectives.backend.model.entity.Player;
+import de.uhh.detectives.backend.model.entity.Participant;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,7 +34,7 @@ public class GameAdapter {
 
         // append players
         builder.append("Players[");
-        for (final Player player : game.getParticipants()) {
+        for (final Participant player : game.getParticipants()) {
             appendPlayer(builder, player);
         }
         builder.append("]");
@@ -49,9 +49,9 @@ public class GameAdapter {
         return builder.toString();
     }
 
-    private void appendPlayer(final StringBuilder builder, final Player player) {
-        appendValueForIdentifier(builder, PLAYER_ID_STRING, player.getId());
-        appendValueForIdentifier(builder, PLAYER_PSEUDONYM_STRING, player.getPseudonym());
+    private void appendPlayer(final StringBuilder builder, final Participant participant) {
+        appendValueForIdentifier(builder, PLAYER_ID_STRING, participant.getPlayer().getId());
+        appendValueForIdentifier(builder, PLAYER_PSEUDONYM_STRING, participant.getPlayer().getPseudonym());
     }
 
     private void appendHint(final StringBuilder builder, final Hint hint) {

@@ -30,7 +30,7 @@ public class Game implements Serializable {
     private String location;
     private String weapon;
 
-    private List<Player> participants;
+    private List<Participant> participants;
     private List<Hint> hints;
 
     public Game(final Long timestamp) {
@@ -100,11 +100,11 @@ public class Game implements Serializable {
     }
 
     @OneToMany(fetch = FetchType.EAGER)
-    public List<Player> getParticipants() {
+    public List<Participant> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(List<Player> participants) {
+    public void setParticipants(List<Participant> participants) {
         this.participants = participants;
     }
 

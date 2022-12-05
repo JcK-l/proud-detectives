@@ -1,6 +1,7 @@
 package de.uhh.detectives.backend.service.impl.messaging;
 
 import de.uhh.detectives.backend.model.entity.Game;
+import de.uhh.detectives.backend.model.entity.Participant;
 import de.uhh.detectives.backend.model.entity.Player;
 import de.uhh.detectives.backend.model.messaging.JoinGameMessage;
 import de.uhh.detectives.backend.model.messaging.Message;
@@ -60,7 +61,7 @@ public class JoinGameMessageServiceImplTest {
         final Player player2 = new Player();
         player2.setId(playerId);
         player2.setPseudonym("Bob");
-        game.setParticipants(Arrays.asList(player1, player2));
+        game.setParticipants(Arrays.asList(new Participant(player1), new Participant(player2)));
 
         when(gameService.registerPlayer(eq(playerId))).thenReturn(game);
 
@@ -89,7 +90,7 @@ public class JoinGameMessageServiceImplTest {
         final Player player2 = new Player();
         player2.setId(playerId);
         player2.setPseudonym("Bob");
-        game.setParticipants(Arrays.asList(player1, player2));
+        game.setParticipants(Arrays.asList(new Participant(player1), new Participant(player2)));
 
         when(gameService.registerPlayer(eq(playerId))).thenReturn(game);
 
