@@ -1,4 +1,4 @@
-package de.uhh.detectives.frontend;
+package de.uhh.detectives.frontend.waitingroom;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,8 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Objects;
 
+import de.uhh.detectives.frontend.GameActivity;
+import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityWaitingRoomBinding;
 import de.uhh.detectives.frontend.location.api.LocationHandler;
@@ -33,9 +35,12 @@ public class WaitingRoomActivity extends AppCompatActivity {
 
     private AppDatabase db;
 
+    private Bundle savedInstanceState;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.savedInstanceState = savedInstanceState;
 
         binding = ActivityWaitingRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -91,6 +96,14 @@ public class WaitingRoomActivity extends AppCompatActivity {
             return;
         }
 
+//        GeofencePlacer geofencePlacer = new GeofencePlacer(this,
+//                savedInstanceState,
+//                startGameMessage.getHints(),
+//                startGameMessage.getCenterX(),
+//                startGameMessage.getCenterY(),
+//                startGameMessage.getRadius());
+//        geofencePlacer.placeMapGeofence();
+//        geofencePlacer.placeHintGeofences();
         Intent intentGame = new Intent(this, GameActivity.class);
         startActivity(intentGame);
         finish();

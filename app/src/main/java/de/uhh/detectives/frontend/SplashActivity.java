@@ -8,11 +8,11 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 import de.uhh.detectives.frontend.databinding.SplashScreenBinding;
-import de.uhh.detectives.frontend.permissionhelper.LocationPermissionHandler;
-import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
+import de.uhh.detectives.frontend.permissionhelper.LocationPermissionService;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 
 public class SplashActivity extends AppCompatActivity {
-    private LocationPermissionHandler permissionHandler;
+    private LocationPermissionService permissionHandler;
     private SplashScreenBinding binding;
     private Activity activity;
 
@@ -24,7 +24,7 @@ public class SplashActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         activity = this;
 
-        permissionHandler = new LocationPermissionHandler(this);
+        permissionHandler = new LocationPermissionService(this);
         permissionHandler.askCoarseLocation();
         permissionHandler.askFineLocationPermissions();
 
@@ -36,7 +36,7 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(permissionHandler.isFineLocationPermissionGranted()) {
-                    PushMessageHandler messageHandler = new PushMessageHandler(activity);
+                    PushMessageService messageHandler = new PushMessageService(activity);
                     //messageHandler.pushMapExitMessage();
                     Intent intent = new Intent(view.getContext(), MainActivity.class);
                     startActivity(intent);

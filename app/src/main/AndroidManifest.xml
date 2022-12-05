@@ -17,7 +17,7 @@
         tools:targetApi="31">
         <service android:name="de.uhh.detectives.frontend.service.TcpMessageService" android:stopWithTask="true" />
         <receiver
-            android:name=".location.GeofenceBroadcastReceiver"
+            android:name=".geofence.service.GeofenceBroadcastReceiver"
             android:enabled="true"
             android:exported="true" />
         <meta-data
@@ -43,7 +43,7 @@
             android:name=".LoginActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".WaitingRoomActivity"
+            android:name=".waitingroom.WaitingRoomActivity"
             android:windowSoftInputMode="adjustResize" />
     </application>
 

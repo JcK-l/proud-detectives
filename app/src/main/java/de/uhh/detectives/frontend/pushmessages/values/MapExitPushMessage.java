@@ -8,15 +8,14 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 
 import de.uhh.detectives.frontend.R;
-import de.uhh.detectives.frontend.location.GeofenceBroadcastReceiver;
+import de.uhh.detectives.frontend.geofence.service.GeofenceBroadcastReceiver;
 
-public class EnteredMapMessage implements PushMessage {
-
+public class MapExitPushMessage implements PushMessage {
     private Notification locationNotification;
     private final String CHANNEL_ID = "LocChan";
     private Context context;
 
-    public EnteredMapMessage(Context context) {
+    public MapExitPushMessage(Context context) {
         this.context = context;
         createNotification();
     }
@@ -28,8 +27,8 @@ public class EnteredMapMessage implements PushMessage {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context
                 , CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("You're entered the map again")
-                .setContentText("You,re back on the map, keep searching for hints!")
+                .setContentTitle("Get back on the Map")
+                .setContentText("You have left the map, please enter the map againg!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setVibrate(new long[]{100L, 0L, 100L});
@@ -37,8 +36,7 @@ public class EnteredMapMessage implements PushMessage {
     }
 
     @Override
-    public Notification getNotification() {
+    public Notification getNotification(){
         return locationNotification;
     }
-
 }

@@ -1,26 +1,15 @@
 package de.uhh.detectives.frontend;
 
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.Objects;
-
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
-import de.uhh.detectives.frontend.location.MapGeofence;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.DirectMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
@@ -29,7 +18,7 @@ import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.WinGameMessageEvent;
-import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
@@ -40,10 +29,9 @@ public class MainActivity extends AppCompatActivity {
     private Bundle savedInstanceState;
 
     // LocationHandler in MainActivity einmal initialisieren, um state zu halten
-    private MapGeofence mapGeofence;
     private ChatMessageRepository chatMessageRepository;
 
-    private PushMessageHandler pushMessageHandler;
+    private PushMessageService pushMessageService;
 
     private final static Long gameStartTime = System.currentTimeMillis();
 
@@ -63,15 +51,12 @@ public class MainActivity extends AppCompatActivity {
         db = AppDatabase.getDatabase(getApplicationContext());
         chatMessageRepository = db.getChatMessageRepository();
 
-        pushMessageHandler = new PushMessageHandler(getApplicationContext());
+        pushMessageService = new PushMessageService(getApplicationContext());
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mapGeofence = new MapGeofence(this, savedInstanceState);
-        mapGeofence.placeMapGeofence(new LatLng(53.5690, 10.0205),
-                20f);
     }
 
     public Long getGameStartTime() {
@@ -111,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         WinGameMessage winGameMessage = winGameMessageEvent.getMessage();
         Player winner = db.getPlayerRepository().getPlayerWithUserId(winGameMessage.getWinnerId());
 
-        pushMessageHandler.pushWinGameMessage(winner.getPseudonym());
+        pushMessageService.pushWinGameMessage(winner.getPseudonym());
 
         db.getPlayerRepository().deleteAll();
         db.getSolutionRepository().deleteAll();

@@ -22,7 +22,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
-import de.uhh.detectives.frontend.WaitingRoomActivity;
+import de.uhh.detectives.frontend.waitingroom.WaitingRoomActivity;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentStartGameBinding;
 import de.uhh.detectives.frontend.location.api.LocationHandler;

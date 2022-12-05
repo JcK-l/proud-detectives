@@ -1,4 +1,4 @@
-package de.uhh.detectives.frontend.location;
+package de.uhh.detectives.frontend.geofence.service;
 
 import android.Manifest;
 import android.app.Activity;
@@ -22,15 +22,11 @@ import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 
-import de.uhh.detectives.frontend.location.impl.LocationHandlerImpl;
-import de.uhh.detectives.frontend.permissionhelper.LocationPermissionHandler;
-import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
 
-
-public class GeofenceHandler extends ContextWrapper {
+public class GeofencePlacementService extends ContextWrapper {
     private static final String KEY_LOCATION = "location";
     private static final int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
-    private static final String TAG = "MapActivity";
+    private static final String TAG = "GeofencePlacementService";
 
     private String geofenceID = "0";
 
@@ -38,27 +34,8 @@ public class GeofenceHandler extends ContextWrapper {
     private Location lastKnownLocation;
 
     private GeofencingClient geofencingClient;
-    private GeofenceHelper geofenceHelper;
-    private PushMessageHandler pushMessageHandler;
-    private LocationPermissionHandler locationPermissionHandler;
+    private GeofenceCreatorService geofenceCreatorService;
 
-    private LocationHandlerImpl locationHandler;
-
-    public GeofenceHandler(final Activity activity, Bundle savedInstanceState) {
-        super(activity);
-        locationPermissionHandler = new LocationPermissionHandler(activity);
-        pushMessageHandler = new PushMessageHandler(activity);
-        //fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
-        geofencingClient = LocationServices.getGeofencingClient(activity);
-        geofenceHelper = new GeofenceHelper(activity);
-        locationHandler = new LocationHandlerImpl(activity.getApplicationContext(), activity);
-
-        onCreate(activity);
-
-        if (savedInstanceState != null) {
-            lastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
-        }
-    }
 
     private final GeofenceBroadcastReceiver receiver = new GeofenceBroadcastReceiver() {
         @Override
@@ -78,21 +55,28 @@ public class GeofenceHandler extends ContextWrapper {
         }
     };
 
-    private void onCreate(Activity activity){
-       // locationHandler.enableLocationUpdates(activity);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.intent.action.IDReceiver");
-        Log.d(TAG, "Register receiver now");
-        registerReceiver(receiver, filter);
+    public GeofencePlacementService(final Activity activity,
+                                    Bundle savedInstanceState,
+                                    GeofencingClient geofencingClient,
+                                    GeofenceCreatorService geofenceCreatorService) {
+        super(activity);
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
+        this.geofencingClient = geofencingClient;
+        this.geofenceCreatorService =  geofenceCreatorService;
+
+        onCreate(activity);
+
+        if (savedInstanceState != null) {
+            lastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
+        }
     }
 
-
-    public void placeGeofence(Activity activity, Geofence geofence) {
+    public void placeGeofence(Activity activity, Geofence geofence, boolean isHint) {
         //checking and asking for BackgroundLocationPermission
         if (Build.VERSION.SDK_INT >= 29) {
             if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
-                addGeofence(activity, geofence);
+                addGeofence(activity, geofence, isHint);
             } else {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission
                         .ACCESS_BACKGROUND_LOCATION)) {
@@ -104,13 +88,19 @@ public class GeofenceHandler extends ContextWrapper {
                 }
             }
         } else {
-            addGeofence(activity, geofence);
+            addGeofence(activity, geofence, isHint);
         }
     }
 
-    private void addGeofence(Activity activity, Geofence geofence) {
-        GeofencingRequest geofencingRequest = geofenceHelper.getGeofencingRequest(geofence);
-        PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
+    private void addGeofence(Activity activity, Geofence geofence, boolean isHint) {
+        GeofencingRequest geofencingRequest;
+
+        if (isHint) {
+            geofencingRequest = geofenceCreatorService.getGeofencingRequestHint(geofence);
+        } else {
+            geofencingRequest = geofenceCreatorService.getGeofencingRequestMap(geofence);
+        }
+        PendingIntent pendingIntent = geofenceCreatorService.getPendingIntent();
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -120,11 +110,17 @@ public class GeofenceHandler extends ContextWrapper {
                     Log.d(TAG, "onSuccess: Geofence Added");
                 })
                 .addOnFailureListener(e -> {
-                    String errorMessage = geofenceHelper.getErrorString(e);
+                    String errorMessage = geofenceCreatorService.getErrorString(e);
                     Log.d(TAG, "onFailure" + errorMessage);
                 });
     }
 
+    private void onCreate(Activity activity) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.intent.action.IDReceiver");
+        Log.d(TAG, "Register receiver now");
+        registerReceiver(receiver, filter);
+    }
 
 
     /**

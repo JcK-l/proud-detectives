@@ -8,15 +8,19 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 
 import de.uhh.detectives.frontend.R;
-import de.uhh.detectives.frontend.location.GeofenceBroadcastReceiver;
+import de.uhh.detectives.frontend.geofence.service.GeofenceBroadcastReceiver;
 
-public class MapExitMessage implements PushMessage {
+public class HintFoundPushMessage implements PushMessage{
     private Notification locationNotification;
     private final String CHANNEL_ID = "LocChan";
     private Context context;
+    private String hintName;
+    private String description;
 
-    public MapExitMessage(Context context) {
+    public HintFoundPushMessage(Context context, String hintName, String description) {
         this.context = context;
+        this.hintName = hintName;
+        this.description = description;
         createNotification();
     }
 
@@ -27,8 +31,8 @@ public class MapExitMessage implements PushMessage {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context
                 , CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Get back on the Map")
-                .setContentText("You have leaved the map, please enter the map againg!")
+                .setContentTitle("You have found hint: " + hintName)
+                .setContentText(description)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setVibrate(new long[]{100L, 0L, 100L});
@@ -36,7 +40,7 @@ public class MapExitMessage implements PushMessage {
     }
 
     @Override
-    public Notification getNotification(){
+    public Notification getNotification() {
         return locationNotification;
     }
 }

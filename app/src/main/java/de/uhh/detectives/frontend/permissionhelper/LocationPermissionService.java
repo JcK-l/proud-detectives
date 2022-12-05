@@ -12,11 +12,11 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
-public class LocationPermissionHandler extends ContextWrapper {
+public class LocationPermissionService extends ContextWrapper {
     private boolean isFineLocationPermissionGranted;
     private boolean isCoarseLocationPermissionGranted;
 
-    public LocationPermissionHandler(Context base) {
+    public LocationPermissionService(Context base) {
         super(base);
     }
 
@@ -32,7 +32,7 @@ public class LocationPermissionHandler extends ContextWrapper {
                     @Override
                     public void onPermissionDenied(
                             PermissionDeniedResponse permissionDeniedResponse) {
-                        Toast.makeText(LocationPermissionHandler.this,
+                        Toast.makeText(LocationPermissionService.this,
                                 "Location Permission Denied",
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -58,7 +58,7 @@ public class LocationPermissionHandler extends ContextWrapper {
                     @Override
                     public void onPermissionDenied(
                             PermissionDeniedResponse permissionDeniedResponse) {
-                        Toast.makeText(LocationPermissionHandler.this,
+                        Toast.makeText(LocationPermissionService.this,
                                 "Location Permission Denied",
                                 Toast.LENGTH_SHORT).show();
                     }

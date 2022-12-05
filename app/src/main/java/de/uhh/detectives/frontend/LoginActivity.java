@@ -26,8 +26,10 @@ import de.uhh.detectives.frontend.model.Message.RegisterMessage;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.RegisterMessageEvent;
+import de.uhh.detectives.frontend.permissionhelper.LocationPermissionService;
 import de.uhh.detectives.frontend.repository.UserDataRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
+import de.uhh.detectives.frontend.waitingroom.WaitingRoomActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -42,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private final ServiceConnection connection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
-            tcpMessageService = ((TcpMessageService.LocalBinder)service).getService();
+            tcpMessageService = ((TcpMessageService.LocalBinder) service).getService();
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -55,6 +57,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         EventBus.getDefault().register(this);
+
+        LocationPermissionService locationPermissionService
+                = new LocationPermissionService(this);
+        locationPermissionService.askCoarseLocation();
+        locationPermissionService.askFineLocationPermissions();
 
         Intent intent = new Intent(this, TcpMessageService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);

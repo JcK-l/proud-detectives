@@ -8,19 +8,16 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 
 import de.uhh.detectives.frontend.R;
-import de.uhh.detectives.frontend.location.GeofenceBroadcastReceiver;
+import de.uhh.detectives.frontend.geofence.service.GeofenceBroadcastReceiver;
 
-public class FindHintMessage implements PushMessage{
+public class MapEnteredPushMessage implements PushMessage {
+
     private Notification locationNotification;
     private final String CHANNEL_ID = "LocChan";
     private Context context;
-    private String hintName;
-    private String description;
 
-    public FindHintMessage(Context context, String hintName, String description) {
+    public MapEnteredPushMessage(Context context) {
         this.context = context;
-        this.hintName = hintName;
-        this.description = description;
         createNotification();
     }
 
@@ -31,8 +28,8 @@ public class FindHintMessage implements PushMessage{
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context
                 , CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("You have found hint: " + hintName)
-                .setContentText(description)
+                .setContentTitle("You're entered the map again")
+                .setContentText("You,re back on the map, keep searching for hints!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setVibrate(new long[]{100L, 0L, 100L});
@@ -43,4 +40,5 @@ public class FindHintMessage implements PushMessage{
     public Notification getNotification() {
         return locationNotification;
     }
+
 }

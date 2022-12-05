@@ -21,6 +21,9 @@ public class StartGameMessage implements Message {
     private String culprit;
     private String location;
     private String weapon;
+    private double centerX;
+    private double centerY;
+    private double radius;
 
     private List<Player> players;
     private List<Hint> hints;
@@ -66,6 +69,9 @@ public class StartGameMessage implements Message {
         this.culprit = variableTokens[3];
         this.location = variableTokens[4];
         this.weapon = variableTokens[5];
+        this.centerX = Double.parseDouble(variableTokens[6]);
+        this.centerY = Double.parseDouble(variableTokens[7]);
+        this.radius = Double.parseDouble(variableTokens[8]);
     }
 
     public Solution getSolution() {
@@ -106,6 +112,18 @@ public class StartGameMessage implements Message {
 
     public String getWeapon() {
         return weapon;
+    }
+
+    public double getCenterX() {
+        return centerX;
+    }
+
+    public double getCenterY() {
+        return centerY;
+    }
+
+    public double getRadius() {
+        return radius;
     }
 
     public List<Player> getPlayers() {

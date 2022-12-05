@@ -1,4 +1,4 @@
-package de.uhh.detectives.frontend.location;
+package de.uhh.detectives.frontend.geofence.service;
 
 
 import android.app.PendingIntent;
@@ -12,20 +12,27 @@ import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.maps.model.LatLng;
 
-public class GeofenceHelper extends ContextWrapper {
+public class GeofenceCreatorService extends ContextWrapper {
     private PendingIntent pendingIntent;
     private Context context;
 
-    public GeofenceHelper(Context base) {
+    public GeofenceCreatorService(Context base) {
         super(base);
         this.context = base;
     }
 
-    public GeofencingRequest getGeofencingRequest(Geofence geofence) {
+    public GeofencingRequest getGeofencingRequestMap(Geofence geofence) {
         return new GeofencingRequest.Builder()
                 .addGeofence(geofence)
                 .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_EXIT
                         | GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                .build();
+    }
+
+    public GeofencingRequest getGeofencingRequestHint(Geofence geofence) {
+        return new GeofencingRequest.Builder()
+                .addGeofence(geofence)
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
                 .build();
     }
 
