@@ -1,25 +1,16 @@
 package de.uhh.detectives.frontend;
 
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.Objects;
-
 import de.uhh.detectives.frontend.database.AppDatabase;
-import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
 import de.uhh.detectives.frontend.location.MapGeofence;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.DirectMessage;
@@ -35,7 +26,6 @@ import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ActivityMainBinding binding;
     private AppDatabase db;
     private Bundle savedInstanceState;
 

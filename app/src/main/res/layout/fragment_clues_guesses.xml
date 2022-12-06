@@ -8,6 +8,20 @@
         android:layout_height="match_parent"
         tools:context=".ui.clues_and_guesses.CluesGuessesFragment">
 
+        <View
+            android:id="@+id/viewBackground2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/background_content_chat_bubble"
+            app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
             android:layout_width="wrap_content"
@@ -93,7 +107,7 @@
             app:layout_constraintBottom_toTopOf="@+id/recycler_view_clues_guesses"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/viewBackground2"
             app:srcCompat="@drawable/number_of_tries3" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

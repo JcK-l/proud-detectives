@@ -10,19 +10,21 @@ import androidx.navigation.ui.NavigationUI;
 
 import java.util.Objects;
 
-import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
+import de.uhh.detectives.frontend.databinding.ActivityGameBinding;
 
 public class GameActivity extends AppCompatActivity {
 
-    private ActivityMainBinding binding;
+    private ActivityGameBinding binding;
     private final static Long gameStartTime = System.currentTimeMillis();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        binding = ActivityGameBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        getSupportActionBar().hide();
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(

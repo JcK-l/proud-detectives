@@ -46,6 +46,8 @@ public class WaitingRoomActivity extends AppCompatActivity {
 
         db = AppDatabase.getDatabase(getApplicationContext());
 
+        getSupportActionBar().hide();
+
         Intent intent = getIntent();
         String[] names = intent.getExtras().getStringArray("names");
         for (int i = 0; i < names.length; i++){
