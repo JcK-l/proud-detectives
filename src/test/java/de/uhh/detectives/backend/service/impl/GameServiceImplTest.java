@@ -321,7 +321,7 @@ public class GameServiceImplTest {
     }
 
     @Test
-    public void testEndGame() {
+    public void testEndGameWinner() {
         // given
         final Player player1 = new Player();
         player1.setId(1L);
@@ -343,7 +343,7 @@ public class GameServiceImplTest {
         final ArgumentCaptor<Game> captor = ArgumentCaptor.forClass(Game.class);
 
         // when
-        testee.endGame(USER_ID);
+        testee.endGame(USER_ID, true);
 
         // then
         verify(gameRepository).saveAndFlush(captor.capture());
@@ -353,6 +353,44 @@ public class GameServiceImplTest {
         assertTrue(actual.isStarted());
         assertTrue(actual.isCompleted());
         assertEquals(USER_ID, actual.getWinnerId());
+    }
+
+    @Test
+    public void testEndGameLoser() {
+        // given
+        final Player player1 = new Player();
+        player1.setId(1L);
+        final Player player2 = new Player();
+        player2.setId(2L);
+        final Player player3 = new Player();
+        player3.setId(USER_ID);
+        final Player player4 = new Player();
+        player4.setId(4L);
+
+        final Long gameId = 11111111L;
+        final Game game = new Game(gameId);
+        game.setStarted(true);
+        game.setParticipants(Arrays.asList(new Participant(player1), new Participant(player2),
+                new Participant(player3), new Participant(player4)));
+        when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player3));
+        when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
+
+        final ArgumentCaptor<Participant> captor = ArgumentCaptor.forClass(Participant.class);
+
+        // when
+        final Game actualGame = testee.endGame(USER_ID, false);
+
+        // then
+        verify(participantRepository).saveAndFlush(captor.capture());
+        final Participant actual = captor.getValue();
+        assertNotNull(actual);
+        assertTrue(actual.isLost());
+
+        assertNotNull(actualGame);
+        assertEquals(4, actualGame.getParticipants().size());
+        assertTrue(actualGame.isStarted());
+        assertFalse(actualGame.isCompleted());
+        assertNull(actualGame.getWinnerId());
     }
 
     @Test

@@ -17,6 +17,7 @@ public class Participant implements Serializable {
     private Long participantId;
     private Player player;
     private boolean ready;
+    private boolean lost;
 
     public Participant() {}
 
@@ -50,5 +51,13 @@ public class Participant implements Serializable {
 
     public void setReady(boolean ready) {
         this.ready = ready;
+    }
+
+    public boolean isLost() {
+        return lost;
+    }
+
+    public void setLost(boolean lost) {
+        this.lost = lost;
     }
 }

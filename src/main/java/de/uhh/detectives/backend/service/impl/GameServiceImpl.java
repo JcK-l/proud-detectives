@@ -139,12 +139,19 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game endGame(final Long winnerId) {
-        final Game game = findActiveGameForUser(winnerId);
-        game.setCompleted(true);
-        game.setWinnerId(winnerId);
-        LOG.info(String.format("Game %d ended and the winner was %d.", game.getGameId(), game.getWinnerId()));
-        gameRepository.saveAndFlush(game);
+    public Game endGame(final Long userId, final boolean win) {
+        final Game game = findActiveGameForUser(userId);
+        if (win) {
+            game.setCompleted(true);
+            game.setWinnerId(userId);
+            LOG.info(String.format("Game %d ended and the winner was %d.", game.getGameId(), game.getWinnerId()));
+            gameRepository.saveAndFlush(game);
+            return game;
+        } else {
+            final Participant participant = game.getParticipant(userId);
+            participant.setLost(true);
+            participantRepository.saveAndFlush(participant);
+        }
         return game;
     }
 

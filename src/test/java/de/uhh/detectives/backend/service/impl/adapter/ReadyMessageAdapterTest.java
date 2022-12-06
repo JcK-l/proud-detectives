@@ -21,7 +21,7 @@ public class ReadyMessageAdapterTest {
 
     @Test
     public void testNotAccepts() {
-        final MessageType type = MessageType.WIN_GAME_MESSAGE;
+        final MessageType type = MessageType.END_GAME_MESSAGE;
         assertFalse(testee.accepts(type));
     }
 
