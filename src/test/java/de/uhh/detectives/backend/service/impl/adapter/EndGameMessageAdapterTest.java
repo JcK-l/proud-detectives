@@ -1,8 +1,7 @@
 package de.uhh.detectives.backend.service.impl.adapter;
 
-import de.uhh.detectives.backend.model.messaging.JoinGameMessage;
 import de.uhh.detectives.backend.model.messaging.Message;
-import de.uhh.detectives.backend.model.messaging.WinGameMessage;
+import de.uhh.detectives.backend.model.messaging.EndGameMessage;
 import de.uhh.detectives.backend.service.api.messaging.MessageType;
 import org.junit.jupiter.api.Test;
 
@@ -10,13 +9,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WinGameMessageAdapterTest {
+public class EndGameMessageAdapterTest {
 
-    private final WinGameMessageAdapter testee = new WinGameMessageAdapter();
+    private final EndGameMessageAdapter testee = new EndGameMessageAdapter();
 
     @Test
     public void testAccepts() {
-        final Message winGameMessage = new WinGameMessage();
+        final Message winGameMessage = new EndGameMessage();
         assertTrue(testee.accepts(winGameMessage.getType()));
     }
 
@@ -29,18 +28,19 @@ public class WinGameMessageAdapterTest {
     @Test
     public void testConstructFromFields(){
         // given
-        final String[] fields = new String[] {"TYPE:WIN_GAME_MESSAGE", "senderId=123456789"};
+        final String[] fields = new String[] {"TYPE:WIN_GAME_MESSAGE", "senderId=123456789", "win=true"};
 
-        final WinGameMessage expected = new WinGameMessage();
+        final EndGameMessage expected = new EndGameMessage();
         expected.setSenderId(123456789L);
+        expected.setWin(true);
 
         // when
         final Message message = testee.constructFromFields(fields);
 
         // then
-        assertTrue(message instanceof WinGameMessage);
+        assertTrue(message instanceof EndGameMessage);
 
-        final WinGameMessage actual = (WinGameMessage) message;
+        final EndGameMessage actual = (EndGameMessage) message;
         assertEquals(expected, actual);
     }
 }

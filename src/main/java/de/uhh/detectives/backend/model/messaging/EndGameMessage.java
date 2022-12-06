@@ -7,15 +7,16 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Data
-public class WinGameMessage implements Serializable, Message {
+public class EndGameMessage implements Serializable, Message {
 
     @Serial
     private static final long serialVersionUID = 3668179364988149695L;
 
     private Long senderId;
+    private boolean win;
 
     @Override
     public MessageType getType() {
-        return MessageType.WIN_GAME_MESSAGE;
+        return MessageType.END_GAME_MESSAGE;
     }
 }

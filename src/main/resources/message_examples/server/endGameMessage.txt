@@ -1,0 +1,4 @@
+TYPE:END_GAME_MESSAGE;status=418;gameId=null
+
+TYPE:END_GAME_MESSAGE;status=200;gameId=111111111;winnerId=null;winnerPseudonym=null
+TYPE:END_GAME_MESSAGE;status=200;gameId=111111111;winnerId=123456789;winnerPseudonym=Mr. Tester

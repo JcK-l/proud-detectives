@@ -53,10 +53,11 @@ public interface GameService {
      * sets the completed value for a given game and persists it, so that the game is no longer regarded as active by
      * the findActiveGameForUser function.
      *
-     * @param winnerId the id of the user that won the game
+     * @param userId the id of the user that won or lost the game
+     * @param win flag whether user won or lost
      * @return ended game or NULL if the user has no active game to end
      */
-    Game endGame(final Long winnerId);
+    Game endGame(final Long userId, final boolean win);
 
     Game findLatestCompletedGameForUser(final Long userId);
 }

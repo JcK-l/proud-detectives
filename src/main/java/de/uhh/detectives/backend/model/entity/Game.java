@@ -137,6 +137,13 @@ public class Game implements Serializable {
     }
 
     @Transient
+    public Participant getParticipant(final Long userId) {
+        return participants.stream()
+                .filter(participant -> userId.equals(participant.getPlayer().getId()))
+                .findFirst().orElse(null);
+    }
+
+    @Transient
     public List<Hint> getHints() {
         return hints;
     }
