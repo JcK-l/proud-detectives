@@ -48,6 +48,13 @@ public class WaitingRoomActivity extends AppCompatActivity {
 
         db = AppDatabase.getDatabase(getApplicationContext());
 
+        // if you're already in a game: join game directly
+        if (db.getSolutionRepository().findFirst() != null) {
+            Intent intentGame = new Intent(this, GameActivity.class);
+            startActivity(intentGame);
+            finish();
+        }
+
         getSupportActionBar().hide();
 
         Intent intent = getIntent();
