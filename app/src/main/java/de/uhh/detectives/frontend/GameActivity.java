@@ -16,6 +16,7 @@ import de.uhh.detectives.frontend.repository.HintRepository;
 import de.uhh.detectives.frontend.waitingroom.GeofencePlacer;
 
 public class GameActivity extends AppCompatActivity {
+
     private ActivityMainBinding binding;
     private final static Long gameStartTime = System.currentTimeMillis();
     private Bundle geofenceInformation;
@@ -28,11 +29,14 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.savedInstanceState = savedInstanceState;
 
+        binding = ActivityGameBinding.inflate(getLayoutInflater());
         geofenceInformation = getIntent().getExtras();
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         db = AppDatabase.getDatabase(getApplicationContext());
         hintRepository = db.getHintRepository();
+
+        getSupportActionBar().hide();
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(

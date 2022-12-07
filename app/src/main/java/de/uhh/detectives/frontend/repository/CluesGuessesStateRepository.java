@@ -1,0 +1,56 @@
+package de.uhh.detectives.frontend.repository;
+
+import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.Query;
+
+import java.util.List;
+
+import de.uhh.detectives.frontend.model.CluesGuessesState;
+import de.uhh.detectives.frontend.ui.clues_and_guesses.Cell;
+
+@Dao
+public interface CluesGuessesStateRepository {
+
+    @Query("DELETE FROM CluesGuessesState")
+    void deleteAll();
+
+    @Query("SELECT * FROM CLUESGUESSESSTATE WHERE playerId == :id")
+    CluesGuessesState findFromId(Long id);
+
+    @Insert
+    void insert(final CluesGuessesState cluesGuessesState);
+
+    @Query("SELECT * FROM CluesGuessesState")
+    List<CluesGuessesState> getAll();
+
+    @Query("SELECT * FROM CluesGuessesState LIMIT 1")
+    CluesGuessesState findFirst();
+
+    @Query("UPDATE CluesGuessesState SET cells = :cells WHERE playerId =:id")
+    void updateCells(List<Cell> cells, Long id);
+
+    @Query("UPDATE CluesGuessesState SET cardColor = :cardColor WHERE playerId =:id")
+    void updateCardColor(int cardColor, Long id);
+
+    @Query("UPDATE CluesGuessesState SET numberOfTries = numberOfTries + 1 WHERE playerId =:id")
+    void updateNumberOfTries(Long id);
+
+    @Query("UPDATE CluesGuessesState SET suspicion_left = :suspicion WHERE playerId =:id")
+    void updateSuspicionLeft(int suspicion, Long id);
+
+    @Query("UPDATE CluesGuessesState SET suspicion_left_tag = :tag WHERE playerId =:id")
+    void updateSuspicionLeft(String tag, Long id);
+
+    @Query("UPDATE CluesGuessesState SET suspicion_middle = :suspicion WHERE playerId =:id")
+    void updateSuspicionMiddle(int suspicion, Long id);
+
+    @Query("UPDATE CluesGuessesState SET suspicion_middle_tag = :tag WHERE playerId =:id")
+    void updateSuspicionMiddle(String tag, Long id);
+
+    @Query("UPDATE CluesGuessesState SET suspicion_right = :suspicion WHERE playerId =:id")
+    void updateSuspicionRight(int suspicion, Long id);
+
+    @Query("UPDATE CluesGuessesState SET suspicion_right_tag = :tag WHERE playerId =:id")
+    void updateSuspicionRight(String tag, Long id);
+}

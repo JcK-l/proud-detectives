@@ -8,7 +8,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:background="@color/primary_chat"
         tools:context=".ui.comms.CommsFragment">
 
         <com.google.android.material.card.MaterialCardView
@@ -49,7 +48,7 @@
                     app:tabPaddingStart="12dp"
                     app:tabRippleColor="@null"
                     app:tabSelectedTextColor="@color/design_default_color_primary"
-                    app:tabTextColor="@color/primary_text" />
+                    app:tabTextColor="@color/secondary_text" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </com.google.android.material.card.MaterialCardView>

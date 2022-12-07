@@ -25,6 +25,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.Task;
 
 import de.uhh.detectives.frontend.location.api.LocationHandler;
 
@@ -57,6 +58,7 @@ public class LocationHandlerImpl implements LocationHandler {
         locationSettingsRequest = setUpLocationSettingsRequest();
         locationRequest = setUpLocationRequest();
         locationCallback = setUpLocationCallback();
+        setCurrentLocation(context);
     }
 
     @Override
@@ -130,6 +132,28 @@ public class LocationHandlerImpl implements LocationHandler {
                 Log.e(TAG, errorMessage);
 
                 Toast.makeText(activity, errorMessage, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void setCurrentLocation(@NonNull final Context context) {
+        final int fineLocation = context.checkSelfPermission(ACCESS_FINE_LOCATION);
+        final int coarseLocation = context.checkSelfPermission(ACCESS_FINE_LOCATION);
+        final boolean fineLocationGranted = fineLocation == PackageManager.PERMISSION_GRANTED;
+        final boolean coarseLocationGranted = coarseLocation == PackageManager.PERMISSION_GRANTED;
+        if (fineLocationGranted || coarseLocationGranted) {
+            Task<Location> currentLocationTask = locationClient.getLastLocation();
+            currentLocationTask.addOnCompleteListener(
+                    task -> {
+                        if (task.isSuccessful()) {
+                            // Task completed successfully
+                            currentLocation = task.getResult();
+                        } else {
+                            // Task failed with an exception
+                            Exception exception = task.getException();
+                            assert exception != null;
+                            exception.printStackTrace();
+                        }
+                    });
         }
     }
 

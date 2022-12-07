@@ -5,24 +5,30 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
+import de.uhh.detectives.frontend.location.MapGeofence;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.DirectMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
-import de.uhh.detectives.frontend.model.Message.WinGameMessage;
+import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.WinGameMessageEvent;
 import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
+import de.uhh.detectives.frontend.model.event.EndGameMessageEvent;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class MainActivity extends AppCompatActivity {
+
     private ActivityMainBinding binding;
     private AppDatabase db;
     private Bundle savedInstanceState;
@@ -56,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        mapGeofence = new MapGeofence(this, savedInstanceState);
+        mapGeofence.placeMapGeofence(new LatLng(53.5690, 10.0205),
+                20f);
     }
 
     public Long getGameStartTime() {
@@ -91,19 +100,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    public void receiveWinGameMessage(WinGameMessageEvent winGameMessageEvent) {
-        WinGameMessage winGameMessage = winGameMessageEvent.getMessage();
-        Player winner = db.getPlayerRepository().getPlayerWithUserId(winGameMessage.getWinnerId());
+    public void receiveWinGameMessage(EndGameMessageEvent endGameMessageEvent) {
+        EndGameMessage endGameMessage = endGameMessageEvent.getMessage();
 
-        pushMessageService.pushWinGameMessage(winner.getPseudonym());
+        if (endGameMessage.isWin()) {
+            Player winner = db.getPlayerRepository().getPlayerWithUserId(endGameMessage.getWinnerId());
+            pushMessageHandler.pushWinGameMessage(winner.getPseudonym());
+        }
 
         db.getPlayerRepository().deleteAll();
         db.getSolutionRepository().deleteAll();
         db.getHintRepository().deleteAll();
         db.getChatMessageRepository().deleteAll();
         db.getDirectMessageRepository().deleteAll();
-
-        getViewModelStore().clear();
+        db.getCluesGuessesStateRepository().deleteAll();
 
         Intent intentLogin = new Intent(this, LoginActivity.class);
         startActivity(intentLogin);

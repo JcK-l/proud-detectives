@@ -1,7 +1,9 @@
 package de.uhh.detectives.frontend;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -27,6 +29,7 @@ import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 
 public class WaitingRoomActivity extends AppCompatActivity {
+
     private ActivityWaitingRoomBinding binding;
 
     private LocationHandler locationHandler;
@@ -48,6 +51,16 @@ public class WaitingRoomActivity extends AppCompatActivity {
         locationHandler = new LocationHandlerImpl(this.getApplicationContext(), this);
 
         db = AppDatabase.getDatabase(getApplicationContext());
+
+        // if you're already in a game: join game directly
+        if (db.getSolutionRepository().findFirst() != null) {
+            Intent intentGame = new Intent(this, GameActivity.class);
+            startActivity(intentGame);
+            finish();
+        }
+
+        getSupportActionBar().hide();
+
         Intent intent = getIntent();
         String[] names = intent.getExtras().getStringArray("names");
         for (int i = 0; i < names.length; i++) {
@@ -92,6 +105,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         if (!(startGameMessage.getStatus() == 200)) {
             return;
         }
+
         Intent intentGame = new Intent(this, GameActivity.class);
         intentGame.putExtra("hints", (Serializable) startGameMessage.getHints());
         intentGame.putExtra("centerX", startGameMessage.getCenterX());
@@ -101,9 +115,15 @@ public class WaitingRoomActivity extends AppCompatActivity {
         finish();
     }
 
-
-    public LocationHandler getLocationHandler() {
-        return locationHandler;
+    public Location getLocation() {
+        Location location = locationHandler.getCurrentLocation(getApplicationContext());
+        if (location == null) {
+            Toast.makeText(getApplicationContext(), "Location data is unavailable, try again!", Toast.LENGTH_SHORT).show();
+            Intent intentLogin = new Intent(this, LoginActivity.class);
+            startActivity(intentLogin);
+            finish();
+        }
+        return location;
     }
 
     @Override
@@ -115,4 +135,5 @@ public class WaitingRoomActivity extends AppCompatActivity {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
+
 }

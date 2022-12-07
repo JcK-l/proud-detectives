@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -26,6 +28,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityLoginJoinGameBinding;
 import de.uhh.detectives.frontend.databinding.ActivityLoginRegisterBinding;
+import de.uhh.detectives.frontend.location.api.LocationHandler;
+import de.uhh.detectives.frontend.location.impl.LocationHandlerImpl;
 import de.uhh.detectives.frontend.model.Message.JoinGameMessage;
 import de.uhh.detectives.frontend.model.Message.RegisterMessage;
 import de.uhh.detectives.frontend.model.UserData;
@@ -46,7 +50,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private UserData user;
 
-    private LocationPermissionService locationPermissionService;
+    public final static int PERMISSION_GRANTED = 0;
+    public final static int PERMISSION_DENIED = -1;
 
     private final ServiceConnection connection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -71,6 +76,8 @@ public class LoginActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, TcpMessageService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
+        LocationHandler locationHandler = new LocationHandlerImpl(this.getApplicationContext(), this);
 
         db = AppDatabase.getDatabase(getApplicationContext());
         userDataRepository = db.getUserDataRepository();
@@ -166,6 +173,27 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        for (final String string : permissions) {
+            Log.i("Permission", "Checking permission for: " + string);
+        }
+        boolean isGranted = false;
+        for (final int result : grantResults) {
+            if (result == PERMISSION_GRANTED) {
+                isGranted = true;
+                break;
+            }
+        }
+        if (!isGranted) {
+            Log.e("Permission", "Missing permission");
+            Toast.makeText(getApplicationContext(),"You need to turn on location tracking!", Toast.LENGTH_LONG).show();
+            finishAndRemoveTask();
+        }
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void receiveMessageRegister(final RegisterMessageEvent registerMessageEvent) {
         RegisterMessage registerMessage = registerMessageEvent.getMessage();
@@ -182,6 +210,7 @@ public class LoginActivity extends AppCompatActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void receiveMessageJoinGame(final JoinGameMessageEvent joinGameMessageEvent) {
         JoinGameMessage joinGameMessage = joinGameMessageEvent.getMessage();
+
         // Server is a teapot
         if (joinGameMessage.getStatus() == 418) {
             startWaitingRoom(new String[0]);

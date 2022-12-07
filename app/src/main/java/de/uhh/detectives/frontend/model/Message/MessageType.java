@@ -6,5 +6,5 @@ public enum MessageType {
     REGISTER_MESSAGE,
     JOIN_GAME_MESSAGE,
     START_GAME_MESSAGE,
-    WIN_GAME_MESSAGE
+    END_GAME_MESSAGE
 }
