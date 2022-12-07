@@ -1,6 +1,5 @@
 package de.uhh.detectives.frontend.model;
 
-import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
