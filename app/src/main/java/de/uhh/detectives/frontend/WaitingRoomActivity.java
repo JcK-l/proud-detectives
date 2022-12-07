@@ -1,7 +1,9 @@
 package de.uhh.detectives.frontend;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -98,9 +100,15 @@ public class WaitingRoomActivity extends AppCompatActivity {
         finish();
     }
 
-
-    public LocationHandler getLocationHandler() {
-        return locationHandler;
+    public Location getLocation() {
+        Location location = locationHandler.getCurrentLocation(getApplicationContext());
+        if (location == null) {
+            Toast.makeText(getApplicationContext(), "Location data is unavailable, try again!", Toast.LENGTH_SHORT).show();
+            Intent intentLogin = new Intent(this, LoginActivity.class);
+            startActivity(intentLogin);
+            finish();
+        }
+        return location;
     }
 
     @Override
