@@ -92,10 +92,7 @@ public class StartGameFragment extends Fragment {
         }
 
         final WaitingRoomActivity activity = (WaitingRoomActivity) getActivity();
-        locationHandler = activity.getLocationHandler();
-        while (location == null) {
-            location = locationHandler.getCurrentLocation(context);
-        }
+        location = activity.getLocation();
 
         binding.buttonStartGame.setOnClickListener(
                 view -> {

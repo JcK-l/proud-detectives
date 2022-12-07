@@ -5,16 +5,12 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -35,7 +31,6 @@ import de.uhh.detectives.frontend.model.event.WinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.api.MessageEvent;
 
 public class TcpMessageService extends Service {
-    private Looper serviceLooper;
     private final IBinder binder = new LocalBinder();
     private final List<MessageEvent> messageEventList = new ArrayList<>();
     private UserData user;
