@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.DragEvent;
@@ -20,24 +19,21 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.IntStream;
 
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCluesGuessesBinding;
-import de.uhh.detectives.frontend.model.Message.StartGameMessage;
+import de.uhh.detectives.frontend.model.CluesGuessesState;
 import de.uhh.detectives.frontend.model.Message.WinGameMessage;
 import de.uhh.detectives.frontend.model.UserData;
-import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
+import de.uhh.detectives.frontend.repository.CluesGuessesStateRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class CluesGuessesFragment extends Fragment {
@@ -48,7 +44,6 @@ public class CluesGuessesFragment extends Fragment {
     private ImageView image_suspicion_right;
     private ImageView numberOfGuesses;
     private CardView cardview;
-    private CluesGuessesViewModel viewModel;
 
     private final int MAX_TRIES = 3;
 
@@ -56,6 +51,8 @@ public class CluesGuessesFragment extends Fragment {
 
     private AppDatabase db;
     private UserData user;
+    private CluesGuessesState cgState;
+    private CluesGuessesStateRepository cluesGuessesStateRepository;
 
     private final ServiceConnection connection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -73,30 +70,38 @@ public class CluesGuessesFragment extends Fragment {
         binding = FragmentCluesGuessesBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        viewModel = new ViewModelProvider(requireActivity()).get(CluesGuessesViewModel.class);
-
         db = AppDatabase.getDatabase(getContext());
         user = db.getUserDataRepository().findFirst();
+
+        cluesGuessesStateRepository = db.getCluesGuessesStateRepository();
+        if (db.getCluesGuessesStateRepository().findFirst() == null) {
+            CluesGuessesState cluesGuessesState = createDefaultCluesGuessesState();
+            db.getCluesGuessesStateRepository().insert(cluesGuessesState);
+        }
+        cgState = db.getCluesGuessesStateRepository().findFromId(user.getUserId());
 
         Intent intent = new Intent(getActivity(), TcpMessageService.class);
         getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
         initViews();
-        setUpDefaults();
         setUpListeners();
 
-        cardview.setCardBackgroundColor(ContextCompat.getColor(getContext(), viewModel.cardColor));
+        cardview.setCardBackgroundColor(ContextCompat.getColor(getContext(), cgState.getCardColor()));
 
-        String iconName = "number_of_tries" + (MAX_TRIES - viewModel.numberOfTries);
+        String iconName = "number_of_tries" + (MAX_TRIES - cgState.getNumberOfTries());
         final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
         numberOfGuesses.setImageResource(iconIdentifier);
 
-        image_suspicion_left.setTag(viewModel.suspicion_left_tag);
-        image_suspicion_middle.setTag(viewModel.suspicion_middle_tag);
-        image_suspicion_right.setTag(viewModel.suspicion_right_tag);
+        image_suspicion_left.setTag(cgState.getSuspicion_left_tag());
+        image_suspicion_middle.setTag(cgState.getSuspicion_middle_tag());
+        image_suspicion_right.setTag(cgState.getSuspicion_right_tag());
+
+        image_suspicion_left.setImageResource(cgState.getSuspicion_left());
+        image_suspicion_middle.setImageResource(cgState.getSuspicion_middle());
+        image_suspicion_right.setImageResource(cgState.getSuspicion_right());
 
         final RecyclerView recyclerViewCluesGuesses = binding.recyclerViewCluesGuesses;
-        final CluesGuessesAdapter adapter = new CluesGuessesAdapter(this.getContext(), viewModel.cells);
+        final CluesGuessesAdapter adapter = new CluesGuessesAdapter(this.getContext(), cgState.getCells());
         recyclerViewCluesGuesses.setAdapter(adapter);
 
         recyclerViewCluesGuesses.setLayoutManager(new GridLayoutManager(this.getContext(), 5) {
@@ -109,30 +114,18 @@ public class CluesGuessesFragment extends Fragment {
         return root;
     }
 
-    private void setUpDefaults() {
-        if (viewModel.cells == null) {
-            viewModel.cells = setUpCells();
-        }
-
-        if (viewModel.cardColor == 0) {
-            viewModel.cardColor = R.color.white;
-        }
-
-        if (viewModel.suspicion_left != null) {
-            image_suspicion_left.setImageDrawable(viewModel.suspicion_left);
-        }
-        if (viewModel.suspicion_middle != null) {
-            image_suspicion_middle.setImageDrawable(viewModel.suspicion_middle);
-        }
-        if (viewModel.suspicion_right != null) {
-            image_suspicion_right.setImageDrawable(viewModel.suspicion_right);
-        }
-
-        if (viewModel.suspicion_left_tag == null) {
-            viewModel.suspicion_left_tag = "waffe:default";
-            viewModel.suspicion_middle_tag = "person:default";
-            viewModel.suspicion_right_tag = "ort:default";
-        }
+    private CluesGuessesState createDefaultCluesGuessesState() {
+        CluesGuessesState cluesGuessesState = new CluesGuessesState();
+        cluesGuessesState.setCells(setUpCells());
+        cluesGuessesState.setCardColor(R.color.white);
+        cluesGuessesState.setSuspicion_left(R.drawable.ic_suspicion_default);
+        cluesGuessesState.setSuspicion_middle(R.drawable.ic_suspicion_default);
+        cluesGuessesState.setSuspicion_right(R.drawable.ic_suspicion_default);
+        cluesGuessesState.setSuspicion_left_tag("waffe:default");
+        cluesGuessesState.setSuspicion_middle_tag("person:default");
+        cluesGuessesState.setSuspicion_right_tag("ort:default");
+        cluesGuessesState.setPlayerId(user.getUserId());
+        return cluesGuessesState;
     }
 
     private void setUpListeners() {
@@ -196,17 +189,32 @@ public class CluesGuessesFragment extends Fragment {
                 case DragEvent.ACTION_DROP:
                     view.setAlpha(1f);
                     view.invalidate();
+                    String resultDescription = event.getClipData().getItemAt(0).getText().toString();
 
-                    ImageView dragView = (ImageView) event.getLocalState();
-                    Drawable drawable = dragView.getDrawable();
+                    final int MAX_NUMBER_WEAPON = 9;
+                    final int MAX_NUMBER_PERSON = 6;
+                    int index = IntStream.range(0, cgState.getCells().size())
+                            .filter(i -> cgState.getCells().get(i).getDescription().equals(resultDescription))
+                            .findFirst()
+                            .orElse(-1);
+                    index += 1;
+                    switch (category) {
+                        case "ort":
+                            index -= MAX_NUMBER_PERSON;
+                        case "person":
+                            index -= MAX_NUMBER_WEAPON;
+                            break;
+                    }
 
-                    String tag = category + ":" + event.getClipData().getItemAt(0).getText().toString();
-                    saveSuspicionState(drawable, category, tag);
+                    String iconName = "ic_hint_" + category + index;
+                    final int drawableId = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
 
-                    CardView card = (CardView) view.getParent().getParent();
-                    cardview.setCardBackgroundColor(ContextCompat.getColor(getContext(), viewModel.cardColor));
+                    String tag = category + ":" + resultDescription;
+                    saveSuspicionState(drawableId, category, tag);
 
-                    ((ImageView) view).setImageDrawable(drawable);
+                    cardview.setCardBackgroundColor(ContextCompat.getColor(getContext(), cgState.getCardColor()));
+
+                    ((ImageView) view).setImageResource(drawableId);
                     view.setTag(tag);
                     return true;
                 case DragEvent.ACTION_DRAG_ENDED:
@@ -220,65 +228,67 @@ public class CluesGuessesFragment extends Fragment {
         });
     }
 
+    private void saveSuspicionState(final int drawableId, final String category, final String tag) {
+        cluesGuessesStateRepository.updateCardColor(R.color.white, user.getUserId());
+        switch (category) {
+            case "waffe":
+                cluesGuessesStateRepository.updateSuspicionLeft(drawableId, user.getUserId());
+                cluesGuessesStateRepository.updateSuspicionLeft(tag, user.getUserId());
+                break;
+            case "person":
+                cluesGuessesStateRepository.updateSuspicionMiddle(drawableId, user.getUserId());
+                cluesGuessesStateRepository.updateSuspicionMiddle(tag, user.getUserId());
+                break;
+            case "ort":
+                cluesGuessesStateRepository.updateSuspicionRight(drawableId, user.getUserId());
+                cluesGuessesStateRepository.updateSuspicionRight(tag, user.getUserId());
+                break;
+        }
+        cgState = cluesGuessesStateRepository.findFromId(user.getUserId());
+    }
+
     private void guessingGame() {
-        if (viewModel.numberOfTries == MAX_TRIES){
+        if (cgState.getNumberOfTries() == MAX_TRIES){
             Toast.makeText(getContext(), "YOU LOST ALREADY!!!", Toast.LENGTH_LONG).show();
             return;
         }
 
         SolutionVerifier solutionVerifier = new SolutionVerifier(getContext());
         String[] suspicion = new String[3];
-        suspicion[0] = viewModel.suspicion_left_tag.split(":")[1];
-        suspicion[1] = viewModel.suspicion_middle_tag.split(":")[1];
-        suspicion[2] = viewModel.suspicion_right_tag.split(":")[1];
+        suspicion[0] = cgState.getSuspicion_left_tag().split(":")[1];
+        suspicion[1] = cgState.getSuspicion_middle_tag().split(":")[1];
+        suspicion[2] = cgState.getSuspicion_right_tag().split(":")[1];
         switch (solutionVerifier.compareToSolution(suspicion)) {
             case SUCCESS:
-                viewModel.cardColor = R.color.correct_guess;
+                cluesGuessesStateRepository.updateCardColor(R.color.correct_guess, user.getUserId());
                 String message = "I won the game with: " + String.valueOf(solutionVerifier.getSolutionWithAmongus());
 
                 // this will be replaced once we get EndGameMessage going
                 tcpMessageService.sendMessageToServer(new WinGameMessage(user.getUserId()));
                 break;
             case SEMIFAILED:
-                viewModel.cardColor = R.color.mixed_guess;
-                viewModel.numberOfTries += 1;
+                cluesGuessesStateRepository.updateCardColor(R.color.mixed_guess, user.getUserId());
+                cluesGuessesStateRepository.updateNumberOfTries(user.getUserId());
                 break;
             case FAILED:
-                viewModel.cardColor = R.color.wrong_guess;
-                viewModel.numberOfTries += 1;
+                cluesGuessesStateRepository.updateCardColor(R.color.wrong_guess, user.getUserId());
+                cluesGuessesStateRepository.updateNumberOfTries(user.getUserId());
                 break;
             case INVALID:
                 Toast.makeText(getContext(), "INVALID SELECTION!!!", Toast.LENGTH_SHORT).show();
                 return;
         }
-        String iconName = "number_of_tries" + (MAX_TRIES - viewModel.numberOfTries);
+        cgState = cluesGuessesStateRepository.findFromId(user.getUserId());
+
+        String iconName = "number_of_tries" + (MAX_TRIES - cgState.getNumberOfTries());
         final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
         numberOfGuesses.setImageResource(iconIdentifier);
 
-        if (viewModel.numberOfTries == MAX_TRIES) {
+        if (cgState.getNumberOfTries() == MAX_TRIES) {
             Toast.makeText(getContext(), "YOU LOSE!!!", Toast.LENGTH_LONG).show();
         }
-        cardview.setCardBackgroundColor(ContextCompat.getColor(getContext(), viewModel.cardColor));
+        cardview.setCardBackgroundColor(ContextCompat.getColor(getContext(), cgState.getCardColor()));
     }
-
-    private void saveSuspicionState(Drawable drawable, String category, String tag) {
-        viewModel.cardColor = R.color.white;
-        switch (category) {
-            case "waffe":
-                viewModel.suspicion_left = drawable;
-                viewModel.suspicion_left_tag = tag;
-                break;
-            case "person":
-                viewModel.suspicion_middle = drawable;
-                viewModel.suspicion_middle_tag = tag;
-                break;
-            case "ort":
-                viewModel.suspicion_right = drawable;
-                viewModel.suspicion_right_tag = tag;
-                break;
-        }
-    }
-
 
     private List<Cell> setUpCells() {
         List<Cell> cells = new ArrayList<>();
