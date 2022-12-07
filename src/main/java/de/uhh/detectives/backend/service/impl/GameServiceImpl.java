@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.Part;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -151,6 +150,13 @@ public class GameServiceImpl implements GameService {
             final Participant participant = game.getParticipant(userId);
             participant.setLost(true);
             participantRepository.saveAndFlush(participant);
+            if (everyoneLost(game)) {
+                game.setCompleted(true);
+                game.setWinnerId(null);
+                LOG.info(String.format("Game %d ended and there is no winner.", game.getGameId()));
+                gameRepository.saveAndFlush(game);
+                return game;
+            }
         }
         return game;
     }
@@ -263,5 +269,10 @@ public class GameServiceImpl implements GameService {
                 .map(Participant::getPlayer)
                 .filter(p -> userId.equals(p.getId())).findAny();
         return player.isPresent();
+    }
+
+    private boolean everyoneLost(final Game game) {
+        return game.getParticipants().stream()
+                .allMatch(Participant::isLost);
     }
 }
