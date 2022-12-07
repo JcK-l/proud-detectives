@@ -168,6 +168,16 @@ public class GameServiceImpl implements GameService {
             LOG.info("No completed game(s) found in the database.");
             return null;
         }
+
+        final List<Game> gamesWithUser = gameRepository.findAllByCompletedFalse().stream()
+                .filter(game -> hasUser(game, userId))
+                .sorted(Comparator.comparingLong(Game::getGameId).reversed())
+                .toList();
+        if (!gamesWithUser.isEmpty()) {
+            LOG.info(String.format("User %d is still in a game", userId));
+            return null;
+        }
+
         final List<Game> gamesForUser = completedGames.stream()
                 .filter(game -> hasUser(game, userId))
                 .sorted(Comparator.comparingLong(Game::getGameId).reversed())
