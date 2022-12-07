@@ -1,4 +1,4 @@
-package de.uhh.detectives.frontend.waitingroom;
+package de.uhh.detectives.frontend;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,10 +13,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-import de.uhh.detectives.frontend.GameActivity;
-import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityWaitingRoomBinding;
 import de.uhh.detectives.frontend.location.api.LocationHandler;
@@ -28,7 +27,6 @@ import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 
 public class WaitingRoomActivity extends AppCompatActivity {
-
     private ActivityWaitingRoomBinding binding;
 
     private LocationHandler locationHandler;
@@ -50,10 +48,9 @@ public class WaitingRoomActivity extends AppCompatActivity {
         locationHandler = new LocationHandlerImpl(this.getApplicationContext(), this);
 
         db = AppDatabase.getDatabase(getApplicationContext());
-
         Intent intent = getIntent();
         String[] names = intent.getExtras().getStringArray("names");
-        for (int i = 0; i < names.length; i++){
+        for (int i = 0; i < names.length; i++) {
             db.getPlayerRepository().insert(new Player(System.currentTimeMillis() + i, names[i]));
         }
 
@@ -82,7 +79,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         if (joinGameMessage.getPlayerNames() == null) return;
 
         db.getPlayerRepository().deleteAll();
-        for (int i = 0; i < joinGameMessage.getPlayerNames().size(); i++){
+        for (int i = 0; i < joinGameMessage.getPlayerNames().size(); i++) {
             db.getPlayerRepository().insert(new Player(System.currentTimeMillis() + i,
                     joinGameMessage.getPlayerNames().get(i)));
         }
@@ -95,16 +92,11 @@ public class WaitingRoomActivity extends AppCompatActivity {
         if (!(startGameMessage.getStatus() == 200)) {
             return;
         }
-
-//        GeofencePlacer geofencePlacer = new GeofencePlacer(this,
-//                savedInstanceState,
-//                startGameMessage.getHints(),
-//                startGameMessage.getCenterX(),
-//                startGameMessage.getCenterY(),
-//                startGameMessage.getRadius());
-//        geofencePlacer.placeMapGeofence();
-//        geofencePlacer.placeHintGeofences();
         Intent intentGame = new Intent(this, GameActivity.class);
+        intentGame.putExtra("hints", (Serializable) startGameMessage.getHints());
+        intentGame.putExtra("centerX", startGameMessage.getCenterX());
+        intentGame.putExtra("centerY", startGameMessage.getCenterY());
+        intentGame.putExtra("radius", startGameMessage.getRadius());
         startActivity(intentGame);
         finish();
     }
@@ -123,5 +115,4 @@ public class WaitingRoomActivity extends AppCompatActivity {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
-
 }

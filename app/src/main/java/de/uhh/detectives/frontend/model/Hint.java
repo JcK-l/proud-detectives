@@ -1,6 +1,5 @@
 package de.uhh.detectives.frontend.model;
 
-import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
@@ -19,6 +18,8 @@ public class Hint implements Serializable {
     private Double longitude;
     private Double latitude;
 
+    private boolean received;
+
     public Hint() {}
 
     @Ignore
@@ -32,6 +33,7 @@ public class Hint implements Serializable {
         this.possessorId = (tokens[2].equals("null")) ? null : Long.parseLong(tokens[2]);
         this.longitude = (tokens[3].equals("null")) ? null : Double.parseDouble(tokens[3]);
         this.latitude = (tokens[4].equals("null")) ? null : Double.parseDouble(tokens[4]);
+        received = longitude == null;
     }
 
     public int getHintId() {
@@ -62,6 +64,10 @@ public class Hint implements Serializable {
         this.latitude = latitude;
     }
 
+    public void setReceived(boolean received){
+        this.received = received;
+    }
+
     public String getCategory() {
         return category;
     }
@@ -80,5 +86,9 @@ public class Hint implements Serializable {
 
     public Double getLatitude() {
         return latitude;
+    }
+
+    public boolean getReceived(){
+        return received;
     }
 }

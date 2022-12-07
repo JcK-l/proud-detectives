@@ -15,11 +15,11 @@ import java.util.Map;
 
 import de.uhh.detectives.frontend.geofence.service.GeofenceCreatorService;
 import de.uhh.detectives.frontend.geofence.service.GeofenceDestroyService;
-import de.uhh.detectives.frontend.geofence.service.HintGeofencePlacerService;
+import de.uhh.detectives.frontend.geofence.service.hintservices.HintGeofencePlacerService;
 import de.uhh.detectives.frontend.model.Hint;
 
 public class HintGeofenceAdapter implements GeofenceAdapter {
-    private static final float RADIUS_OF_HINT = 4;
+    private static final float RADIUS_OF_HINT = 100000;
     private final List<Hint> hints;
     private final GeofenceDestroyService geofenceDestroyService;
     private final GeofencingClient geofencingClient;
@@ -34,18 +34,19 @@ public class HintGeofenceAdapter implements GeofenceAdapter {
         hintGeofences = new HashMap<>();
         geofencingClient = LocationServices.getGeofencingClient(activity);
         geofenceCreatorService = new GeofenceCreatorService(activity);
-        geofenceDestroyService = new GeofenceDestroyService(geofencingClient,
-                geofenceCreatorService);
+        geofenceDestroyService = new GeofenceDestroyService(geofencingClient);
         hintGeofencePlacerService = new HintGeofencePlacerService(activity,
                 savedInstanceState, geofencingClient, geofenceCreatorService);
     }
 
     @Override
     public void createGeofences() {
-        for (Hint hint: hints) {
-            LatLng pos = createLatLngForHint(hint);
-            hintGeofences.put(hint.getDescription(), hintGeofencePlacerService.placeGeofence(pos,
-                    RADIUS_OF_HINT, hint.getDescription()));
+        for (Hint hint : hints) {
+            if (!hint.getReceived()) {
+                LatLng pos = createLatLngForHint(hint);
+                hintGeofences.put(hint.getDescription(), hintGeofencePlacerService.placeGeofence(pos,
+                        RADIUS_OF_HINT, hint.getDescription()));
+            }
         }
     }
 
@@ -53,7 +54,7 @@ public class HintGeofenceAdapter implements GeofenceAdapter {
     public void destroyGeofence(String id) {
         List<Geofence> geofences = new ArrayList<>();
         geofences.add(hintGeofences.get(id));
-        if(geofences.get(0) != null){
+        if (geofences.get(0) != null) {
             geofenceDestroyService.removeGeofences(geofences);
         }
     }
@@ -63,11 +64,11 @@ public class HintGeofenceAdapter implements GeofenceAdapter {
         return hintGeofences.get(id);
     }
 
-    public void destroyAllHintGeofences(){
+    public void destroyAllHintGeofences() {
         geofenceDestroyService.removeAllGeofences(geofenceCreatorService.getPendingIntent());
     }
 
-    private LatLng createLatLngForHint(Hint hint){
+    private LatLng createLatLngForHint(Hint hint) {
         return new LatLng(hint.getLatitude(), hint.getLongitude());
     }
 }

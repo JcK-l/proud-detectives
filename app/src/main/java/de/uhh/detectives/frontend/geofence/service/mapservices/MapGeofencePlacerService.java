@@ -1,4 +1,4 @@
-package de.uhh.detectives.frontend.geofence.service;
+package de.uhh.detectives.frontend.geofence.service.mapservices;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -7,11 +7,13 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.maps.model.LatLng;
 
+import de.uhh.detectives.frontend.geofence.service.GeofenceCreatorService;
+
 public class MapGeofencePlacerService {
     private static final String MAP_ID = "GAME_FIELD";
 
     private GeofenceCreatorService geofenceCreatorService;
-    private GeofencePlacementService geofencePlacementService;
+    private MapGeofencePlacementService mapGeofencePlacementService;
     private Activity activity;
 
     public MapGeofencePlacerService(Activity activity,
@@ -20,7 +22,7 @@ public class MapGeofencePlacerService {
                                     GeofenceCreatorService geofenceCreatorService ) {
         this.activity = activity;
         this.geofenceCreatorService = geofenceCreatorService;
-        geofencePlacementService = new GeofencePlacementService(activity,
+        mapGeofencePlacementService = new MapGeofencePlacementService(activity,
                 savedInstanceState,
                 geofencingClient,
                 geofenceCreatorService);
@@ -32,7 +34,7 @@ public class MapGeofencePlacerService {
                 radiusOfGeofence,
                 Geofence.GEOFENCE_TRANSITION_EXIT |
                         Geofence.GEOFENCE_TRANSITION_ENTER);
-        geofencePlacementService.placeGeofence(activity, geofence, false);
+        mapGeofencePlacementService.placeGeofence(activity, geofence);
         return geofence;
     }
 }

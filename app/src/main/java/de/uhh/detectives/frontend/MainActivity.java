@@ -23,7 +23,6 @@ import de.uhh.detectives.frontend.repository.ChatMessageRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class MainActivity extends AppCompatActivity {
-
     private ActivityMainBinding binding;
     private AppDatabase db;
     private Bundle savedInstanceState;

@@ -1,4 +1,4 @@
-package de.uhh.detectives.frontend.geofence.service;
+package de.uhh.detectives.frontend.geofence.service.hintservices;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -7,10 +7,12 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.maps.model.LatLng;
 
+import de.uhh.detectives.frontend.geofence.service.GeofenceCreatorService;
+
 public class HintGeofencePlacerService {
     private final Activity activity;
     private GeofenceCreatorService geofenceCreatorService;
-    private GeofencePlacementService geofencePlacementService;
+    private HintGeofencePlacementService hintGeofencePlacementService;
 
     public HintGeofencePlacerService(Activity activity,
                                      Bundle savedInstanceState,
@@ -18,7 +20,7 @@ public class HintGeofencePlacerService {
                                      GeofenceCreatorService geofenceCreatorService) {
         this.activity = activity;
         this.geofenceCreatorService = geofenceCreatorService;
-        geofencePlacementService = new GeofencePlacementService(activity,
+        hintGeofencePlacementService = new HintGeofencePlacementService(activity,
                 savedInstanceState,
                 geofencingClient,
                 geofenceCreatorService);
@@ -31,7 +33,7 @@ public class HintGeofencePlacerService {
                 positionOfGeofence,
                 radiusOfGeofence,
                 Geofence.GEOFENCE_TRANSITION_ENTER);
-        geofencePlacementService.placeGeofence(activity, geofence, true);
+        hintGeofencePlacementService.placeGeofence(activity, geofence);
         return geofence;
     }
 }

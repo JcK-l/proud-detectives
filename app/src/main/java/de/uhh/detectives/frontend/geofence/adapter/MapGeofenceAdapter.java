@@ -13,7 +13,7 @@ import java.util.List;
 
 import de.uhh.detectives.frontend.geofence.service.GeofenceCreatorService;
 import de.uhh.detectives.frontend.geofence.service.GeofenceDestroyService;
-import de.uhh.detectives.frontend.geofence.service.MapGeofencePlacerService;
+import de.uhh.detectives.frontend.geofence.service.mapservices.MapGeofencePlacerService;
 
 public class MapGeofenceAdapter implements GeofenceAdapter {
     private final float radiusOfMap;
@@ -30,8 +30,7 @@ public class MapGeofenceAdapter implements GeofenceAdapter {
         radiusOfMap = RadiusOfMap;
         geofencingClient = LocationServices.getGeofencingClient(activity);
         geofenceCreatorService = new GeofenceCreatorService(activity);
-        geofenceDestroyService = new GeofenceDestroyService(geofencingClient,
-                geofenceCreatorService);
+        geofenceDestroyService = new GeofenceDestroyService(geofencingClient);
         mapGeofencePlacerService = new MapGeofencePlacerService(activity,
                 savedInstanceState, geofencingClient, geofenceCreatorService);
     }

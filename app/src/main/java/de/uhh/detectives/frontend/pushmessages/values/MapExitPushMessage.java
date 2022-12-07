@@ -8,7 +8,7 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 
 import de.uhh.detectives.frontend.R;
-import de.uhh.detectives.frontend.geofence.service.GeofenceBroadcastReceiver;
+import de.uhh.detectives.frontend.geofence.service.mapservices.MapGeofenceBroadcastReceiver;
 
 public class MapExitPushMessage implements PushMessage {
     private Notification locationNotification;
@@ -22,7 +22,7 @@ public class MapExitPushMessage implements PushMessage {
 
     @Override
     public void createNotification() {
-        Intent intent = new Intent(context, GeofenceBroadcastReceiver.class);
+        Intent intent = new Intent(context, MapGeofenceBroadcastReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context
                 , CHANNEL_ID)

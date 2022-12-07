@@ -12,6 +12,8 @@ import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.maps.model.LatLng;
 
+import de.uhh.detectives.frontend.geofence.service.mapservices.MapGeofenceBroadcastReceiver;
+
 public class GeofenceCreatorService extends ContextWrapper {
     private PendingIntent pendingIntent;
     private Context context;
@@ -56,7 +58,7 @@ public class GeofenceCreatorService extends ContextWrapper {
         if (pendingIntent != null) {
             return pendingIntent;
         }
-        Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
+        Intent intent = new Intent(this, MapGeofenceBroadcastReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
                 PendingIntent.FLAG_MUTABLE);
         return pendingIntent;

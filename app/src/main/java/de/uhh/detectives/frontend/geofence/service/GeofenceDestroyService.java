@@ -12,19 +12,17 @@ import java.util.List;
 public class GeofenceDestroyService {
     private final String TAG = "GeofenceDestroyService";
     private GeofencingClient geofencingClient;
-    private GeofenceCreatorService geofenceCreatorService;
 
-    public GeofenceDestroyService(GeofencingClient geofencingClient, GeofenceCreatorService geofenceCreatorService) {
+    public GeofenceDestroyService(GeofencingClient geofencingClient) {
         this.geofencingClient = geofencingClient;
-        this.geofenceCreatorService = geofenceCreatorService;
     }
 
     public void removeGeofences(List<Geofence> geofences){
         geofencingClient.removeGeofences(getGeofencesRequestId(geofences))
                 .addOnSuccessListener(unused -> Log.d(TAG, "onSuccess: Geofence removed"))
                 .addOnFailureListener(e -> {
-                    String errorMessage = geofenceCreatorService.getErrorString(e);
-                    Log.d(TAG, "onFailure" + errorMessage);
+                    String errorMessage = geofences.get(0).getRequestId() + "destroying went wrong!";
+                    Log.d(TAG, "onFailure " + errorMessage);
                 });
     }
 
@@ -33,7 +31,7 @@ public class GeofenceDestroyService {
                 .addOnSuccessListener(unused -> {
                     Log.d(TAG, "onSuccess: Geofence removed");
                 }) .addOnFailureListener(e -> {
-                    String errorMessage = geofenceCreatorService.getErrorString(e);
+                    String errorMessage = "destroy all went wrong!";
                     Log.d(TAG, "onFailure" + errorMessage);
                 });
     }

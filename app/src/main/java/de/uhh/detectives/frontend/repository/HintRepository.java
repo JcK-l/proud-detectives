@@ -25,4 +25,7 @@ public interface HintRepository {
 
     @Query("SELECT * FROM Hint LIMIT 1")
     Hint findFirst();
+
+    @Query("SELECT * FROM Hint WHERE description= :id")
+    List<Hint> findHintsById(String id);
 }
