@@ -1,31 +1,31 @@
 package de.uhh.detectives.frontend.model.event;
 
 import de.uhh.detectives.frontend.model.Message.MessageType;
-import de.uhh.detectives.frontend.model.Message.WinGameMessage;
+import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.event.api.MessageEvent;
 
-public class WinGameMessageEvent implements MessageEvent {
+public class EndGameMessageEvent implements MessageEvent {
 
-    public WinGameMessage message;
+    public EndGameMessage message;
 
-    public WinGameMessageEvent() {}
+    public EndGameMessageEvent() {}
 
-    public WinGameMessageEvent(WinGameMessage message) {
+    public EndGameMessageEvent(EndGameMessage message) {
         this.message = message;
     }
 
     @Override
-    public WinGameMessage getMessage() {
+    public EndGameMessage getMessage() {
         return message;
     }
 
     @Override
     public MessageEvent generateMessageEvent(String input) {
-        return new WinGameMessageEvent(new WinGameMessage(input));
+        return new EndGameMessageEvent(new EndGameMessage(input));
     }
 
     @Override
     public boolean accepts(MessageType messageType) {
-        return messageType == MessageType.WIN_GAME_MESSAGE;
+        return messageType == MessageType.END_GAME_MESSAGE;
     }
 }
