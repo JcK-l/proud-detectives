@@ -31,7 +31,7 @@ import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCluesGuessesBinding;
 import de.uhh.detectives.frontend.model.CluesGuessesState;
-import de.uhh.detectives.frontend.model.Message.WinGameMessage;
+import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.repository.CluesGuessesStateRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
@@ -261,10 +261,7 @@ public class CluesGuessesFragment extends Fragment {
         switch (solutionVerifier.compareToSolution(suspicion)) {
             case SUCCESS:
                 cluesGuessesStateRepository.updateCardColor(R.color.correct_guess, user.getUserId());
-                String message = "I won the game with: " + String.valueOf(solutionVerifier.getSolutionWithAmongus());
-
-                // this will be replaced once we get EndGameMessage going
-                tcpMessageService.sendMessageToServer(new WinGameMessage(user.getUserId()));
+                tcpMessageService.sendMessageToServer(new EndGameMessage(user.getUserId(), true));
                 break;
             case SEMIFAILED:
                 cluesGuessesStateRepository.updateCardColor(R.color.mixed_guess, user.getUserId());
@@ -286,6 +283,7 @@ public class CluesGuessesFragment extends Fragment {
 
         if (cgState.getNumberOfTries() == MAX_TRIES) {
             Toast.makeText(getContext(), "YOU LOSE!!!", Toast.LENGTH_LONG).show();
+            tcpMessageService.sendMessageToServer(new EndGameMessage(user.getUserId(), false));
         }
         cardview.setCardBackgroundColor(ContextCompat.getColor(getContext(), cgState.getCardColor()));
     }

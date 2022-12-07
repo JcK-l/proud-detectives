@@ -32,31 +32,6 @@ public class SolutionVerifier {
         return solution;
     }
 
-    public List<String> getSolutionWithAmongus() {
-        List<String> result = new ArrayList<>(solution);
-        result.replaceAll(
-                element -> {
-                    switch (element) {
-                        case "dennis gatow":
-                            return "cyan";
-                        case "felix bloom":
-                            return "yellow";
-                        case "tom gruen":
-                            return "red";
-                        case "klara porz":
-                            return "orange";
-                        case "gloria roth":
-                            return "pink";
-                        case "diana weiss":
-                            return "green";
-                        default:
-                            return element;
-                    }
-                }
-        );
-        return result;
-    }
-
     public SuspicionResult compareToSolution(String[] suspicion) {
         Log.i("Solution", String.valueOf(solution));
         if (suspicion[0].equals("default") || suspicion[1].equals("default") || suspicion[2].equals("default"))
