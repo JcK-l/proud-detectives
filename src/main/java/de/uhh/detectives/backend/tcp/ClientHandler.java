@@ -54,7 +54,7 @@ public class ClientHandler implements Runnable {
                 final String toBroadcast = tcpMessageService.receiveMessage(inputMessage);
                 broadcastToClient(toBroadcast);
                 Game gameForUser;
-                if (toBroadcast != null && toBroadcast.startsWith("TYPE:WIN_GAME_MESSAGE;status=200")) {
+                if (toBroadcast != null && toBroadcast.startsWith("TYPE:END_GAME_MESSAGE;status=200")) {
                     gameForUser = gameService.findLatestCompletedGameForUser(clientUserId);
                 } else {
                     gameForUser = gameService.findActiveGameForUser(clientUserId);
