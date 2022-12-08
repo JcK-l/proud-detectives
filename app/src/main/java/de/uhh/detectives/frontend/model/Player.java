@@ -14,6 +14,8 @@ public class Player implements Serializable {
 
     private String pseudonym;
 
+    private boolean dead;
+
     public Player() {}
 
     // create Player
@@ -32,6 +34,14 @@ public class Player implements Serializable {
         }
         this.id = Long.parseLong(tokens[0]);
         this.pseudonym = tokens[1];
+    }
+
+    public boolean isDead() {
+        return dead;
+    }
+
+    public void setDead(boolean dead) {
+        this.dead = dead;
     }
 
     public Long getId() {

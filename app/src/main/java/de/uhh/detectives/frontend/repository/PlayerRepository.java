@@ -28,4 +28,7 @@ public interface PlayerRepository {
 
     @Query("SELECT * FROM Player LIMIT 1")
     Player findFirst();
+
+    @Query("UPDATE Player SET dead = :isDead WHERE id == :userId")
+    void setDead(final boolean isDead, final Long userId);
 }

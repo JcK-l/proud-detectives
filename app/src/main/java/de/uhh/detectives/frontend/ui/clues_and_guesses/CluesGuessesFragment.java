@@ -309,6 +309,7 @@ public class CluesGuessesFragment extends Fragment {
         cardview.setCardBackgroundColor(ContextCompat.getColor(getContext(), cgState.getCardColor()));
 
         if (cgState.getNumberOfTries() == MAX_TRIES) {
+            db.getPlayerRepository().setDead(true, user.getUserId());
             createDeathScreen();
         }
     }

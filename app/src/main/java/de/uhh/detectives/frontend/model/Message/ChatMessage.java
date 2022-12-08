@@ -26,6 +26,7 @@ public class ChatMessage implements Serializable, Message {
     private Long timestamp;
     private String dateTime;
     private String pseudonym;
+    private boolean dead;
 
     private static final SimpleDateFormat SDF = new SimpleDateFormat("hh:mm", Locale.ROOT);
 
@@ -58,8 +59,17 @@ public class ChatMessage implements Serializable, Message {
         this.message = tokens[3];
         this.timestamp = Long.parseLong(tokens[4]);
         this.pseudonym = tokens[5];
+        this.dead = Boolean.parseBoolean(tokens[6]);
         final long currentTime = System.currentTimeMillis();
         this.dateTime = SDF.format(new Date(currentTime));
+    }
+
+    public boolean isDead() {
+        return dead;
+    }
+
+    public void setDead(boolean dead) {
+        this.dead = dead;
     }
 
     public String getPseudonym() {
