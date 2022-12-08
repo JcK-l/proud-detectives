@@ -3,8 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/app_navigation"
-    app:startDestination="@id/commsFragment">
+    app:startDestination="@id/followPlayersFragment">
 
+    <fragment
+        android:id="@+id/followPlayersFragment"
+        android:name="de.uhh.detectives.frontend.ui.follow_players.FollowPlayersFragment"
+        android:label="Observe"
+        tools:layout="@layout/fragment_follow_players" />
     <fragment
         android:id="@+id/commsFragment"
         android:name="de.uhh.detectives.frontend.ui.comms.CommsFragment"

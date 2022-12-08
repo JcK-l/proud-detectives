@@ -14,11 +14,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
 
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.model.event.BasicEvent;
 
 public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapter.CluesGuessesViewHolder> {
 
@@ -29,7 +32,6 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
         this.context = context;
         this.cells = cells;
     }
-
 
     @NonNull
     @Override
@@ -114,6 +116,7 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
                         break;
                 }
                 db.getCluesGuessesStateRepository().updateCells(cells, user.getUserId());
+                EventBus.getDefault().post(new BasicEvent());
             };
         }
 

@@ -59,6 +59,7 @@ public class LocationHandlerImpl implements LocationHandler {
         locationRequest = setUpLocationRequest();
         locationCallback = setUpLocationCallback();
         setCurrentLocation(context);
+        startLocationUpdates(activity);
     }
 
     @Override
