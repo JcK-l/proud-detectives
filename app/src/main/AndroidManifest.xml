@@ -39,6 +39,10 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".GameGhostActivity"
+            android:theme="@style/Theme.Frontend"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".GameActivity"
             android:theme="@style/Theme.Frontend"
             android:windowSoftInputMode="adjustResize" />

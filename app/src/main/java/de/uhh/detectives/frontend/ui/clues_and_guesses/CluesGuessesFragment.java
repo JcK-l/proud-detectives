@@ -1,18 +1,21 @@
 package de.uhh.detectives.frontend.ui.clues_and_guesses;
 
-import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.DragEvent;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,11 +25,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.IntStream;
 
+import de.uhh.detectives.frontend.GameGhostActivity;
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCluesGuessesBinding;
@@ -129,21 +135,22 @@ public class CluesGuessesFragment extends Fragment {
     }
 
     private void setUpListeners() {
-        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            switch (which){
-                case DialogInterface.BUTTON_POSITIVE:
-                    guessingGame();
-                    break;
-
-                case DialogInterface.BUTTON_NEGATIVE:
-                    //No button clicked
-                    break;
-            }
-        };
         cardview.setOnClickListener( view -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle("Guess").setMessage("Do you want to confirm your selection?").setPositiveButton("Yes", dialogClickListener)
-                    .setNegativeButton("No", dialogClickListener).show();
+            if (cgState.getNumberOfTries() == MAX_TRIES){
+                createDeathScreen();
+                return;
+            }
+            new MaterialAlertDialogBuilder(getContext(), R.style.AlertConfirmSelection)
+                    .setTitle("Guess")
+                    .setMessage("Do you want to confirm your selection?")
+                    .setPositiveButton("Yes",
+                            (dialog, which) -> {
+                                guessingGame();
+                                dialog.dismiss();
+                            })
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .setIcon(R.drawable.ic_maybe)
+                    .show();
         });
 
         setListenerFor(image_suspicion_left);
@@ -158,6 +165,29 @@ public class CluesGuessesFragment extends Fragment {
         image_suspicion_left = binding.cardView.findViewById(R.id.image_suspicion_left);
         image_suspicion_middle = binding.cardView.findViewById(R.id.image_suspicion_middle);
         image_suspicion_right = binding.cardView.findViewById(R.id.image_suspicion_right);
+    }
+
+    private void createDeathScreen() {
+        View popUpView = getLayoutInflater().inflate(R.layout.dialog_you_died,
+                null); // inflating popup layout
+        PopupWindow popupWindow = new PopupWindow(popUpView, ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT, true); // Creation of popup
+        popupWindow.setAnimationStyle(android.R.style.Animation_Dialog);
+        popupWindow.showAtLocation(popUpView, Gravity.CENTER, 0, 0); // Displaying popup
+
+        CardView cardView = popUpView.getRootView().findViewById(R.id.background);
+        cardView.setOnClickListener(
+                view -> {
+                    tcpMessageService.sendMessageToServer(new EndGameMessage(user.getUserId(), false));
+                    Intent intentGhost = new Intent(getActivity(), GameGhostActivity.class);
+                    startActivity(intentGhost);
+                    popupWindow.dismiss();
+                    getActivity().finish();
+                });
+        TextView textView = popUpView.getRootView().findViewById(R.id.textView);
+        final Animation animation = new AlphaAnimation(0f, 1f);
+        animation.setDuration(1500);
+        textView.startAnimation(animation);
     }
 
     private void setListenerFor(ImageView imageView) {
@@ -248,11 +278,6 @@ public class CluesGuessesFragment extends Fragment {
     }
 
     private void guessingGame() {
-        if (cgState.getNumberOfTries() == MAX_TRIES){
-            Toast.makeText(getContext(), "YOU LOST ALREADY!!!", Toast.LENGTH_LONG).show();
-            return;
-        }
-
         SolutionVerifier solutionVerifier = new SolutionVerifier(getContext());
         String[] suspicion = new String[3];
         suspicion[0] = cgState.getSuspicion_left_tag().split(":")[1];
@@ -272,7 +297,7 @@ public class CluesGuessesFragment extends Fragment {
                 cluesGuessesStateRepository.updateNumberOfTries(user.getUserId());
                 break;
             case INVALID:
-                Toast.makeText(getContext(), "INVALID SELECTION!!!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "invalid selection", Toast.LENGTH_SHORT).show();
                 return;
         }
         cgState = cluesGuessesStateRepository.findFromId(user.getUserId());
@@ -281,11 +306,11 @@ public class CluesGuessesFragment extends Fragment {
         final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
         numberOfGuesses.setImageResource(iconIdentifier);
 
-        if (cgState.getNumberOfTries() == MAX_TRIES) {
-            Toast.makeText(getContext(), "YOU LOSE!!!", Toast.LENGTH_LONG).show();
-            tcpMessageService.sendMessageToServer(new EndGameMessage(user.getUserId(), false));
-        }
         cardview.setCardBackgroundColor(ContextCompat.getColor(getContext(), cgState.getCardColor()));
+
+        if (cgState.getNumberOfTries() == MAX_TRIES) {
+            createDeathScreen();
+        }
     }
 
     private List<Cell> setUpCells() {
