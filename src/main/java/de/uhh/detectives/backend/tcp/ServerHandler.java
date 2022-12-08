@@ -35,15 +35,17 @@ public class ServerHandler implements Runnable {
     }
 
     public void broadcastMessage(final String message, final Set<Long> userIds) throws IOException {
+        List<ClientHandler> handlersToRemove = new ArrayList<>();
         for (final ClientHandler handler : connections) {
             if (handler.isClosed()) {
-                connections.remove(handler);
-                break;
+                handlersToRemove.add(handler);
+                continue;
             }
             if (userIds.contains(handler.getClientUserId())) {
                 handler.sendMessage(message);
             }
         }
+        connections.removeAll(handlersToRemove);
     }
 
     @Override
