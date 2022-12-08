@@ -63,10 +63,6 @@ public class WaitingRoomActivity extends AppCompatActivity {
             db.getPlayerRepository().insert(new Player(System.currentTimeMillis() + i, names[i]));
         }
 
-        if (!locationHandler.isLocationUpdatesEnabled()) {
-            locationHandler.enableLocationUpdates(this);
-        }
-
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(
                 R.id.commsFragment,

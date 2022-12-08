@@ -27,6 +27,11 @@ public interface CluesGuessesStateRepository {
     @Query("SELECT * FROM CluesGuessesState LIMIT 1")
     CluesGuessesState findFirst();
 
+    @Query("UPDATE CluesGuessesState SET cells = :cells, cardColor = :cardColor, numberOfTries = :numberOfTries," +
+            "suspicionLeft = :suspicionLeft, suspicionMiddle = :suspicionMiddle, suspicionRight = :suspicionRight WHERE playerId =:id")
+    void updateAll(List<Cell> cells, int cardColor, int numberOfTries,
+                   int suspicionLeft, int suspicionMiddle, int suspicionRight, Long id);
+
     @Query("UPDATE CluesGuessesState SET cells = :cells WHERE playerId =:id")
     void updateCells(List<Cell> cells, Long id);
 
@@ -36,21 +41,21 @@ public interface CluesGuessesStateRepository {
     @Query("UPDATE CluesGuessesState SET numberOfTries = numberOfTries + 1 WHERE playerId =:id")
     void updateNumberOfTries(Long id);
 
-    @Query("UPDATE CluesGuessesState SET suspicion_left = :suspicion WHERE playerId =:id")
+    @Query("UPDATE CluesGuessesState SET suspicionLeft = :suspicion WHERE playerId =:id")
     void updateSuspicionLeft(int suspicion, Long id);
 
-    @Query("UPDATE CluesGuessesState SET suspicion_left_tag = :tag WHERE playerId =:id")
+    @Query("UPDATE CluesGuessesState SET suspicionLeftTag = :tag WHERE playerId =:id")
     void updateSuspicionLeft(String tag, Long id);
 
-    @Query("UPDATE CluesGuessesState SET suspicion_middle = :suspicion WHERE playerId =:id")
+    @Query("UPDATE CluesGuessesState SET suspicionMiddle = :suspicion WHERE playerId =:id")
     void updateSuspicionMiddle(int suspicion, Long id);
 
-    @Query("UPDATE CluesGuessesState SET suspicion_middle_tag = :tag WHERE playerId =:id")
+    @Query("UPDATE CluesGuessesState SET suspicionMiddleTag = :tag WHERE playerId =:id")
     void updateSuspicionMiddle(String tag, Long id);
 
-    @Query("UPDATE CluesGuessesState SET suspicion_right = :suspicion WHERE playerId =:id")
+    @Query("UPDATE CluesGuessesState SET suspicionRight = :suspicion WHERE playerId =:id")
     void updateSuspicionRight(int suspicion, Long id);
 
-    @Query("UPDATE CluesGuessesState SET suspicion_right_tag = :tag WHERE playerId =:id")
+    @Query("UPDATE CluesGuessesState SET suspicionRightTag = :tag WHERE playerId =:id")
     void updateSuspicionRight(String tag, Long id);
 }

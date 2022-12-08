@@ -24,6 +24,7 @@ import de.uhh.detectives.frontend.model.Message.MessageType;
 import de.uhh.detectives.frontend.model.Message.api.Message;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
+import de.uhh.detectives.frontend.model.event.CluesGuessesStateMessageEvent;
 import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.RegisterMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
@@ -60,7 +61,8 @@ public class TcpMessageService extends Service {
         threadTcpConnection.start();
 
         messageEventList.addAll(Arrays.asList(new ChatMessageEvent(), new JoinGameMessageEvent(),
-                new RegisterMessageEvent(), new StartGameMessageEvent(), new EndGameMessageEvent()));
+                new RegisterMessageEvent(), new StartGameMessageEvent(), new EndGameMessageEvent(),
+                new CluesGuessesStateMessageEvent()));
     }
 
     @Override
@@ -135,6 +137,7 @@ public class TcpMessageService extends Service {
                     }
                 } catch (IOException | IllegalArgumentException e) {
                     e.printStackTrace();
+                    break;
                 }
             }
         };

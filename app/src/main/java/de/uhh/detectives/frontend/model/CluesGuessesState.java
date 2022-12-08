@@ -14,12 +14,12 @@ public class CluesGuessesState {
     private Long playerId;
 
     private List<Cell> cells;
-    private int suspicion_left;
-    private String suspicion_left_tag;
-    private int suspicion_middle;
-    private String suspicion_middle_tag;
-    private int suspicion_right;
-    private String suspicion_right_tag;
+    private int suspicionLeft;
+    private String suspicionLeftTag;
+    private int suspicionMiddle;
+    private String suspicionMiddleTag;
+    private int suspicionRight;
+    private String suspicionRightTag;
     private int cardColor;
     private int numberOfTries;
 
@@ -42,52 +42,52 @@ public class CluesGuessesState {
         this.cells = cells;
     }
 
-    public int getSuspicion_left() {
-        return suspicion_left;
+    public int getSuspicionLeft() {
+        return suspicionLeft;
     }
 
-    public void setSuspicion_left(int suspicion_left) {
-        this.suspicion_left = suspicion_left;
+    public void setSuspicionLeft(int suspicionLeft) {
+        this.suspicionLeft = suspicionLeft;
     }
 
-    public String getSuspicion_left_tag() {
-        return suspicion_left_tag;
+    public String getSuspicionLeftTag() {
+        return suspicionLeftTag;
     }
 
-    public void setSuspicion_left_tag(String suspicion_left_tag) {
-        this.suspicion_left_tag = suspicion_left_tag;
+    public void setSuspicionLeftTag(String suspicionLeftTag) {
+        this.suspicionLeftTag = suspicionLeftTag;
     }
 
-    public int getSuspicion_middle() {
-        return suspicion_middle;
+    public int getSuspicionMiddle() {
+        return suspicionMiddle;
     }
 
-    public void setSuspicion_middle(int suspicion_middle) {
-        this.suspicion_middle = suspicion_middle;
+    public void setSuspicionMiddle(int suspicionMiddle) {
+        this.suspicionMiddle = suspicionMiddle;
     }
 
-    public String getSuspicion_middle_tag() {
-        return suspicion_middle_tag;
+    public String getSuspicionMiddleTag() {
+        return suspicionMiddleTag;
     }
 
-    public void setSuspicion_middle_tag(String suspicion_middle_tag) {
-        this.suspicion_middle_tag = suspicion_middle_tag;
+    public void setSuspicionMiddleTag(String suspicionMiddleTag) {
+        this.suspicionMiddleTag = suspicionMiddleTag;
     }
 
-    public int getSuspicion_right() {
-        return suspicion_right;
+    public int getSuspicionRight() {
+        return suspicionRight;
     }
 
-    public void setSuspicion_right(int suspicion_right) {
-        this.suspicion_right = suspicion_right;
+    public void setSuspicionRight(int suspicionRight) {
+        this.suspicionRight = suspicionRight;
     }
 
-    public String getSuspicion_right_tag() {
-        return suspicion_right_tag;
+    public String getSuspicionRightTag() {
+        return suspicionRightTag;
     }
 
-    public void setSuspicion_right_tag(String suspicion_right_tag) {
-        this.suspicion_right_tag = suspicion_right_tag;
+    public void setSuspicionRightTag(String suspicionRightTag) {
+        this.suspicionRightTag = suspicionRightTag;
     }
 
     public int getCardColor() {

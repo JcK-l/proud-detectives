@@ -12,14 +12,20 @@ import androidx.navigation.ui.NavigationUI;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.List;
 import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityGameGhostBinding;
+import de.uhh.detectives.frontend.model.CluesGuessesState;
+import de.uhh.detectives.frontend.model.Message.CluesGuessesStateMessage;
 import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.Player;
+import de.uhh.detectives.frontend.model.event.CluesGuessesStateMessageEvent;
 import de.uhh.detectives.frontend.model.event.EndGameMessageEvent;
 import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
+import de.uhh.detectives.frontend.repository.CluesGuessesStateRepository;
+import de.uhh.detectives.frontend.ui.clues_and_guesses.Cell;
 
 public class GameGhostActivity extends AppCompatActivity {
 
@@ -44,7 +50,8 @@ public class GameGhostActivity extends AppCompatActivity {
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(
-                R.id.commsFragment)
+                R.id.commsFragment,
+                R.id.followPlayersFragment)
                 .build();
 
         final NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
@@ -53,6 +60,27 @@ public class GameGhostActivity extends AppCompatActivity {
         final NavController navController = navHostFragment.getNavController();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+    }
+
+    @Subscribe
+    public void receiveCluesGuessesStateMessage(CluesGuessesStateMessageEvent cluesGuessesStateMessageEvent) {
+        CluesGuessesStateMessage cluesGuessesStateMessage = cluesGuessesStateMessageEvent.getMessage();
+        CluesGuessesState cluesGuessesState = cluesGuessesStateMessage.getCluesGuessesState();
+        CluesGuessesStateRepository cluesGuessesStateRepository = db.getCluesGuessesStateRepository();
+
+        if (cluesGuessesStateRepository.findFromId(cluesGuessesState.getPlayerId()) == null) {
+            cluesGuessesStateRepository.insert(cluesGuessesStateMessage.getCluesGuessesState());
+        } else {
+            Long playerId = cluesGuessesState.getPlayerId();
+            int cardColor = cluesGuessesState.getCardColor();
+            int numberOfTries = cluesGuessesState.getNumberOfTries();
+            int suspicionLeft = cluesGuessesState.getSuspicionLeft();
+            int suspicionMiddle =cluesGuessesState.getSuspicionMiddle();
+            int suspicionRight = cluesGuessesState.getSuspicionRight();
+            List<Cell> cells = cluesGuessesState.getCells();
+            cluesGuessesStateRepository.updateAll(cells, cardColor, numberOfTries, suspicionLeft,
+                    suspicionMiddle, suspicionRight, playerId);
+        }
     }
 
     @Subscribe

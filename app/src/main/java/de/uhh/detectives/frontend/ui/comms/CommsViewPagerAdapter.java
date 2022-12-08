@@ -17,7 +17,7 @@ import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.UserData;
 
-public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.ViewHolder> {
+public class CommsViewPagerAdapter extends RecyclerView.Adapter<CommsViewPagerAdapter.ViewHolder> {
 
     final Context context;
     final List<ChatMessage> messages;
@@ -28,8 +28,8 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.View
     private final UserData user;
 
 
-    public ViewPagerAdapter(final Context context, final List<Long> senderIds ,
-                            final List<ChatMessage> messages, Activity activity) {
+    public CommsViewPagerAdapter(final Context context, final List<Long> senderIds ,
+                                 final List<ChatMessage> messages) {
         this.context = context;
         this.messages = messages;
         this.senderIds = senderIds;
@@ -43,7 +43,7 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.View
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         final LayoutInflater inflater = LayoutInflater.from(context);
         final View view = inflater.inflate(R.layout.item_directmessage, parent, false);
-        return new ViewPagerAdapter.ViewHolder(view, user.getUserId());
+        return new CommsViewPagerAdapter.ViewHolder(view, user.getUserId());
     }
 
     @Override

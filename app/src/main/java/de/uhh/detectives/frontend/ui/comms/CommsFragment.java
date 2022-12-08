@@ -57,7 +57,7 @@ public class CommsFragment extends Fragment {
     private ViewPager2 viewPager2;
     private TabLayout tabLayout;
     private TabLayoutMediator tabLayoutMediator;
-    private ViewPagerAdapter viewPagerAdapter;
+    private CommsViewPagerAdapter commsViewPagerAdapter;
 
     private TcpMessageService tcpMessageService;
 
@@ -115,9 +115,9 @@ public class CommsFragment extends Fragment {
 
         viewPager2 = root.findViewById(R.id.viewPager);
 
-        viewPagerAdapter = new ViewPagerAdapter(getContext(), playerIds, chatMessages, getActivity());
+        commsViewPagerAdapter = new CommsViewPagerAdapter(getContext(), playerIds, chatMessages);
 
-        viewPager2.setAdapter(viewPagerAdapter);
+        viewPager2.setAdapter(commsViewPagerAdapter);
 
         viewPager2.setPageTransformer(
                 (view, position) -> {
@@ -202,13 +202,13 @@ public class CommsFragment extends Fragment {
     public void receiveMessage(final ChatMessageEvent chatMessageEvent) {
         ChatMessage chatMessage = chatMessageEvent.getMessage();
         chatMessages.add(chatMessage);
-        viewPagerAdapter.notifyDataSetChanged();
+        commsViewPagerAdapter.notifyDataSetChanged();
 
         if (chatMessage.getReceiverId() != null && chatMessage.getReceiverId().equals(user.getUserId())
         && !playerIds.contains(chatMessage.getSenderId())) {
             playerIds.add(0, chatMessage.getSenderId());
             playerNames.add(0, chatMessage.getPseudonym());
-            viewPagerAdapter.notifyItemInserted(1);
+            commsViewPagerAdapter.notifyItemInserted(1);
         }
     }
 
@@ -225,7 +225,7 @@ public class CommsFragment extends Fragment {
             db.getDirectMessageRepository().prepareForInsertion();
             db.getDirectMessageRepository().insert(directMessage);
 
-            viewPagerAdapter.notifyItemInserted(1);
+            commsViewPagerAdapter.notifyItemInserted(1);
             viewPager2.setCurrentItem(1);
         }
     }

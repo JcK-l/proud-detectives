@@ -22,6 +22,7 @@ import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
+import de.uhh.detectives.frontend.repository.PlayerRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,11 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private UserData user;
     private Bundle savedInstanceState;
 
-    // LocationHandler in MainActivity einmal initialisieren, um state zu halten
     private MapGeofence mapGeofence;
     private ChatMessageRepository chatMessageRepository;
-
-    private final static Long gameStartTime = System.currentTimeMillis();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +60,6 @@ public class MainActivity extends AppCompatActivity {
                 20f);
     }
 
-    public Long getGameStartTime() {
-        return gameStartTime;
-    }
-
     @Subscribe
     public void receiveJoinGameMessage(JoinGameMessageEvent joinGameMessageEvent) {
         user = db.getUserDataRepository().findFirst();
@@ -77,14 +71,23 @@ public class MainActivity extends AppCompatActivity {
         Character[] symbols = new Character[] {'O', 'o'};
         StringBuilder ghostMessage = new StringBuilder();
         int randomNum;
-        if (chatMessage.isDead() && !db.getPlayerRepository().getPlayerWithUserId(user.getUserId()).isDead()) {
+        // scramble text message
+        if (chatMessage.isSenderDead() && !db.getPlayerRepository().getPlayerWithUserId(user.getUserId()).isDead()) {
             for (int i = 0; i < chatMessage.getMessage().length(); i++) {
                 randomNum = ThreadLocalRandom.current().nextInt(0,  2);
                 ghostMessage.append(symbols[randomNum]);
             }
             chatMessage.setMessage(ghostMessage.toString());
+        } else if (chatMessage.isSenderDead() && db.getPlayerRepository().getPlayerWithUserId(user.getUserId()).isDead()) {
+            chatMessage.setPseudonym(chatMessage.getPseudonym() + " (GHOST)");
         }
         chatMessageRepository.insert(chatMessage);
+
+        // turn player dead if not already dead
+        PlayerRepository playerRepository = db.getPlayerRepository();
+        if (chatMessage.isSenderDead() && !playerRepository.getPlayerWithUserId(chatMessage.getSenderId()).isDead()) {
+            playerRepository.setDead(true, chatMessage.getSenderId());
+        }
 
         // listen for messages directed at us
         if (chatMessage.getReceiverId() != null && chatMessage.getReceiverId().equals(db.getUserDataRepository().findFirst().getUserId())) {
