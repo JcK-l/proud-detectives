@@ -29,4 +29,6 @@
 
     <color name='minesweeper_correct'>#AF1FFF1F</color>
     <color name='minesweeper_wrong'>#AFFF1F1F</color>
+
+    <color name='dark_souls_red'>#FF4F0001</color>
 </resources>

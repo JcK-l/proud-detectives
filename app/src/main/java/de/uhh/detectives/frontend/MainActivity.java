@@ -33,8 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private MapGeofence mapGeofence;
     private ChatMessageRepository chatMessageRepository;
 
-    private PushMessageHandler pushMessageHandler;
-
     private final static Long gameStartTime = System.currentTimeMillis();
 
     @Override
@@ -52,8 +50,6 @@ public class MainActivity extends AppCompatActivity {
 
         db = AppDatabase.getDatabase(getApplicationContext());
         chatMessageRepository = db.getChatMessageRepository();
-
-        pushMessageHandler = new PushMessageHandler(getApplicationContext());
     }
 
     @Override
@@ -94,26 +90,6 @@ public class MainActivity extends AppCompatActivity {
         db.getPlayerRepository().insertAll(startGameMessage.getPlayers());
         db.getSolutionRepository().insert(startGameMessage.getSolution());
         db.getHintRepository().insertAll(startGameMessage.getHints());
-    }
-
-    @Subscribe
-    public void receiveWinGameMessage(EndGameMessageEvent endGameMessageEvent) {
-        EndGameMessage endGameMessage = endGameMessageEvent.getMessage();
-
-        if (endGameMessage.isWin()) {
-            Player winner = db.getPlayerRepository().getPlayerWithUserId(endGameMessage.getWinnerId());
-            pushMessageHandler.pushWinGameMessage(winner.getPseudonym());
-        }
-
-        db.getPlayerRepository().deleteAll();
-        db.getSolutionRepository().deleteAll();
-        db.getHintRepository().deleteAll();
-        db.getChatMessageRepository().deleteAll();
-        db.getDirectMessageRepository().deleteAll();
-        db.getCluesGuessesStateRepository().deleteAll();
-
-        Intent intentLogin = new Intent(this, LoginActivity.class);
-        startActivity(intentLogin);
     }
 
     @Override

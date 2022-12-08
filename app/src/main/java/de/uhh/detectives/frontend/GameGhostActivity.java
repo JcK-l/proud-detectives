@@ -15,16 +15,15 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
-import de.uhh.detectives.frontend.databinding.ActivityGameBinding;
+import de.uhh.detectives.frontend.databinding.ActivityGameGhostBinding;
 import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.event.EndGameMessageEvent;
 import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
 
-public class GameActivity extends AppCompatActivity {
+public class GameGhostActivity extends AppCompatActivity {
 
-    private ActivityGameBinding binding;
-    private final static Long gameStartTime = System.currentTimeMillis();
+    private ActivityGameGhostBinding binding;
 
     private PushMessageHandler pushMessageHandler;
     private AppDatabase db;
@@ -33,7 +32,7 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityGameBinding.inflate(getLayoutInflater());
+        binding = ActivityGameGhostBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         EventBus.getDefault().register(this);
@@ -45,13 +44,11 @@ public class GameActivity extends AppCompatActivity {
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(
-                R.id.cluesGuessesFragment,
-                R.id.hintsFragment,
                 R.id.commsFragment)
                 .build();
 
         final NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.nav_host_fragment_activity_game);
+                .findFragmentById(R.id.nav_host_fragment_activity_game_ghost);
         Objects.requireNonNull(navHostFragment);
         final NavController navController = navHostFragment.getNavController();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -83,9 +80,5 @@ public class GameActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-    }
-
-    public Long getGameStartTime() {
-        return gameStartTime;
     }
 }

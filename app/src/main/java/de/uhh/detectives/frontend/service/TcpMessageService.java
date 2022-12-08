@@ -40,7 +40,7 @@ public class TcpMessageService extends Service {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private final String host = "dos-wins-04.informatik.uni-hamburg.de";
-//   private final String host = "10.0.2.2";
+//    private final String host = "10.0.2.2";
     private final int port = 22527;
 
     public class LocalBinder extends Binder {
