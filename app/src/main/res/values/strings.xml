@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Stolze Detektive</string>
+    <string name="app_name">Proud Detectives</string>
     <string name="hint_category">Hint category</string>
     <string name="hint_description">Hint description</string>
     <string name="type_a_message">Type a message</string>
