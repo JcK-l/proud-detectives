@@ -30,6 +30,6 @@ public class GeofencePlacer {
     }
 
     private LatLng generateLatLngOutOfCenterPoints(double centerX, double centerY) {
-        return new LatLng(centerX, centerY);
+        return new LatLng(centerY, centerX);
     }
 }

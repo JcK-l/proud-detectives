@@ -28,7 +28,7 @@ public class MapExitPushMessage implements PushMessage {
                 , CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Get back on the Map")
-                .setContentText("You have left the map, please enter the map againg!")
+                .setContentText("You have left the map, please enter the map again!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setVibrate(new long[]{100L, 0L, 100L});

@@ -53,7 +53,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                     break;
                 case Geofence.GEOFENCE_TRANSITION_EXIT:
                     if(!isHintGeofenceTriggered(geofence)) {
-                        handleMapEntered();
+                        handleMapExit();
                     }
                     break;
                 default:
