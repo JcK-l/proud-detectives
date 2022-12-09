@@ -13,7 +13,9 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -43,6 +45,8 @@ public class TcpMessageService extends Service {
     private final String host = "dos-wins-04.informatik.uni-hamburg.de";
 //    private final String host = "10.0.2.2";
     private final int port = 22527;
+    private final int REESTABLISH_CONNECTION_DELAY = 5000;
+    private final int LISTEN_FOR_MESSAGE_DELAY = 500;
 
     public class LocalBinder extends Binder {
         public TcpMessageService getService() {
@@ -93,16 +97,6 @@ public class TcpMessageService extends Service {
         this.user = user;
     }
 
-    public void syncDatabase(){
-        // TODO:
-        return;
-    }
-
-    public void loginUser() {
-        // TODO:
-        return;
-    }
-
     private Runnable sendMessage(final Message message) {
         return () -> {
             try {
@@ -125,6 +119,7 @@ public class TcpMessageService extends Service {
                     Thread.currentThread().interrupt();
                 }
             }
+            Log.i("Connection", "Listening now");
             while(true){
                 try {
                     serverInput = in.readUTF();
@@ -140,27 +135,63 @@ public class TcpMessageService extends Service {
                     break;
                 }
             }
+            try {
+                out.close();
+                in.close();
+                socket.close();
+                socket = null;
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("Connection", "Socket cannot close");
+            }
+            while(true) {
+                if (reestablishConnection(REESTABLISH_CONNECTION_DELAY)) {
+                    Thread threadListenForMessage = new Thread(listenForMessage());
+                    threadListenForMessage.start();
+                    break;
+                }
+            }
+
+            try {
+                Thread.sleep(LISTEN_FOR_MESSAGE_DELAY);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            synchronized (syncObject) {
+                syncObject.notify();
+            }
         };
     }
 
-    private String getMessageTypeFromResponse(String serverInput) {
-        String[] tokens = serverInput.split(";");
-        return tokens[0].substring(tokens[0].indexOf(":") + 1);
+    public boolean reestablishConnection(int timeoutMS){
+        boolean connected = false;
+        try {
+            socket = new Socket();
+            SocketAddress socketAddress = new InetSocketAddress(host, port);
+            socket.connect(socketAddress, timeoutMS);
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
+            if (socket.isConnected()) {
+                connected = true;
+                Log.i("Connection", "Connected");
+            }
+        } catch (IOException e) {
+            Log.e("Connection", "Cannot establish connection");
+        }
+        return connected;
     }
 
     private Runnable establishTcpConnection() {
         return () -> {
-            out = null;
-            in = null;
             try {
                 socket = new Socket(host, port);
                 out = new ObjectOutputStream(socket.getOutputStream());
                 in = new ObjectInputStream(socket.getInputStream());
             } catch (UnknownHostException e) {
-                System.err.println("Don't know about host: " + host);
+                Log.e("Connection", "Don't know about host: " + host);
                 System.exit(1);
             } catch (IOException e) {
-                System.err.println("Couldn't get I/O for host: " + host);
+                Log.e("Connection", "Couldn't get I/O for host: " + host);
                 System.exit(1);
             }
             try {
@@ -171,11 +202,12 @@ public class TcpMessageService extends Service {
             synchronized (syncObject) {
                 syncObject.notify();
             }
+            Log.i("Connection", "Connection established");
         };
     }
 
-    private Runnable heartbeat() {
-        // TODO:
-        return () -> {};
+    private String getMessageTypeFromResponse(String serverInput) {
+        String[] tokens = serverInput.split(";");
+        return tokens[0].substring(tokens[0].indexOf(":") + 1);
     }
 }

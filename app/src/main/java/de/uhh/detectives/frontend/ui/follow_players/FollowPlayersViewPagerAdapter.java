@@ -73,9 +73,8 @@ public class FollowPlayersViewPagerAdapter extends RecyclerView.Adapter<FollowPl
         // Ui components
         private final RecyclerView recyclerView;
         private final Context context;
-        private final int MAX_TRIES = 3;
         List<Integer> ghostIndex;
-        private Activity activity;
+        private final Activity activity;
 
         public ViewHolder(@NonNull View itemView, Context context, Activity activity) {
             super(itemView);
@@ -105,6 +104,7 @@ public class FollowPlayersViewPagerAdapter extends RecyclerView.Adapter<FollowPl
 
             cardview.setCardBackgroundColor(ContextCompat.getColor(context, cluesGuessesState.getCardColor()));
 
+            int MAX_TRIES = 3;
             String iconName = "number_of_tries" + (MAX_TRIES - cluesGuessesState.getNumberOfTries());
             final int iconIdentifier = context.getResources().getIdentifier(iconName,"drawable", activity.getPackageName());
             numberOfGuesses.setImageResource(iconIdentifier);

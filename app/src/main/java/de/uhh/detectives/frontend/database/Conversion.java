@@ -21,7 +21,6 @@ public class Conversion {
     @TypeConverter
     public static String fromArrayList(List<Cell> list) {
         Gson gson = new Gson();
-        String json = gson.toJson(list);
-        return json;
+        return gson.toJson(list);
     }
 }

@@ -44,10 +44,8 @@ public class CommsFragment extends Fragment {
     private  UserData user;
 
     private FragmentCommsBinding binding;
-    private FragmentCommsSoftkeyboardBinding bindingTransition;
 
     private List<ChatMessage> chatMessages;
-    private List<DirectMessage> directMessages;
 
     private List<Long> playerIds;
     private List<String> playerNames;
@@ -55,8 +53,6 @@ public class CommsFragment extends Fragment {
     private BottomNavigationView navBar;
     private CommsAnimation animate;
     private ViewPager2 viewPager2;
-    private TabLayout tabLayout;
-    private TabLayoutMediator tabLayoutMediator;
     private CommsViewPagerAdapter commsViewPagerAdapter;
 
     private TcpMessageService tcpMessageService;
@@ -76,15 +72,15 @@ public class CommsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        navBar = getActivity().findViewById(R.id.nav_view);
+        navBar = requireActivity().findViewById(R.id.nav_view);
 
         Intent intent = new Intent(getActivity(), TcpMessageService.class);
-        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        requireActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
         EventBus.getDefault().register(this);
 
         binding = FragmentCommsBinding.inflate(getLayoutInflater());
-        bindingTransition = FragmentCommsSoftkeyboardBinding.inflate(getLayoutInflater());
+        FragmentCommsSoftkeyboardBinding bindingTransition = FragmentCommsSoftkeyboardBinding.inflate(getLayoutInflater());
 
         View root = binding.getRoot();
         View rootTransition = bindingTransition.getRoot();
@@ -94,7 +90,7 @@ public class CommsFragment extends Fragment {
         db = AppDatabase.getDatabase(getContext());
         user = db.getUserDataRepository().findFirst();
         chatMessages = db.getChatMessageRepository().getAll();
-        directMessages = db.getDirectMessageRepository().getAll();
+        List<DirectMessage> directMessages = db.getDirectMessageRepository().getAll();
 
         directMessages.sort(Comparator.comparing(DirectMessage::getPosition));
 
@@ -157,8 +153,8 @@ public class CommsFragment extends Fragment {
                 }
         );
 
-        tabLayout = binding.viewTabs.findViewById(R.id.tabLayout);
-        tabLayoutMediator = new TabLayoutMediator(tabLayout, viewPager2,
+        TabLayout tabLayout = binding.viewTabs.findViewById(R.id.tabLayout);
+        TabLayoutMediator tabLayoutMediator = new TabLayoutMediator(tabLayout, viewPager2,
                 (tab, position) -> {
                     if (position == 0) {
                         tab.setText("All Chat");
@@ -235,6 +231,6 @@ public class CommsFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         EventBus.getDefault().unregister(this);
-        getActivity().unbindService(connection);
+        requireActivity().unbindService(connection);
     }
 }

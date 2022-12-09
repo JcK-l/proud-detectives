@@ -1,5 +1,7 @@
 package de.uhh.detectives.frontend.model.Message;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,6 +118,7 @@ public class StartGameMessage implements Message {
         return hints;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "TYPE:START_GAME_MESSAGE" +

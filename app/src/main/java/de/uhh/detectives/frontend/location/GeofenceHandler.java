@@ -35,28 +35,23 @@ public class GeofenceHandler extends ContextWrapper {
     private String geofenceID = "0";
 
     private FusedLocationProviderClient fusedLocationProviderClient;
-    private Location lastKnownLocation;
 
-    private GeofencingClient geofencingClient;
-    private GeofenceHelper geofenceHelper;
-    private PushMessageHandler pushMessageHandler;
-    private LocationPermissionHandler locationPermissionHandler;
-
-    private LocationHandlerImpl locationHandler;
+    private final GeofencingClient geofencingClient;
+    private final GeofenceHelper geofenceHelper;
 
     public GeofenceHandler(final Activity activity, Bundle savedInstanceState) {
         super(activity);
-        locationPermissionHandler = new LocationPermissionHandler(activity);
-        pushMessageHandler = new PushMessageHandler(activity);
+        LocationPermissionHandler locationPermissionHandler = new LocationPermissionHandler(activity);
+        PushMessageHandler pushMessageHandler = new PushMessageHandler(activity);
         //fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
         geofencingClient = LocationServices.getGeofencingClient(activity);
         geofenceHelper = new GeofenceHelper(activity);
-        locationHandler = new LocationHandlerImpl(activity.getApplicationContext(), activity);
+        LocationHandlerImpl locationHandler = new LocationHandlerImpl(activity.getApplicationContext(), activity);
 
         onCreate(activity);
 
         if (savedInstanceState != null) {
-            lastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
+            Location lastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
         }
     }
 
@@ -116,9 +111,7 @@ public class GeofenceHandler extends ContextWrapper {
             return;
         }
         geofencingClient.addGeofences(geofencingRequest, pendingIntent)
-                .addOnSuccessListener(unused -> {
-                    Log.d(TAG, "onSuccess: Geofence Added");
-                })
+                .addOnSuccessListener(unused -> Log.d(TAG, "onSuccess: Geofence Added"))
                 .addOnFailureListener(e -> {
                     String errorMessage = geofenceHelper.getErrorString(e);
                     Log.d(TAG, "onFailure" + errorMessage);

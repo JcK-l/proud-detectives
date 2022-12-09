@@ -3,9 +3,6 @@ package de.uhh.detectives.frontend.ui.clues_and_guesses;
 import android.content.Context;
 import android.util.Log;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -16,13 +13,10 @@ public class SolutionVerifier {
 
     final private List<String> solution;
 
-    private AppDatabase db;
-    private Solution solutionFromDatabase;
-
 
     public SolutionVerifier(Context context){
-        db = AppDatabase.getDatabase(context);
-        solutionFromDatabase = db.getSolutionRepository().findFirst();
+        AppDatabase db = AppDatabase.getDatabase(context);
+        Solution solutionFromDatabase = db.getSolutionRepository().findFirst();
 
         solution = solutionFromDatabase.getSolutionList();
         solution.replaceAll(element -> element.toLowerCase(Locale.ROOT));

@@ -4,8 +4,6 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
-import java.util.List;
-
 import de.uhh.detectives.frontend.model.UserData;
 
 @Dao

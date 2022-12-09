@@ -18,7 +18,6 @@ import java.util.Locale;
 import java.util.Random;
 
 import de.uhh.detectives.frontend.GameActivity;
-import de.uhh.detectives.frontend.MainActivity;
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.databinding.FragmentHintsBinding;
 import de.uhh.detectives.frontend.ui.clues_and_guesses.SolutionVerifier;
@@ -98,7 +97,7 @@ public class HintsFragment extends Fragment {
                 continue;
             iconName = "ic_hint_" + category.toLowerCase(Locale.ROOT) + (i + 1);
             // different icons for presentation purposes
-            final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
+            final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", requireActivity().getPackageName());
             hintModels.add(new HintModel(category, descriptions[i] + " ist es nicht!", iconIdentifier));
         }
         return hintModels;

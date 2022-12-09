@@ -9,9 +9,9 @@ import com.google.android.gms.maps.model.LatLng;
 public class MapGeofence {
     private static final String MAP_ID = "GAME_FIELD";
 
-    private GeofenceHelper geofenceHelper;
-    private GeofenceHandler geofenceHandler;
-    private Activity activity;
+    private final GeofenceHelper geofenceHelper;
+    private final GeofenceHandler geofenceHandler;
+    private final Activity activity;
 
     public MapGeofence(Activity activity, Bundle savedInstanceState) {
         this.activity = activity;

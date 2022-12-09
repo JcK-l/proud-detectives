@@ -36,16 +36,11 @@ import de.uhh.detectives.frontend.ui.clues_and_guesses.CellState;
 
 public class FollowPlayersFragment extends Fragment {
 
-    private AppDatabase db;
-
     private FragmentFollowPlayersBinding binding;
 
     private List<Player> players;
     private List<Cell> cells;
 
-    private ViewPager2 viewPager2;
-    private TabLayout tabLayout;
-    private TabLayoutMediator tabLayoutMediator;
     private FollowPlayersViewPagerAdapter followPlayersViewPagerAdapter;
 
     private final float MIN_SCALE = 0.75f;
@@ -59,19 +54,16 @@ public class FollowPlayersFragment extends Fragment {
 
         View root = binding.getRoot();
 
-        db = AppDatabase.getDatabase(getContext());
+        AppDatabase db = AppDatabase.getDatabase(getContext());
         UserData user = db.getUserDataRepository().findFirst();
 
         // user to last position
         players = db.getPlayerRepository().getAll();
-        Comparator<Player> comparator = new Comparator<Player>() {
-            @Override
-            public int compare(Player player, Player t1) {
-                if (player.getId().equals(user.getUserId())) {
-                    return 1;
-                }
-                return -1;
+        Comparator<Player> comparator = (player, t1) -> {
+            if (player.getId().equals(user.getUserId())) {
+                return 1;
             }
+            return -1;
         };
         players.sort(comparator);
 
@@ -113,7 +105,7 @@ public class FollowPlayersFragment extends Fragment {
             iconName = "ic_hint_" + category_lower + (i + 1);
             description_lower = descriptions[i].toLowerCase(Locale.ROOT);
             // different icons for presentation purposes
-            final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
+            final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", requireActivity().getPackageName());
             cells.add(new Cell(CellState.NEUTRAL, iconIdentifier, category_lower, description_lower));
         }
 
@@ -122,7 +114,7 @@ public class FollowPlayersFragment extends Fragment {
 
     private void initFollowPlayers(View root){
 
-        viewPager2 = root.findViewById(R.id.viewPager);
+        ViewPager2 viewPager2 = root.findViewById(R.id.viewPager);
 
         followPlayersViewPagerAdapter = new FollowPlayersViewPagerAdapter(getContext(), players, cells, getActivity());
 
@@ -166,11 +158,9 @@ public class FollowPlayersFragment extends Fragment {
                 }
         );
 
-        tabLayout = binding.viewTabs.findViewById(R.id.tabLayout);
-        tabLayoutMediator = new TabLayoutMediator(tabLayout, viewPager2,
-                (tab, position) -> {
-                    tab.setText(players.get(position).getPseudonym());
-                }
+        TabLayout tabLayout = binding.viewTabs.findViewById(R.id.tabLayout);
+        TabLayoutMediator tabLayoutMediator = new TabLayoutMediator(tabLayout, viewPager2,
+                (tab, position) -> tab.setText(players.get(position).getPseudonym())
         );
         tabLayoutMediator.attach();
     }
