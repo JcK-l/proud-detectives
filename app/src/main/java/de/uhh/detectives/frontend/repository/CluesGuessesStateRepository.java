@@ -2,6 +2,7 @@ package de.uhh.detectives.frontend.repository;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface CluesGuessesStateRepository {
     @Query("SELECT * FROM CLUESGUESSESSTATE WHERE playerId == :id")
     CluesGuessesState findFromId(Long id);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final CluesGuessesState cluesGuessesState);
 
     @Query("SELECT * FROM CluesGuessesState")
@@ -26,11 +27,6 @@ public interface CluesGuessesStateRepository {
 
     @Query("SELECT * FROM CluesGuessesState LIMIT 1")
     CluesGuessesState findFirst();
-
-    @Query("UPDATE CluesGuessesState SET cells = :cells, cardColor = :cardColor, numberOfTries = :numberOfTries," +
-            "suspicionLeft = :suspicionLeft, suspicionMiddle = :suspicionMiddle, suspicionRight = :suspicionRight WHERE playerId =:id")
-    void updateAll(List<Cell> cells, int cardColor, int numberOfTries,
-                   int suspicionLeft, int suspicionMiddle, int suspicionRight, Long id);
 
     @Query("UPDATE CluesGuessesState SET cells = :cells WHERE playerId =:id")
     void updateCells(List<Cell> cells, Long id);

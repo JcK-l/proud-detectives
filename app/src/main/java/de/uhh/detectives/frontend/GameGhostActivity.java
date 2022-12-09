@@ -12,7 +12,6 @@ import androidx.navigation.ui.NavigationUI;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.List;
 import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
@@ -25,7 +24,6 @@ import de.uhh.detectives.frontend.model.event.CluesGuessesStateMessageEvent;
 import de.uhh.detectives.frontend.model.event.EndGameMessageEvent;
 import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
 import de.uhh.detectives.frontend.repository.CluesGuessesStateRepository;
-import de.uhh.detectives.frontend.ui.clues_and_guesses.Cell;
 
 public class GameGhostActivity extends AppCompatActivity {
 
@@ -33,6 +31,8 @@ public class GameGhostActivity extends AppCompatActivity {
 
     private PushMessageHandler pushMessageHandler;
     private AppDatabase db;
+
+    private final int MAX_TRIES = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,22 +65,15 @@ public class GameGhostActivity extends AppCompatActivity {
     @Subscribe
     public void receiveCluesGuessesStateMessage(CluesGuessesStateMessageEvent cluesGuessesStateMessageEvent) {
         CluesGuessesStateMessage cluesGuessesStateMessage = cluesGuessesStateMessageEvent.getMessage();
-        CluesGuessesState cluesGuessesState = cluesGuessesStateMessage.getCluesGuessesState();
         CluesGuessesStateRepository cluesGuessesStateRepository = db.getCluesGuessesStateRepository();
+        CluesGuessesState cluesGuessesState = cluesGuessesStateMessage.getCluesGuessesState();
 
-        if (cluesGuessesStateRepository.findFromId(cluesGuessesState.getPlayerId()) == null) {
-            cluesGuessesStateRepository.insert(cluesGuessesStateMessage.getCluesGuessesState());
-        } else {
-            Long playerId = cluesGuessesState.getPlayerId();
-            int cardColor = cluesGuessesState.getCardColor();
-            int numberOfTries = cluesGuessesState.getNumberOfTries();
-            int suspicionLeft = cluesGuessesState.getSuspicionLeft();
-            int suspicionMiddle =cluesGuessesState.getSuspicionMiddle();
-            int suspicionRight = cluesGuessesState.getSuspicionRight();
-            List<Cell> cells = cluesGuessesState.getCells();
-            cluesGuessesStateRepository.updateAll(cells, cardColor, numberOfTries, suspicionLeft,
-                    suspicionMiddle, suspicionRight, playerId);
+        // turn player dead if not already dead
+        if (cluesGuessesState.getNumberOfTries() == MAX_TRIES) {
+            db.getPlayerRepository().setDead(true, cluesGuessesState.getPlayerId());
         }
+
+        cluesGuessesStateRepository.insert(cluesGuessesState);
     }
 
     @Subscribe

@@ -16,10 +16,15 @@ import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityGameBinding;
+import de.uhh.detectives.frontend.model.CluesGuessesState;
+import de.uhh.detectives.frontend.model.Message.CluesGuessesStateMessage;
 import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.Player;
+import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.model.event.CluesGuessesStateMessageEvent;
 import de.uhh.detectives.frontend.model.event.EndGameMessageEvent;
 import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
+import de.uhh.detectives.frontend.repository.CluesGuessesStateRepository;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -28,6 +33,9 @@ public class GameActivity extends AppCompatActivity {
 
     private PushMessageHandler pushMessageHandler;
     private AppDatabase db;
+    private UserData user;
+
+    private final int MAX_TRIES = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +50,7 @@ public class GameActivity extends AppCompatActivity {
 
         pushMessageHandler = new PushMessageHandler(getApplicationContext());
         db = AppDatabase.getDatabase(getApplicationContext());
+        user = db.getUserDataRepository().findFirst();
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
                 .Builder(
@@ -56,6 +65,23 @@ public class GameActivity extends AppCompatActivity {
         final NavController navController = navHostFragment.getNavController();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+    }
+
+    @Subscribe
+    public void receiveCluesGuessesStateMessage(CluesGuessesStateMessageEvent cluesGuessesStateMessageEvent) {
+        CluesGuessesStateMessage cluesGuessesStateMessage = cluesGuessesStateMessageEvent.getMessage();
+        CluesGuessesStateRepository cluesGuessesStateRepository = db.getCluesGuessesStateRepository();
+        CluesGuessesState cluesGuessesState = cluesGuessesStateMessage.getCluesGuessesState();
+        if (cluesGuessesState.getPlayerId().equals(user.getUserId())) {
+            return;
+        }
+
+        // turn player dead if not already dead
+        if (cluesGuessesState.getNumberOfTries() == MAX_TRIES) {
+            db.getPlayerRepository().setDead(true, cluesGuessesState.getPlayerId());
+        }
+
+        cluesGuessesStateRepository.insert(cluesGuessesState);
     }
 
     @Subscribe
