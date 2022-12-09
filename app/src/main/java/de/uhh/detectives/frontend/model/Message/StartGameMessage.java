@@ -39,7 +39,12 @@ public class StartGameMessage implements Message {
     // Parse RegisterMessage
     public StartGameMessage(String messageToParse) {
 
-        String variables = messageToParse.substring(0, messageToParse.indexOf("[") - 8);
+        String variables;
+        try {
+            variables = messageToParse.substring(0, messageToParse.indexOf("[") - 8);
+        } catch (Exception ignore) {
+            variables = messageToParse;
+        }
 
         String[] variableTokens = variables.split(";");
         for (int i = 1; i < variableTokens.length; i++) {
