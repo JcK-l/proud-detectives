@@ -46,9 +46,11 @@ public class ClientHandler implements Runnable {
                 LOG.info("Receiving message " + inputMessage);
                 if (inputMessage.contains("OPEN_CONNECTION_FOR:")) {
                     clientUserId = Long.valueOf(inputMessage.substring(inputMessage.indexOf(':') + 1));
+                    LOG.info(String.format("client with id %d connected.", clientUserId));
                     continue;
                 }
                 if (inputMessage.contains("CLOSE_CONNECTION_FOR:")) {
+                    LOG.info(String.format("client with id %d disconnected.", clientUserId));
                     break;
                 }
                 final String toBroadcast = tcpMessageService.receiveMessage(inputMessage);
@@ -67,7 +69,7 @@ public class ClientHandler implements Runnable {
             }
             shutdown();
         } catch (final IOException e) {
-            LOG.error(e.getMessage());
+            LOG.error(String.format("client with id %d lost connection.", clientUserId));
             shutdown();
         }
     }

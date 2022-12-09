@@ -35,7 +35,7 @@ public class ServerHandler implements Runnable {
     }
 
     public void broadcastMessage(final String message, final Set<Long> userIds) throws IOException {
-        List<ClientHandler> handlersToRemove = new ArrayList<>();
+        final List<ClientHandler> handlersToRemove = new ArrayList<>();
         for (final ClientHandler handler : connections) {
             if (handler.isClosed()) {
                 handlersToRemove.add(handler);
@@ -59,7 +59,6 @@ public class ServerHandler implements Runnable {
                 clientSocket = serverSocket.accept();
                 out = new ObjectOutputStream(clientSocket.getOutputStream());
                 in = new ObjectInputStream(clientSocket.getInputStream());
-                LOG.info("Somebody connected.");
             } catch (IOException e) {
                 LOG.error("Accept failed.");
                 continue;
