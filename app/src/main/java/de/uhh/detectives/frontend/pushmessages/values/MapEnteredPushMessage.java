@@ -28,8 +28,8 @@ public class MapEnteredPushMessage implements PushMessage {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context
                 , CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("You're entered the map again")
-                .setContentText("You,re back on the map, keep searching for hints!")
+                .setContentTitle("You have entered the map again")
+                .setContentText("You are back on the map, keep searching for hints!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setVibrate(new long[]{100L, 0L, 100L});
