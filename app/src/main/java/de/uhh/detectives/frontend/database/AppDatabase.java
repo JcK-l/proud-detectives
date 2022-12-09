@@ -9,6 +9,7 @@ import androidx.room.TypeConverters;
 
 import de.uhh.detectives.frontend.model.CluesGuessesState;
 import de.uhh.detectives.frontend.model.Hint;
+import de.uhh.detectives.frontend.model.Map;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.DirectMessage;
 import de.uhh.detectives.frontend.model.Player;
@@ -18,13 +19,14 @@ import de.uhh.detectives.frontend.repository.ChatMessageRepository;
 import de.uhh.detectives.frontend.repository.CluesGuessesStateRepository;
 import de.uhh.detectives.frontend.repository.DirectMessageRepository;
 import de.uhh.detectives.frontend.repository.HintRepository;
+import de.uhh.detectives.frontend.repository.MapRepository;
 import de.uhh.detectives.frontend.repository.PlayerRepository;
 import de.uhh.detectives.frontend.repository.SolutionRepository;
 import de.uhh.detectives.frontend.repository.UserDataRepository;
 
 @Database(
         entities = {UserData.class, ChatMessage.class, Player.class, Hint.class,
-                Solution.class, DirectMessage.class, CluesGuessesState.class},
+                Solution.class, DirectMessage.class, CluesGuessesState.class, Map.class},
         version = 3,
         exportSchema = false)
 @TypeConverters({Conversion.class})
@@ -39,6 +41,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract SolutionRepository getSolutionRepository();
     public abstract DirectMessageRepository getDirectMessageRepository();
     public abstract CluesGuessesStateRepository getCluesGuessesStateRepository();
+    public abstract MapRepository getMapRepository();
 
 
     public static AppDatabase getDatabase(final Context context) {

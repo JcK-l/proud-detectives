@@ -25,7 +25,10 @@ public class MapGeofenceAdapter implements GeofenceAdapter {
 
     private Geofence mapGeofence;
 
-    public MapGeofenceAdapter(float RadiusOfMap, LatLng positionOfPlayer, Activity activity, Bundle savedInstanceState) {
+    public MapGeofenceAdapter(float RadiusOfMap,
+                              LatLng positionOfPlayer,
+                              Activity activity,
+                              Bundle savedInstanceState) {
         this.positionOfPlayer = positionOfPlayer;
         radiusOfMap = RadiusOfMap;
         geofencingClient = LocationServices.getGeofencingClient(activity);
@@ -46,7 +49,7 @@ public class MapGeofenceAdapter implements GeofenceAdapter {
     public void destroyGeofence(String id) {
         List<Geofence> geofences = new ArrayList<>();
         geofences.add(mapGeofence);
-        if(geofences.get(0) != null){
+        if (geofences.get(0) != null) {
             geofenceDestroyService.removeGeofences(geofences);
         }
     }

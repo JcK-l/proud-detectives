@@ -21,6 +21,7 @@ import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityWaitingRoomBinding;
 import de.uhh.detectives.frontend.location.api.LocationHandler;
 import de.uhh.detectives.frontend.location.impl.LocationHandlerImpl;
+import de.uhh.detectives.frontend.model.Map;
 import de.uhh.detectives.frontend.model.Message.JoinGameMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
 import de.uhh.detectives.frontend.model.Player;
@@ -99,10 +100,13 @@ public class WaitingRoomActivity extends AppCompatActivity {
             return;
         }
 
+        Map map = new Map(startGameMessage.getCenterX(),
+                startGameMessage.getCenterY(),
+                startGameMessage.getRadius());
+        db.getMapRepository().insert(map);
+
         Intent intentGame = new Intent(this, GameActivity.class);
-        intentGame.putExtra("centerX", startGameMessage.getCenterX());
-        intentGame.putExtra("centerY", startGameMessage.getCenterY());
-        intentGame.putExtra("radius", startGameMessage.getRadius());
+
         startActivity(intentGame);
         finish();
     }

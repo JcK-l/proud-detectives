@@ -16,8 +16,10 @@ import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityGameBinding;
+import de.uhh.detectives.frontend.model.Map;
 import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 import de.uhh.detectives.frontend.repository.HintRepository;
+import de.uhh.detectives.frontend.repository.MapRepository;
 import de.uhh.detectives.frontend.waitingroom.GeofencePlacer;
 import de.uhh.detectives.frontend.model.CluesGuessesState;
 import de.uhh.detectives.frontend.model.Message.CluesGuessesStateMessage;
@@ -35,6 +37,7 @@ public class GameActivity extends AppCompatActivity {
     private Bundle savedInstanceState;
     private AppDatabase db;
     private HintRepository hintRepository;
+    private MapRepository mapRepository;
 
     private PushMessageService pushMessageService;
     private UserData user;
@@ -45,10 +48,12 @@ public class GameActivity extends AppCompatActivity {
         this.savedInstanceState = savedInstanceState;
 
         geofenceInformation = getIntent().getExtras();
-        de.uhh.detectives.frontend.databinding.ActivityGameBinding binding = ActivityGameBinding.inflate(getLayoutInflater());
+        de.uhh.detectives.frontend.databinding.ActivityGameBinding binding
+                = ActivityGameBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         db = AppDatabase.getDatabase(getApplicationContext());
         hintRepository = db.getHintRepository();
+        mapRepository = db.getMapRepository();
 
         EventBus.getDefault().register(this);
 
@@ -123,17 +128,24 @@ public class GameActivity extends AppCompatActivity {
         EventBus.getDefault().unregister(this);
     }
 
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        placeGeofences();
+    }
+
     public Long getGameStartTime() {
         return gameStartTime;
     }
 
     private void placeGeofences(){
+        Map map = mapRepository.getAll();
         GeofencePlacer geofencePlacer = new GeofencePlacer(this,
                 savedInstanceState,
                 hintRepository.getAll(),
-                (double) geofenceInformation.get("centerX"),
-                (double) geofenceInformation.get("centerY"),
-                (double) geofenceInformation.get("radius"));
+                map.getCenterX(),
+                map.getCenterY(),
+                map.getRadius());
         geofencePlacer.placeMapGeofence();
         geofencePlacer.placeHintGeofences();
     }
