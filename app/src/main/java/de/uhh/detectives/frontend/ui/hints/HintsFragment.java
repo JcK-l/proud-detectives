@@ -78,8 +78,9 @@ public class HintsFragment extends Fragment {
 
     private HintModel createHintModel(Hint hint) {
         final HintModel hintModel;
-        String iconName;
-        iconName = "ic_hint_" + hint.getDescription().toLowerCase(Locale.ROOT);
+        final int imageIndex = HintImages.getIndex(hint.getDescription());
+        final String categoryName = translateCategory(hint.getCategory());
+        final String iconName = "ic_hint_" + categoryName + imageIndex;
         final int iconIdentifier = getResources().getIdentifier(iconName,
                 "drawable",
                 requireActivity().getPackageName());
@@ -87,6 +88,16 @@ public class HintsFragment extends Fragment {
                 hint.getDescription() + " ist es nicht!",
                 iconIdentifier);
         return hintModel;
+    }
+
+    private String translateCategory(final String category) {
+        if ("weapon".equalsIgnoreCase(category)) {
+            return "waffe";
+        } else if ("location".equalsIgnoreCase(category)) {
+            return "ort";
+        } else {
+            return "person";
+        }
     }
 
     private Runnable setUpNotificationRunnable(final HintAdapter adapter, final Handler handler) {
@@ -101,5 +112,64 @@ public class HintsFragment extends Fragment {
                 HintAdapter.setNewHintFound(false);
             }
         };
+    }
+
+    private static class HintImages {
+        protected static int getIndex(final String description) {
+            switch (description) {
+                case "Dennis Gatow":
+                    return 1;
+                case "Felix Bloom":
+                    return 2;
+                case "Tom Gruen":
+                    return 3;
+                case "Klara Porz":
+                    return 4;
+                case "Gloria Roth":
+                    return 5;
+                case "Diana Weiss":
+                    return 6;
+                case "Kueche":
+                    return 1;
+                case "Musikzimmer":
+                    return 2;
+                case "Schlafzimmer":
+                    return 3;
+                case "Speisezimmer":
+                    return 4;
+                case "Keller":
+                    return 5;
+                case "Billardzimmer":
+                    return 6;
+                case "Bibliothek":
+                    return 7;
+                case "Garten":
+                    return 8;
+                case "Eingangshalle":
+                    return 9;
+                case "Arbeitszimmer":
+                    return 10;
+                case "Pistole":
+                    return 1;
+                case "Dolch":
+                    return 2;
+                case "Seil":
+                    return 3;
+                case "Kerzenleuchter":
+                    return 4;
+                case "Rohrzange":
+                    return 5;
+                case "Heizungsrohr":
+                    return 6;
+                case "Messer":
+                    return 7;
+                case "Gift":
+                    return 8;
+                case "Hantel":
+                    return 9;
+                default:
+                    return 0;
+            }
+        }
     }
 }
