@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
+import java.util.Objects;
 
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
@@ -57,11 +58,11 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
 
         private final ImageView imageView;
         private final Context context;
-        private Drawable cancel;
-        private Drawable maybe;
+        private final Drawable cancel;
+        private final Drawable maybe;
         private final List<Cell> cells;
-        private AppDatabase db;
-        private UserData user;
+        private final AppDatabase db;
+        private final UserData user;
 
         public CluesGuessesViewHolder(@NonNull View itemView, final List<Cell> cells, final Context context) {
             super(itemView);
@@ -70,8 +71,8 @@ public class CluesGuessesAdapter extends RecyclerView.Adapter<CluesGuessesAdapte
             this.cancel = AppCompatResources.getDrawable(context, R.drawable.ic_cancel);
             this.maybe = AppCompatResources.getDrawable(context, R.drawable.ic_maybe);
             this.cells = cells;
-            cancel.setAlpha(230);
-            maybe.setAlpha(230);
+            Objects.requireNonNull(cancel).setAlpha(230);
+            Objects.requireNonNull(maybe).setAlpha(230);
             db = AppDatabase.getDatabase(context);
             user = db.getUserDataRepository().findFirst();
         }

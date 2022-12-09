@@ -1,6 +1,5 @@
 package de.uhh.detectives.frontend.ui.comms;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +23,6 @@ public class CommsViewPagerAdapter extends RecyclerView.Adapter<CommsViewPagerAd
     final List<Long> senderIds;
 
 
-    private final AppDatabase db;
     private final UserData user;
 
 
@@ -33,8 +31,8 @@ public class CommsViewPagerAdapter extends RecyclerView.Adapter<CommsViewPagerAd
         this.context = context;
         this.messages = messages;
         this.senderIds = senderIds;
-        this.db = AppDatabase.getDatabase(context);
-        this.user = this.db.getUserDataRepository().findFirst();
+        AppDatabase db = AppDatabase.getDatabase(context);
+        this.user = db.getUserDataRepository().findFirst();
 
     }
 
@@ -60,11 +58,8 @@ public class CommsViewPagerAdapter extends RecyclerView.Adapter<CommsViewPagerAd
                             && chatMessage.getReceiverId().equals(user.getUserId())) {
                        return true;
                         // Messages To someone
-                    } else if (position > 0 && chatMessage.getSenderId().equals(user.getUserId())
-                            && chatMessage.getReceiverId().equals(senderIds.get(position - 1))) {
-                        return true;
-                    }
-                    return false;
+                    } else return position > 0 && chatMessage.getSenderId().equals(user.getUserId())
+                            && chatMessage.getReceiverId().equals(senderIds.get(position - 1));
                 }).collect(Collectors.toList());
         holder.bind(result);
     }

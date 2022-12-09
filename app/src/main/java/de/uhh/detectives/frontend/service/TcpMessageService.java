@@ -93,16 +93,6 @@ public class TcpMessageService extends Service {
         this.user = user;
     }
 
-    public void syncDatabase(){
-        // TODO:
-        return;
-    }
-
-    public void loginUser() {
-        // TODO:
-        return;
-    }
-
     private Runnable sendMessage(final Message message) {
         return () -> {
             try {

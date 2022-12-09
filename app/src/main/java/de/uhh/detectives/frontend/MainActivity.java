@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     private UserData user;
     private Bundle savedInstanceState;
 
-    private MapGeofence mapGeofence;
     private ChatMessageRepository chatMessageRepository;
 
     @Override
@@ -54,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mapGeofence = new MapGeofence(this, savedInstanceState);
+        MapGeofence mapGeofence = new MapGeofence(this, savedInstanceState);
         mapGeofence.placeMapGeofence(new LatLng(53.5690, 10.0205),
                 20f);
     }

@@ -2,7 +2,6 @@ package de.uhh.detectives.frontend.model.event;
 
 import de.uhh.detectives.frontend.model.Message.CluesGuessesStateMessage;
 import de.uhh.detectives.frontend.model.Message.MessageType;
-import de.uhh.detectives.frontend.model.Message.api.Message;
 import de.uhh.detectives.frontend.model.event.api.MessageEvent;
 
 public class CluesGuessesStateMessageEvent implements MessageEvent {

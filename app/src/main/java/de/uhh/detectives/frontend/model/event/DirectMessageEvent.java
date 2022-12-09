@@ -5,7 +5,7 @@ import de.uhh.detectives.frontend.model.Message.MessageType;
 import de.uhh.detectives.frontend.model.event.api.MessageEvent;
 
 public class DirectMessageEvent implements MessageEvent {
-    private DirectMessage message;
+    private final DirectMessage message;
 
     public DirectMessageEvent(DirectMessage message) {
         this.message = message;

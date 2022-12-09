@@ -1,5 +1,7 @@
 package de.uhh.detectives.frontend.model.Message;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -12,7 +14,7 @@ import de.uhh.detectives.frontend.model.Message.api.Message;
 import de.uhh.detectives.frontend.ui.clues_and_guesses.Cell;
 
 public class CluesGuessesStateMessage implements Message {
-    private CluesGuessesState cluesGuessesState;
+    private final CluesGuessesState cluesGuessesState;
     private String cellString;
 
     // Create ChatMessage
@@ -49,6 +51,7 @@ public class CluesGuessesStateMessage implements Message {
         return MessageType.CLUES_GUESSES_STATE_MESSAGE;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "TYPE:CLUES_GUESSES_STATE_MESSAGE" +

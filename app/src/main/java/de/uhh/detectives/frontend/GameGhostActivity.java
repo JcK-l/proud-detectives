@@ -27,23 +27,19 @@ import de.uhh.detectives.frontend.repository.CluesGuessesStateRepository;
 
 public class GameGhostActivity extends AppCompatActivity {
 
-    private ActivityGameGhostBinding binding;
-
     private PushMessageHandler pushMessageHandler;
     private AppDatabase db;
-
-    private final int MAX_TRIES = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityGameGhostBinding.inflate(getLayoutInflater());
+        de.uhh.detectives.frontend.databinding.ActivityGameGhostBinding binding = ActivityGameGhostBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         EventBus.getDefault().register(this);
 
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
         pushMessageHandler = new PushMessageHandler(getApplicationContext());
         db = AppDatabase.getDatabase(getApplicationContext());
@@ -69,6 +65,7 @@ public class GameGhostActivity extends AppCompatActivity {
         CluesGuessesState cluesGuessesState = cluesGuessesStateMessage.getCluesGuessesState();
 
         // turn player dead if not already dead
+        int MAX_TRIES = 3;
         if (cluesGuessesState.getNumberOfTries() == MAX_TRIES) {
             db.getPlayerRepository().setDead(true, cluesGuessesState.getPlayerId());
         }

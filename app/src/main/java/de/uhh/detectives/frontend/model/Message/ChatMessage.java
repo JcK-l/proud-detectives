@@ -1,5 +1,6 @@
 package de.uhh.detectives.frontend.model.Message;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -133,6 +134,7 @@ public class ChatMessage implements Serializable, Message {
     }
 
 
+    @NonNull
     @Override
     public String toString() {
         return "TYPE:CHAT_MESSAGE" +

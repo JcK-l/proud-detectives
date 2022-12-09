@@ -20,6 +20,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Objects;
+
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityLoginJoinGameBinding;
 import de.uhh.detectives.frontend.databinding.ActivityLoginRegisterBinding;
@@ -35,12 +37,9 @@ import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private ActivityLoginRegisterBinding bindingRegister;
     private ActivityLoginJoinGameBinding bindingJoinGame;
     private TcpMessageService tcpMessageService;
     private UserDataRepository userDataRepository;
-
-    private AppDatabase db;
 
     private UserData user;
 
@@ -68,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
 
         LocationHandler locationHandler = new LocationHandlerImpl(this.getApplicationContext(), this);
 
-        db = AppDatabase.getDatabase(getApplicationContext());
+        AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
         userDataRepository = db.getUserDataRepository();
 
         bindingJoinGame = ActivityLoginJoinGameBinding.inflate(getLayoutInflater());
@@ -78,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
             TextInputLayout prenameLayout, surnameLayout, pseudonymLayout;
             TextInputEditText prenameText, surnameText, pseudonymText;
 
-            bindingRegister = ActivityLoginRegisterBinding.inflate(getLayoutInflater());
+            ActivityLoginRegisterBinding bindingRegister = ActivityLoginRegisterBinding.inflate(getLayoutInflater());
             setContentView(bindingRegister.getRoot());
 
             prenameLayout = bindingRegister.prenameLayout;
@@ -116,18 +115,18 @@ public class LoginActivity extends AppCompatActivity {
                         prenameLayout.setError(null);
                         surnameLayout.setError(null);
 
-                        if (pseudonymText.getText().toString().length() <=
+                        if (Objects.requireNonNull(pseudonymText.getText()).toString().length() <=
                                 pseudonymLayout.getCounterMaxLength()) {
                             pseudonymLayout.setError(null);
                         } else {
                             canSend = false;
                         }
 
-                        if (prenameText.getText().toString().equals("")) {
+                        if (Objects.requireNonNull(prenameText.getText()).toString().equals("")) {
                             prenameLayout.setError("This field can't be emtpy");
                             canSend = false;
                         }
-                        if (surnameText.getText().toString().equals("")) {
+                        if (Objects.requireNonNull(surnameText.getText()).toString().equals("")) {
                             surnameLayout.setError("This field can't be emtpy");
                             canSend = false;
                         }

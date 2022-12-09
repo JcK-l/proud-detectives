@@ -29,8 +29,6 @@ import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 
 public class WaitingRoomActivity extends AppCompatActivity {
 
-    private ActivityWaitingRoomBinding binding;
-
     private LocationHandler locationHandler;
 
     private AppDatabase db;
@@ -39,7 +37,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityWaitingRoomBinding.inflate(getLayoutInflater());
+        de.uhh.detectives.frontend.databinding.ActivityWaitingRoomBinding binding = ActivityWaitingRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         EventBus.getDefault().register(this);
@@ -55,7 +53,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
             finish();
         }
 
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
         Intent intent = getIntent();
         String[] names = intent.getExtras().getStringArray("names");

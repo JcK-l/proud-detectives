@@ -1,5 +1,7 @@
 package de.uhh.detectives.frontend.model.Message;
 
+import androidx.annotation.NonNull;
+
 import de.uhh.detectives.frontend.model.Message.api.Message;
 
 public class EndGameMessage implements Message {
@@ -57,6 +59,7 @@ public class EndGameMessage implements Message {
         return winnerPseudonym;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "TYPE:END_GAME_MESSAGE" +

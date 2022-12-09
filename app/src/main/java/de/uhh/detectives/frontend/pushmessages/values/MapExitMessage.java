@@ -12,8 +12,7 @@ import de.uhh.detectives.frontend.location.GeofenceBroadcastReceiver;
 
 public class MapExitMessage implements PushMessage {
     private Notification locationNotification;
-    private final String CHANNEL_ID = "LocChan";
-    private Context context;
+    private final Context context;
 
     public MapExitMessage(Context context) {
         this.context = context;
@@ -24,6 +23,7 @@ public class MapExitMessage implements PushMessage {
     public void createNotification() {
         Intent intent = new Intent(context, GeofenceBroadcastReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        String CHANNEL_ID = "LocChan";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context
                 , CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)

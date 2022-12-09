@@ -12,6 +12,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.Objects;
 
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.ui.clues_and_guesses.Cell;
@@ -50,17 +51,15 @@ public class FollowPlayersAdapter extends RecyclerView.Adapter<FollowPlayersAdap
 
         private final ImageView imageView;
         private final Context context;
-        private Drawable cancel;
-        private Drawable maybe;
 
         public FollowPlayersViewHolder(@NonNull View itemView, final Context context) {
             super(itemView);
             imageView = itemView.findViewById(R.id.item_cell_value);
             this.context = context;
-            this.cancel = AppCompatResources.getDrawable(context, R.drawable.ic_cancel);
-            this.maybe = AppCompatResources.getDrawable(context, R.drawable.ic_maybe);
-            cancel.setAlpha(230);
-            maybe.setAlpha(230);
+            Drawable cancel = AppCompatResources.getDrawable(context, R.drawable.ic_cancel);
+            Drawable maybe = AppCompatResources.getDrawable(context, R.drawable.ic_maybe);
+            Objects.requireNonNull(cancel).setAlpha(230);
+            Objects.requireNonNull(maybe).setAlpha(230);
         }
 
         public void setBackGroundColor(final Cell cell){
