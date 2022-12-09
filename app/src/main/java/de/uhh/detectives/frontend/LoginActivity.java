@@ -170,6 +170,28 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        for (final String string : permissions) {
+            Log.i("Permission", "Checking permission for: " + string);
+        }
+        boolean isGranted = false;
+        for (final int result : grantResults) {
+            if (result == PERMISSION_GRANTED) {
+                isGranted = true;
+                break;
+            }
+        }
+        if (!isGranted) {
+            Log.e("Permission", "Missing permission");
+            Toast.makeText(getApplicationContext(),"You need to turn on location tracking!", Toast.LENGTH_LONG).show();
+            finishAndRemoveTask();
+        }
+    }
+
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void receiveMessageRegister(final RegisterMessageEvent registerMessageEvent) {
         RegisterMessage registerMessage = registerMessageEvent.getMessage();
