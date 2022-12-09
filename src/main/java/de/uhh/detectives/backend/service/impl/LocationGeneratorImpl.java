@@ -1,7 +1,6 @@
 package de.uhh.detectives.backend.service.impl;
 
 import de.uhh.detectives.backend.service.api.LocationGenerator;
-import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Component;
 
@@ -58,8 +57,9 @@ public class LocationGeneratorImpl implements LocationGenerator {
         final double deltaX = calculateDeltaX(distance, angle);
         final double deltaY = calculateDeltaY(distance, angle);
 
-        final double longitude = center.getX() + deltaX / (Metrics.KILOMETERS.getMultiplier() * 1000);
-        final double latitude = center.getY() + deltaY / (Metrics.KILOMETERS.getMultiplier() * 1000);
+        // TODO: implement actual formula that takes geodata into account but for now 111111 is good enough of an approximation
+        final double latitude = center.getY() + deltaY / 111111;
+        final double longitude = center.getX() + deltaX / (Math.cos(latitude * Math.PI / 180) * 111111);
 
         return new Point(longitude, latitude);
     }
