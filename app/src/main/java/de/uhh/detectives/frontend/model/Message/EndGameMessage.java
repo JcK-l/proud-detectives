@@ -31,8 +31,11 @@ public class EndGameMessage implements Message {
 
         this.status = Integer.parseInt(tokens[1]);
         this.gameId = (tokens[2].equals("null")) ? null : Long.parseLong(tokens[2]);
-        this.winnerId = (tokens[3].equals("null")) ? null : Long.parseLong(tokens[3]);
-        this.winnerPseudonym = (tokens[4].equals("null")) ? null : tokens[4];
+
+        if (status == 200) {
+            this.winnerId = (tokens[3].equals("null")) ? null : Long.parseLong(tokens[3]);
+            this.winnerPseudonym = (tokens[4].equals("null")) ? null : tokens[4];
+        }
     }
 
     public boolean isWin() {

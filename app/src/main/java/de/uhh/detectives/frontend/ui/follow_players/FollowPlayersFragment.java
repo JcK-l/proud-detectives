@@ -30,7 +30,6 @@ import de.uhh.detectives.frontend.model.Message.CluesGuessesStateMessage;
 import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.CluesGuessesStateMessageEvent;
-import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
 import de.uhh.detectives.frontend.ui.clues_and_guesses.Cell;
 import de.uhh.detectives.frontend.ui.clues_and_guesses.CellState;
 
@@ -163,10 +162,6 @@ public class FollowPlayersFragment extends Fragment {
                 (tab, position) -> tab.setText(players.get(position).getPseudonym())
         );
         tabLayoutMediator.attach();
-    }
-
-    @Subscribe
-    public void receiveJoinGameMessage(JoinGameMessageEvent joinGameMessageEvent) {
     }
 
     @Override

@@ -38,23 +38,6 @@ public class StartGameMessage implements Message {
 
     // Parse RegisterMessage
     public StartGameMessage(String messageToParse) {
-        players = new ArrayList<>();
-        hints = new ArrayList<>();
-
-        String arrays = messageToParse.substring(messageToParse.indexOf("["));
-
-        String playerArray = arrays.substring(1, arrays.indexOf("]") - 1);
-        String hintArray = arrays.substring(arrays.lastIndexOf("[") + 1, arrays.length() - 2);
-
-        final String[] playerTokens = playerArray.split(";(?=id)");
-        for (final String playerString : playerTokens) {
-            players.add(new Player(playerString));
-        }
-
-        final String[] hintTokens = hintArray.split(";(?=category)");
-        for (final String hintString : hintTokens) {
-            hints.add(new Hint(hintString));
-        }
 
         String variables = messageToParse.substring(0, messageToParse.indexOf("[") - 8);
 
@@ -65,9 +48,30 @@ public class StartGameMessage implements Message {
 
         this.status = Integer.parseInt(variableTokens[1]);
         this.gameId = (variableTokens[2].equals("null")) ? null : Long.parseLong(variableTokens[2]);
-        this.culprit = variableTokens[3];
-        this.location = variableTokens[4];
-        this.weapon = variableTokens[5];
+
+        if (status == 200) {
+            this.culprit = variableTokens[3];
+            this.location = variableTokens[4];
+            this.weapon = variableTokens[5];
+
+            players = new ArrayList<>();
+            hints = new ArrayList<>();
+
+            String arrays = messageToParse.substring(messageToParse.indexOf("["));
+
+            String playerArray = arrays.substring(1, arrays.indexOf("]") - 1);
+            String hintArray = arrays.substring(arrays.lastIndexOf("[") + 1, arrays.length() - 2);
+
+            final String[] playerTokens = playerArray.split(";(?=id)");
+            for (final String playerString : playerTokens) {
+                players.add(new Player(playerString));
+            }
+
+            final String[] hintTokens = hintArray.split(";(?=category)");
+            for (final String hintString : hintTokens) {
+                hints.add(new Hint(hintString));
+            }
+        }
     }
 
     public Solution getSolution() {
