@@ -19,7 +19,7 @@ import de.uhh.detectives.frontend.geofence.service.hintservices.HintGeofencePlac
 import de.uhh.detectives.frontend.model.Hint;
 
 public class HintGeofenceAdapter implements GeofenceAdapter {
-    private static final float RADIUS_OF_HINT = 2000F;
+    private static final float RADIUS_OF_HINT = 10F;
     private final List<Hint> hints;
     private final GeofenceDestroyService geofenceDestroyService;
     private final GeofencingClient geofencingClient;

@@ -25,7 +25,7 @@ public class StartGameMessage implements Message {
     private String weapon;
     private double centerX;
     private double centerY;
-    private double radius;
+    private int radius;
 
     private List<Player> players;
     private List<Hint> hints;
@@ -33,10 +33,11 @@ public class StartGameMessage implements Message {
     public StartGameMessage() {}
 
     // Create StartGameMessage
-    public StartGameMessage(final UserData user, final double longitude, final double latitude) {
+    public StartGameMessage(final UserData user, final double longitude, final double latitude, final int radius) {
         this.userId = user.getUserId();
         this.longitude = longitude;
         this.latitude = latitude;
+        this.radius = radius;
     }
 
     // Parse RegisterMessage
@@ -79,16 +80,15 @@ public class StartGameMessage implements Message {
             for (final String hintString : hintTokens) {
                 hints.add(new Hint(hintString));
             }
+            this.status = Integer.parseInt(variableTokens[1]);
+            this.gameId = (variableTokens[2].equals("null")) ? null : Long.parseLong(variableTokens[2]);
+            this.culprit = variableTokens[3];
+            this.location = variableTokens[4];
+            this.weapon = variableTokens[5];
+            this.centerX = Double.parseDouble(variableTokens[6]);
+            this.centerY = Double.parseDouble(variableTokens[7]);
+            this.radius = Integer.parseInt(variableTokens[8]);
         }
-
-        this.status = Integer.parseInt(variableTokens[1]);
-        this.gameId = (variableTokens[2].equals("null")) ? null : Long.parseLong(variableTokens[2]);
-        this.culprit = variableTokens[3];
-        this.location = variableTokens[4];
-        this.weapon = variableTokens[5];
-        this.centerX = Double.parseDouble(variableTokens[6]);
-        this.centerY = Double.parseDouble(variableTokens[7]);
-        this.radius = Double.parseDouble(variableTokens[8]);
     }
 
     public Solution getSolution() {
@@ -157,7 +157,8 @@ public class StartGameMessage implements Message {
         return "TYPE:START_GAME_MESSAGE" +
                 ";userId=" + this.userId +
                 ";longitude=" + this.longitude +
-                ";latitude=" + this.latitude;
+                ";latitude=" + this.latitude +
+                ";radius=" + this.radius;
     }
 
     @Override
