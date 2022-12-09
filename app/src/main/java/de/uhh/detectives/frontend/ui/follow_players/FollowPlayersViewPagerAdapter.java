@@ -2,20 +2,21 @@ package de.uhh.detectives.frontend.ui.follow_players;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
@@ -72,17 +73,16 @@ public class FollowPlayersViewPagerAdapter extends RecyclerView.Adapter<FollowPl
         // Ui components
         private final RecyclerView recyclerView;
         private final Context context;
-        private Drawable cancel;
         private final int MAX_TRIES = 3;
+        List<Integer> ghostIndex;
         private Activity activity;
 
         public ViewHolder(@NonNull View itemView, Context context, Activity activity) {
             super(itemView);
             this.recyclerView = itemView.findViewById(R.id.recycler_view_clues_guesses);
             this.context = context;
-            this.cancel = AppCompatResources.getDrawable(context, R.drawable.ic_skull);
             this.activity = activity;
-            cancel.setAlpha(80);
+            ghostIndex = IntStream.range(1, 7).boxed().collect(Collectors.toList());
         }
 
         public void bind(CluesGuessesState cluesGuessesState) {
@@ -127,8 +127,20 @@ public class FollowPlayersViewPagerAdapter extends RecyclerView.Adapter<FollowPl
         }
 
         public void setForeground() {
-            itemView.setForeground(cancel);
-            itemView.setForegroundGravity(11);
+            if (ghostIndex.isEmpty()) {
+                ghostIndex = IntStream.range(1, 7).boxed().collect(Collectors.toList());
+            }
+            int randomIndex = ThreadLocalRandom.current().nextInt(0,6);
+
+            String iconName = "ic_ghost" + ghostIndex.get(randomIndex);
+            final int iconIdentifier = context.getResources().getIdentifier(iconName,"drawable", activity.getPackageName());
+
+            ImageView ghost = itemView.findViewById(R.id.ghost);
+
+            ghost.setImageResource(iconIdentifier);
+            ghost.setVisibility(View.VISIBLE);
+
+            ghostIndex.remove(randomIndex);
         }
     }
 }

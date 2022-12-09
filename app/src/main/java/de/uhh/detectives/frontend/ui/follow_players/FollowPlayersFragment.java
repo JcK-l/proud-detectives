@@ -17,6 +17,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.IntStream;
@@ -62,12 +63,17 @@ public class FollowPlayersFragment extends Fragment {
         UserData user = db.getUserDataRepository().findFirst();
 
         // user to last position
-//        List<Player> playersTemp = db.getPlayerRepository().getAll();
-//        players = playersTemp.stream()
-//                .filter(p -> !p.getId().equals(user.getUserId()))
-//                .collect(Collectors.toList());
-//        players.add(db.getPlayerRepository().getPlayerWithUserId(user.getUserId()));
         players = db.getPlayerRepository().getAll();
+        Comparator<Player> comparator = new Comparator<Player>() {
+            @Override
+            public int compare(Player player, Player t1) {
+                if (player.getId().equals(user.getUserId())) {
+                    return 1;
+                }
+                return -1;
+            }
+        };
+        players.sort(comparator);
 
         cells = setUpCells();
 

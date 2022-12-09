@@ -22,7 +22,6 @@ import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
-import de.uhh.detectives.frontend.repository.PlayerRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class MainActivity extends AppCompatActivity {
@@ -82,12 +81,6 @@ public class MainActivity extends AppCompatActivity {
             chatMessage.setPseudonym(chatMessage.getPseudonym() + " (GHOST)");
         }
         chatMessageRepository.insert(chatMessage);
-
-        // turn player dead if not already dead
-        PlayerRepository playerRepository = db.getPlayerRepository();
-        if (chatMessage.isSenderDead() && !playerRepository.getPlayerWithUserId(chatMessage.getSenderId()).isDead()) {
-            playerRepository.setDead(true, chatMessage.getSenderId());
-        }
 
         // listen for messages directed at us
         if (chatMessage.getReceiverId() != null && chatMessage.getReceiverId().equals(db.getUserDataRepository().findFirst().getUserId())) {
