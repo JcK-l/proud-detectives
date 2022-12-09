@@ -62,16 +62,11 @@ public class ServerHandler implements Runnable {
                 LOG.info("Somebody connected.");
             } catch (IOException e) {
                 LOG.error("Accept failed.");
-                break;
+                continue;
             }
             final ClientHandler clientHandler = new ClientHandler(this, clientSocket, tcpMessageService, in, out, gameService);
             connections.add(clientHandler);
             threadPool.execute(clientHandler);
-        }
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
