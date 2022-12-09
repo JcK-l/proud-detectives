@@ -16,6 +16,7 @@ import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityGameBinding;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 import de.uhh.detectives.frontend.repository.HintRepository;
 import de.uhh.detectives.frontend.waitingroom.GeofencePlacer;
 import de.uhh.detectives.frontend.model.CluesGuessesState;
@@ -25,7 +26,6 @@ import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.CluesGuessesStateMessageEvent;
 import de.uhh.detectives.frontend.model.event.EndGameMessageEvent;
-import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
 import de.uhh.detectives.frontend.repository.CluesGuessesStateRepository;
 
 public class GameActivity extends AppCompatActivity {
@@ -36,8 +36,7 @@ public class GameActivity extends AppCompatActivity {
     private AppDatabase db;
     private HintRepository hintRepository;
 
-    private PushMessageHandler pushMessageHandler;
-    private AppDatabase db;
+    private PushMessageService pushMessageService;
     private UserData user;
 
     @Override
@@ -46,7 +45,6 @@ public class GameActivity extends AppCompatActivity {
         this.savedInstanceState = savedInstanceState;
 
         geofenceInformation = getIntent().getExtras();
-        binding = ActivityGameBinding.inflate(getLayoutInflater());
         de.uhh.detectives.frontend.databinding.ActivityGameBinding binding = ActivityGameBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         db = AppDatabase.getDatabase(getApplicationContext());
@@ -56,7 +54,7 @@ public class GameActivity extends AppCompatActivity {
 
         Objects.requireNonNull(getSupportActionBar()).hide();
 
-        pushMessageHandler = new PushMessageHandler(getApplicationContext());
+        pushMessageService = new PushMessageService(getApplicationContext());
         db = AppDatabase.getDatabase(getApplicationContext());
         user = db.getUserDataRepository().findFirst();
 
@@ -100,7 +98,7 @@ public class GameActivity extends AppCompatActivity {
 
         if (endGameMessage.isWin()) {
             Player winner = db.getPlayerRepository().getPlayerWithUserId(endGameMessage.getWinnerId());
-            pushMessageHandler.pushWinGameMessage(winner.getPseudonym());
+            pushMessageService.pushWinGameMessage(winner.getPseudonym());
         }
 
         db.getPlayerRepository().deleteAll();

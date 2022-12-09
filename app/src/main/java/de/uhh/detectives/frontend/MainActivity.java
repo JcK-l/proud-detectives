@@ -13,13 +13,11 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.concurrent.ThreadLocalRandom;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
-import de.uhh.detectives.frontend.location.MapGeofence;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.DirectMessage;
 import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
 import de.uhh.detectives.frontend.model.Player;
-import de.uhh.detectives.frontend.model.Message.StartGameMessage;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.event.EndGameMessageEvent;
@@ -36,8 +34,6 @@ public class MainActivity extends AppCompatActivity {
     private UserData user;
     private Bundle savedInstanceState;
 
-    // LocationHandler in MainActivity einmal initialisieren, um state zu halten
-    private MapGeofence mapGeofence;
     private ChatMessageRepository chatMessageRepository;
 
     private PushMessageService pushMessageService;

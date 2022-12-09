@@ -1,9 +1,12 @@
 package de.uhh.detectives.frontend;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.Editable;
@@ -12,6 +15,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -19,6 +24,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityLoginJoinGameBinding;
@@ -34,7 +41,7 @@ import de.uhh.detectives.frontend.repository.UserDataRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class LoginActivity extends AppCompatActivity {
-
+    private final int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
     private ActivityLoginRegisterBinding bindingRegister;
     private ActivityLoginJoinGameBinding bindingJoinGame;
     private TcpMessageService tcpMessageService;
