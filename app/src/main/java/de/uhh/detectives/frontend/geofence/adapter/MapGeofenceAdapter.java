@@ -13,7 +13,7 @@ import java.util.List;
 
 import de.uhh.detectives.frontend.geofence.service.GeofenceCreatorService;
 import de.uhh.detectives.frontend.geofence.service.GeofenceDestroyService;
-import de.uhh.detectives.frontend.geofence.service.mapservices.MapGeofencePlacerService;
+import de.uhh.detectives.frontend.geofence.service.MapGeofencePlacerService;
 
 public class MapGeofenceAdapter implements GeofenceAdapter {
     private final float radiusOfMap;

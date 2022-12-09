@@ -23,6 +23,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     private PushMessageService pushMessageService;
     private AppDatabase db;
     private HintRepository hintRepository;
+    private boolean firstMessage = true;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -42,17 +43,17 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
             transitionType = geofencingEvent.getGeofenceTransition();
             geofences = geofencingEvent.getTriggeringGeofences();
         }
-        for (Geofence geofence: geofences) {
+        for (Geofence geofence : geofences) {
             switch (transitionType) {
                 case Geofence.GEOFENCE_TRANSITION_ENTER:
-                    if(isHintGeofenceTriggered(geofence)) {
+                    if (isHintGeofenceTriggered(geofence)) {
                         handleHintFound(geofences);
-                    }else{
+                    } else {
                         handleMapEntered();
                     }
                     break;
                 case Geofence.GEOFENCE_TRANSITION_EXIT:
-                    if(!isHintGeofenceTriggered(geofence)) {
+                    if (!isHintGeofenceTriggered(geofence)) {
                         handleMapExit();
                     }
                     break;
@@ -60,17 +61,18 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                     Log.d(TAG, "geofencingEvent was Null");
             }
         }
+        firstMessage = false;
     }
 
-    private boolean isHintGeofenceTriggered(Geofence geofence){
+    private boolean isHintGeofenceTriggered(Geofence geofence) {
         return !(geofence.getRequestId().equals("GAME_FIELD"));
     }
 
-    private void handleHintFound(List<Geofence> geofences){
-        for(Geofence hintGeofence: geofences){
+    private void handleHintFound(List<Geofence> geofences) {
+        for (Geofence hintGeofence : geofences) {
             List<Hint> hints = hintRepository.findHintsById(hintGeofence.getRequestId());
-            for (Hint hint: hints) {
-                if(!hint.getReceived()) {
+            for (Hint hint : hints) {
+                if (!hint.getReceived()) {
                     pushMessageService.pushFindHintMessage(hint.getCategory(), hint.getDescription());
                     hint.setReceived(true);
                     hintRepository.updateReceived(true, hint.getDescription());
@@ -81,14 +83,18 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    private void handleMapEntered(){
-        Log.d(TAG, "GEOFENCE_TRANSITION_ENTER_MAP");
-        pushMessageService.pushEnteredMapMessage();
+    private void handleMapEntered() {
+        if (!firstMessage) {
+            Log.d(TAG, "GEOFENCE_TRANSITION_ENTER_MAP");
+            pushMessageService.pushEnteredMapMessage();
+        }
     }
 
-    private void handleMapExit(){
-        Log.d(TAG, "GEOFENCE_TRANSITION_EXIT_MAP");
-        pushMessageService.pushMapExitMessage();
+    private void handleMapExit() {
+        if (!firstMessage) {
+            Log.d(TAG, "GEOFENCE_TRANSITION_EXIT_MAP");
+            pushMessageService.pushMapExitMessage();
+        }
     }
 }
 
