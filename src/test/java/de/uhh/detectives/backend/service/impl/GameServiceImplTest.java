@@ -382,6 +382,7 @@ public class GameServiceImplTest {
 
         // then
         verify(participantRepository).saveAndFlush(captor.capture());
+        verify(gameRepository, times(0)).saveAndFlush(any());
         final Participant actual = captor.getValue();
         assertNotNull(actual);
         assertTrue(actual.isLost());
@@ -390,6 +391,50 @@ public class GameServiceImplTest {
         assertEquals(4, actualGame.getParticipants().size());
         assertTrue(actualGame.isStarted());
         assertFalse(actualGame.isCompleted());
+        assertNull(actualGame.getWinnerId());
+    }
+
+    @Test
+    public void testEndGameEveryoneLost() {
+        // given
+        final Player player1 = new Player();
+        player1.setId(1L);
+        final Participant participant1 = new Participant(player1);
+        participant1.setLost(true);
+        final Player player2 = new Player();
+        player2.setId(2L);
+        final Participant participant2 = new Participant(player2);
+        participant2.setLost(true);
+        final Player player3 = new Player();
+        player3.setId(USER_ID);
+        final Player player4 = new Player();
+        player4.setId(4L);
+        final Participant participant4 = new Participant(player4);
+        participant4.setLost(true);
+
+        final Long gameId = 11111111L;
+        final Game game = new Game(gameId);
+        game.setStarted(true);
+        game.setParticipants(Arrays.asList(participant1, participant2, new Participant(player3), participant4));
+        when(playerRepository.findById(anyLong())).thenReturn(Optional.of(player3));
+        when(gameRepository.findAllByCompletedFalse()).thenReturn(Collections.singletonList(game));
+
+        final ArgumentCaptor<Participant> captor = ArgumentCaptor.forClass(Participant.class);
+
+        // when
+        final Game actualGame = testee.endGame(USER_ID, false);
+
+        // then
+        verify(participantRepository).saveAndFlush(captor.capture());
+        verify(gameRepository).saveAndFlush(any());
+        final Participant actual = captor.getValue();
+        assertNotNull(actual);
+        assertTrue(actual.isLost());
+
+        assertNotNull(actualGame);
+        assertEquals(4, actualGame.getParticipants().size());
+        assertTrue(actualGame.isStarted());
+        assertTrue(actualGame.isCompleted());
         assertNull(actualGame.getWinnerId());
     }
 
