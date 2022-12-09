@@ -54,7 +54,7 @@ public class FollowPlayersViewPagerAdapter extends RecyclerView.Adapter<FollowPl
     public void onBindViewHolder(@NonNull FollowPlayersViewPagerAdapter.ViewHolder holder, int position) {
         Long playerId = players.get(position).getId();
         if (db.getPlayerRepository().getPlayerWithUserId(playerId).isDead()) {
-            holder.setForeground();
+            holder.setForeground(position);
         }
         CluesGuessesStateRepository cluesGuessesStateRepository = db.getCluesGuessesStateRepository();
         if (cluesGuessesStateRepository.findFromId(playerId) != null){
@@ -73,7 +73,6 @@ public class FollowPlayersViewPagerAdapter extends RecyclerView.Adapter<FollowPl
         // Ui components
         private final RecyclerView recyclerView;
         private final Context context;
-        List<Integer> ghostIndex;
         private final Activity activity;
 
         public ViewHolder(@NonNull View itemView, Context context, Activity activity) {
@@ -81,7 +80,6 @@ public class FollowPlayersViewPagerAdapter extends RecyclerView.Adapter<FollowPl
             this.recyclerView = itemView.findViewById(R.id.recycler_view_clues_guesses);
             this.context = context;
             this.activity = activity;
-            ghostIndex = IntStream.range(1, 7).boxed().collect(Collectors.toList());
         }
 
         public void bind(CluesGuessesState cluesGuessesState) {
@@ -126,21 +124,16 @@ public class FollowPlayersViewPagerAdapter extends RecyclerView.Adapter<FollowPl
             });
         }
 
-        public void setForeground() {
-            if (ghostIndex.isEmpty()) {
-                ghostIndex = IntStream.range(1, 7).boxed().collect(Collectors.toList());
-            }
-            int randomIndex = ThreadLocalRandom.current().nextInt(0,6);
+        public void setForeground(final int position) {
+            int index = (position % 6) + 1;
 
-            String iconName = "ic_ghost" + ghostIndex.get(randomIndex);
+            String iconName = "ic_ghost" + index;
             final int iconIdentifier = context.getResources().getIdentifier(iconName,"drawable", activity.getPackageName());
 
             ImageView ghost = itemView.findViewById(R.id.ghost);
 
             ghost.setImageResource(iconIdentifier);
             ghost.setVisibility(View.VISIBLE);
-
-            ghostIndex.remove(randomIndex);
         }
     }
 }
