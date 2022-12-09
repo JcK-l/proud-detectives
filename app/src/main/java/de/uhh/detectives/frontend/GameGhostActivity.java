@@ -77,9 +77,11 @@ public class GameGhostActivity extends AppCompatActivity {
     public void receiveEndGameMessage(EndGameMessageEvent endGameMessageEvent) {
         EndGameMessage endGameMessage = endGameMessageEvent.getMessage();
 
-        if (endGameMessage.isWin()) {
+        if (endGameMessage.getWinnerId() != null) {
             Player winner = db.getPlayerRepository().getPlayerWithUserId(endGameMessage.getWinnerId());
-            pushMessageService.pushWinGameMessage(winner.getPseudonym());
+            pushMessageService.pushWinGameMessage(winner.getPseudonym(), true);
+        } else {
+            pushMessageService.pushWinGameMessage("noone", false);
         }
 
         db.getPlayerRepository().deleteAll();

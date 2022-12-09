@@ -8,6 +8,7 @@ import android.os.Build;
 import androidx.core.app.NotificationManagerCompat;
 
 import de.uhh.detectives.frontend.R;
+import de.uhh.detectives.frontend.pushmessages.values.ChatPushMessage;
 import de.uhh.detectives.frontend.pushmessages.values.MapEnteredPushMessage;
 import de.uhh.detectives.frontend.pushmessages.values.HintFoundPushMessage;
 import de.uhh.detectives.frontend.pushmessages.values.MapExitPushMessage;
@@ -60,8 +61,8 @@ public class PushMessageService {
         }
     }
 
-    public void pushWinGameMessage(final String winner) {
-        WinGamePushMessage winGamePushMessage = new WinGamePushMessage(context, winner);
+    public void pushWinGameMessage(final String winner, final boolean win) {
+        WinGamePushMessage winGamePushMessage = new WinGamePushMessage(context, winner, win);
         notificationManagerCompat.notify(122, winGamePushMessage.getNotification());
     }
 
@@ -78,5 +79,10 @@ public class PushMessageService {
     public void pushFindHintMessage(String hintName, String hintDescription){
         HintFoundPushMessage hintFoundPushMessage = new HintFoundPushMessage(context, hintName, hintDescription);
         notificationManagerCompat.notify(125, hintFoundPushMessage.getNotification());
+    }
+
+    public void pushChatNotification(String senderName, String message){
+        ChatPushMessage chatPushMessage = new ChatPushMessage(context, senderName, message);
+        notificationManagerCompat.notify(125, chatPushMessage.getNotification());
     }
 }

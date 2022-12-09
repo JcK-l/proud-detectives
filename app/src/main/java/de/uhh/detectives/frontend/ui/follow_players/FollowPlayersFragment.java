@@ -20,16 +20,20 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentFollowPlayersBinding;
 import de.uhh.detectives.frontend.model.CluesGuessesState;
+import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.CluesGuessesStateMessage;
 import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.event.CluesGuessesStateMessageEvent;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 import de.uhh.detectives.frontend.ui.clues_and_guesses.Cell;
 import de.uhh.detectives.frontend.ui.clues_and_guesses.CellState;
 
@@ -39,6 +43,7 @@ public class FollowPlayersFragment extends Fragment {
 
     private List<Player> players;
     private List<Cell> cells;
+    private UserData user;
 
     private FollowPlayersViewPagerAdapter followPlayersViewPagerAdapter;
 
@@ -54,7 +59,7 @@ public class FollowPlayersFragment extends Fragment {
         View root = binding.getRoot();
 
         AppDatabase db = AppDatabase.getDatabase(getContext());
-        UserData user = db.getUserDataRepository().findFirst();
+        user = db.getUserDataRepository().findFirst();
 
         // user to last position
         players = db.getPlayerRepository().getAll();
@@ -162,6 +167,16 @@ public class FollowPlayersFragment extends Fragment {
                 (tab, position) -> tab.setText(players.get(position).getPseudonym())
         );
         tabLayoutMediator.attach();
+    }
+
+    // TODO: NICHT DIE BESTE SOLUTION, ABER FÜR DIE PRÄSENTATION IST ES GUT GENUG
+    @Subscribe
+    public void listenForChatPushMessage(ChatMessageEvent chatMessageEvent) {
+        ChatMessage chatMessage = chatMessageEvent.getMessage();
+        PushMessageService pushMessageService = new PushMessageService(requireContext());
+        if (Objects.requireNonNull(chatMessage.getReceiverId()).equals(user.getUserId())) {
+            pushMessageService.pushChatNotification(chatMessage.getPseudonym(), chatMessage.getMessage());
+        }
     }
 
     @Override

@@ -34,6 +34,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import de.uhh.detectives.frontend.GameGhostActivity;
@@ -41,10 +42,13 @@ import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCluesGuessesBinding;
 import de.uhh.detectives.frontend.model.CluesGuessesState;
+import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.CluesGuessesStateMessage;
 import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.BasicEvent;
+import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 import de.uhh.detectives.frontend.repository.CluesGuessesStateRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
@@ -355,6 +359,16 @@ public class CluesGuessesFragment extends Fragment {
         }
 
         return cells;
+    }
+
+    // TODO: NICHT DIE BESTE SOLUTION, ABER FÜR DIE PRÄSENTATION IST ES GUT GENUG
+    @Subscribe
+    public void listenForChatPushMessage(ChatMessageEvent chatMessageEvent) {
+        ChatMessage chatMessage = chatMessageEvent.getMessage();
+        PushMessageService pushMessageService = new PushMessageService(requireContext());
+        if (Objects.requireNonNull(chatMessage.getReceiverId()).equals(user.getUserId())) {
+            pushMessageService.pushChatNotification(chatMessage.getPseudonym(), chatMessage.getMessage());
+        }
     }
 
     @Override

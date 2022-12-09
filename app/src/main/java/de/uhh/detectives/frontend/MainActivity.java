@@ -1,11 +1,15 @@
 package de.uhh.detectives.frontend;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.gms.maps.model.LatLng;
+import androidx.core.content.ContextCompat;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -15,16 +19,12 @@ import java.util.concurrent.ThreadLocalRandom;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.DirectMessage;
-import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
-import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
-import de.uhh.detectives.frontend.model.event.EndGameMessageEvent;
-import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
-import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
 
     private AppDatabase db;
     private UserData user;
-    private Bundle savedInstanceState;
 
     private ChatMessageRepository chatMessageRepository;
 
@@ -40,10 +39,17 @@ public class MainActivity extends AppCompatActivity {
 
     private final static Long gameStartTime = System.currentTimeMillis();
 
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                } else {
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.savedInstanceState = savedInstanceState;
 
         EventBus.getDefault().register(this);
 
@@ -57,8 +63,17 @@ public class MainActivity extends AppCompatActivity {
         chatMessageRepository = db.getChatMessageRepository();
         user = db.getUserDataRepository().findFirst();
 
+        if (Build.VERSION.SDK_INT == 33) {
+            if (!(ContextCompat.checkSelfPermission(
+                    getApplicationContext(), Manifest.permission.POST_NOTIFICATIONS) ==
+                    PackageManager.PERMISSION_GRANTED)) {
+                requestPermissionLauncher.launch(
+                        Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
         pushMessageService = new PushMessageService(getApplicationContext());
     }
+
 
     @Override
     protected void onStart() {
@@ -109,26 +124,6 @@ public class MainActivity extends AppCompatActivity {
         db.getPlayerRepository().insertAll(startGameMessage.getPlayers());
         db.getSolutionRepository().insert(startGameMessage.getSolution());
         db.getHintRepository().insertAll(startGameMessage.getHints());
-    }
-
-    @Subscribe
-    public void receiveWinGameMessage(EndGameMessageEvent endGameMessageEvent) {
-        EndGameMessage endGameMessage = endGameMessageEvent.getMessage();
-
-        if (endGameMessage.isWin()) {
-            Player winner = db.getPlayerRepository().getPlayerWithUserId(endGameMessage.getWinnerId());
-            pushMessageService.pushWinGameMessage(winner.getPseudonym());
-        }
-
-        db.getPlayerRepository().deleteAll();
-        db.getSolutionRepository().deleteAll();
-        db.getHintRepository().deleteAll();
-        db.getChatMessageRepository().deleteAll();
-        db.getDirectMessageRepository().deleteAll();
-        db.getCluesGuessesStateRepository().deleteAll();
-
-        Intent intentLogin = new Intent(this, LoginActivity.class);
-        startActivity(intentLogin);
     }
 
     @Override

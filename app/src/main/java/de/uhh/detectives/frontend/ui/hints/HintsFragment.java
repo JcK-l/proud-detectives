@@ -11,15 +11,21 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.Objects;
 
 import de.uhh.detectives.frontend.GameActivity;
 import de.uhh.detectives.frontend.database.AppDatabase;
-import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.databinding.FragmentHintsBinding;
 import de.uhh.detectives.frontend.model.Hint;
+import de.uhh.detectives.frontend.model.Message.ChatMessage;
+import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 import de.uhh.detectives.frontend.repository.HintRepository;
 
 public class HintsFragment extends Fragment {
@@ -27,6 +33,7 @@ public class HintsFragment extends Fragment {
     private FragmentHintsBinding binding;
 
     private AppDatabase db;
+    private UserData user;
     private HintRepository hintRepository;
     private boolean newHintFound = true;
     private List<HintModel> hintsForUser;
@@ -36,8 +43,10 @@ public class HintsFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
 
         binding = FragmentHintsBinding.inflate(inflater, container, false);
+        EventBus.getDefault().register(this);
         View root = binding.getRoot();
         db = AppDatabase.getDatabase(getContext());
+        user = db.getUserDataRepository().findFirst();
         hintRepository = db.getHintRepository();
 
         hintsForUser = getHintsForUser();
@@ -114,6 +123,16 @@ public class HintsFragment extends Fragment {
         };
     }
 
+    // TODO: NICHT DIE BESTE SOLUTION, ABER FÜR DIE PRÄSENTATION IST ES GUT GENUG
+    @Subscribe
+    public void listenForChatPushMessage(ChatMessageEvent chatMessageEvent) {
+        ChatMessage chatMessage = chatMessageEvent.getMessage();
+        PushMessageService pushMessageService = new PushMessageService(requireContext());
+        if (Objects.requireNonNull(chatMessage.getReceiverId()).equals(user.getUserId())) {
+            pushMessageService.pushChatNotification(chatMessage.getPseudonym(), chatMessage.getMessage());
+        }
+    }
+
     private static class HintImages {
         protected static int getIndex(final String description) {
             switch (description) {
@@ -171,5 +190,11 @@ public class HintsFragment extends Fragment {
                     return 0;
             }
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 }

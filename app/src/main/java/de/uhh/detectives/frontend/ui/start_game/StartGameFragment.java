@@ -27,11 +27,14 @@ import de.uhh.detectives.frontend.WaitingRoomActivity;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentStartGameBinding;
 import de.uhh.detectives.frontend.location.api.LocationHandler;
+import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.JoinGameMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
 import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class StartGameFragment extends Fragment {
@@ -96,10 +99,21 @@ public class StartGameFragment extends Fragment {
 
         binding.buttonStartGame.setOnClickListener(
                 view -> tcpMessageService.sendMessageToServer(new StartGameMessage(user,
-                        location.getLongitude(), location.getLatitude()))
+                        location.getLongitude(), location.getLatitude(), 1000))
         );
 
         return root;
+    }
+
+
+    // TODO: NICHT DIE BESTE SOLUTION, ABER FÜR DIE PRÄSENTATION IST ES GUT GENUG
+    @Subscribe
+    public void listenForChatPushMessage(ChatMessageEvent chatMessageEvent) {
+        ChatMessage chatMessage = chatMessageEvent.getMessage();
+        PushMessageService pushMessageService = new PushMessageService(requireContext());
+        if (Objects.requireNonNull(chatMessage.getReceiverId()).equals(user.getUserId())) {
+            pushMessageService.pushChatNotification(chatMessage.getPseudonym(), chatMessage.getMessage());
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
