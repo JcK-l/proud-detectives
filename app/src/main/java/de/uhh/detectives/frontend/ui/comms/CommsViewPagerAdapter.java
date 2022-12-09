@@ -1,6 +1,5 @@
 package de.uhh.detectives.frontend.ui.comms;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,24 +16,23 @@ import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.UserData;
 
-public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.ViewHolder> {
+public class CommsViewPagerAdapter extends RecyclerView.Adapter<CommsViewPagerAdapter.ViewHolder> {
 
     final Context context;
     final List<ChatMessage> messages;
     final List<Long> senderIds;
 
 
-    private final AppDatabase db;
     private final UserData user;
 
 
-    public ViewPagerAdapter(final Context context, final List<Long> senderIds ,
-                            final List<ChatMessage> messages, Activity activity) {
+    public CommsViewPagerAdapter(final Context context, final List<Long> senderIds ,
+                                 final List<ChatMessage> messages) {
         this.context = context;
         this.messages = messages;
         this.senderIds = senderIds;
-        this.db = AppDatabase.getDatabase(context);
-        this.user = this.db.getUserDataRepository().findFirst();
+        AppDatabase db = AppDatabase.getDatabase(context);
+        this.user = db.getUserDataRepository().findFirst();
 
     }
 
@@ -43,7 +41,7 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.View
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         final LayoutInflater inflater = LayoutInflater.from(context);
         final View view = inflater.inflate(R.layout.item_directmessage, parent, false);
-        return new ViewPagerAdapter.ViewHolder(view, user.getUserId());
+        return new CommsViewPagerAdapter.ViewHolder(view, user.getUserId());
     }
 
     @Override
@@ -60,11 +58,8 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.View
                             && chatMessage.getReceiverId().equals(user.getUserId())) {
                        return true;
                         // Messages To someone
-                    } else if (position > 0 && chatMessage.getSenderId().equals(user.getUserId())
-                            && chatMessage.getReceiverId().equals(senderIds.get(position - 1))) {
-                        return true;
-                    }
-                    return false;
+                    } else return position > 0 && chatMessage.getSenderId().equals(user.getUserId())
+                            && chatMessage.getReceiverId().equals(senderIds.get(position - 1));
                 }).collect(Collectors.toList());
         holder.bind(result);
     }

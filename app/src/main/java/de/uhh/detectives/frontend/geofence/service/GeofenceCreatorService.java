@@ -14,7 +14,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class GeofenceCreatorService extends ContextWrapper {
     private PendingIntent pendingIntent;
-    private Context context;
+    private final Context context;
 
     public GeofenceCreatorService(Context base) {
         super(base);

@@ -17,13 +17,12 @@ public class PushMessageService {
     private static final String LOCATION_CHANNEL_ID = "LocChan";
     private static final String GAME_EVENTS_CHANNEL_ID = "GamChan";
 
-    private NotificationManagerCompat notificationManagerCompat;
-    private Context context;
-    private NotificationManager notificationManager;
+    private final NotificationManagerCompat notificationManagerCompat;
+    private final Context context;
 
     public PushMessageService(Context context) {
         this.context = context;
-        notificationManager = context.getSystemService(NotificationManager.class);
+        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
         if (notificationManager.areNotificationsEnabled()) {
         }
         createLocationNotificationChannel();

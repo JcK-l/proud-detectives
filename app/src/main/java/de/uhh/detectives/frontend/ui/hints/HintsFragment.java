@@ -17,6 +17,7 @@ import java.util.Locale;
 
 import de.uhh.detectives.frontend.GameActivity;
 import de.uhh.detectives.frontend.database.AppDatabase;
+import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.databinding.FragmentHintsBinding;
 import de.uhh.detectives.frontend.model.Hint;
 import de.uhh.detectives.frontend.repository.HintRepository;
@@ -44,6 +45,7 @@ public class HintsFragment extends Fragment {
         final HintAdapter adapter = new HintAdapter(this.getContext(), hintsForUser);
         recyclerViewHints.setAdapter(adapter);
         recyclerViewHints.setLayoutManager(new LinearLayoutManager(this.getContext()));
+
         final Handler handler = new Handler();
         handler.post(setUpNotificationRunnable(adapter, handler));
 
@@ -80,7 +82,7 @@ public class HintsFragment extends Fragment {
         iconName = "ic_hint_" + hint.getDescription().toLowerCase(Locale.ROOT);
         final int iconIdentifier = getResources().getIdentifier(iconName,
                 "drawable",
-                getActivity().getPackageName());
+                requireActivity().getPackageName());
         hintModel = new HintModel(hint.getCategory(),
                 hint.getDescription() + " ist es nicht!",
                 iconIdentifier);
@@ -88,6 +90,7 @@ public class HintsFragment extends Fragment {
     }
 
     private Runnable setUpNotificationRunnable(final HintAdapter adapter, final Handler handler) {
+        // Thread to update notification for presentation purposes
         return new Runnable() {
             @Override
             public void run() {

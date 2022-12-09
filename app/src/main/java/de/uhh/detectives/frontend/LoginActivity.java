@@ -1,20 +1,17 @@
 package de.uhh.detectives.frontend;
 
-import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -33,17 +30,15 @@ import de.uhh.detectives.frontend.model.Message.RegisterMessage;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.RegisterMessageEvent;
-import de.uhh.detectives.frontend.permissionhelper.LocationPermissionService;
 import de.uhh.detectives.frontend.repository.UserDataRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class LoginActivity extends AppCompatActivity {
-    private final int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
+
     private ActivityLoginRegisterBinding bindingRegister;
     private ActivityLoginJoinGameBinding bindingJoinGame;
     private TcpMessageService tcpMessageService;
     private UserDataRepository userDataRepository;
-    private LocationPermissionService locationPermissionService;
 
     private AppDatabase db;
 
@@ -74,7 +69,7 @@ public class LoginActivity extends AppCompatActivity {
 
         LocationHandler locationHandler = new LocationHandlerImpl(this.getApplicationContext(), this);
 
-        db = AppDatabase.getDatabase(getApplicationContext());
+        AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
         userDataRepository = db.getUserDataRepository();
 
         bindingJoinGame = ActivityLoginJoinGameBinding.inflate(getLayoutInflater());
@@ -84,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
             TextInputLayout prenameLayout, surnameLayout, pseudonymLayout;
             TextInputEditText prenameText, surnameText, pseudonymText;
 
-            bindingRegister = ActivityLoginRegisterBinding.inflate(getLayoutInflater());
+            ActivityLoginRegisterBinding bindingRegister = ActivityLoginRegisterBinding.inflate(getLayoutInflater());
             setContentView(bindingRegister.getRoot());
 
             prenameLayout = bindingRegister.prenameLayout;
@@ -122,18 +117,18 @@ public class LoginActivity extends AppCompatActivity {
                         prenameLayout.setError(null);
                         surnameLayout.setError(null);
 
-                        if (pseudonymText.getText().toString().length() <=
+                        if (Objects.requireNonNull(pseudonymText.getText()).toString().length() <=
                                 pseudonymLayout.getCounterMaxLength()) {
                             pseudonymLayout.setError(null);
                         } else {
                             canSend = false;
                         }
 
-                        if (prenameText.getText().toString().equals("")) {
+                        if (Objects.requireNonNull(prenameText.getText()).toString().equals("")) {
                             prenameLayout.setError("This field can't be emtpy");
                             canSend = false;
                         }
-                        if (surnameText.getText().toString().equals("")) {
+                        if (Objects.requireNonNull(surnameText.getText()).toString().equals("")) {
                             surnameLayout.setError("This field can't be emtpy");
                             canSend = false;
                         }

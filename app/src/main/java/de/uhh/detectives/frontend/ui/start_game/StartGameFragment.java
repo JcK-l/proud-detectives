@@ -21,6 +21,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
+import java.util.Objects;
 
 import de.uhh.detectives.frontend.WaitingRoomActivity;
 import de.uhh.detectives.frontend.database.AppDatabase;
@@ -37,7 +38,6 @@ public class StartGameFragment extends Fragment {
 
     private FragmentStartGameBinding binding;
 
-    private AppDatabase db;
     private UserData user;
 
     private LocationHandler locationHandler;
@@ -62,7 +62,7 @@ public class StartGameFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
 
         Intent intent = new Intent(getActivity(), TcpMessageService.class);
-        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        requireActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
         EventBus.getDefault().register(this);
 
@@ -70,7 +70,7 @@ public class StartGameFragment extends Fragment {
         binding = FragmentStartGameBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        db = AppDatabase.getDatabase(getContext());
+        AppDatabase db = AppDatabase.getDatabase(getContext());
         user = db.getUserDataRepository().findFirst();
         players = db.getPlayerRepository().getAll();
 
@@ -92,13 +92,11 @@ public class StartGameFragment extends Fragment {
         }
 
         final WaitingRoomActivity activity = (WaitingRoomActivity) getActivity();
-        location = activity.getLocation();
+        location = Objects.requireNonNull(activity).getLocation();
 
         binding.buttonStartGame.setOnClickListener(
-                view -> {
-                    tcpMessageService.sendMessageToServer(new StartGameMessage(user,
-                            location.getLongitude(), location.getLatitude()));
-                }
+                view -> tcpMessageService.sendMessageToServer(new StartGameMessage(user,
+                        location.getLongitude(), location.getLatitude()))
         );
 
         return root;
@@ -121,7 +119,7 @@ public class StartGameFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getActivity().unbindService(connection);
+        requireActivity().unbindService(connection);
         EventBus.getDefault().unregister(this);
         binding = null;
     }

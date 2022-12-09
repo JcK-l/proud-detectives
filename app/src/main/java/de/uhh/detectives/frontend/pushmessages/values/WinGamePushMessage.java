@@ -10,9 +10,8 @@ import de.uhh.detectives.frontend.R;
 public class WinGamePushMessage implements PushMessage {
 
     private Notification winNotification;
-    private final String CHANNEL_ID = "GamChan";
-    private Context context;
-    private String winner;
+    private final Context context;
+    private final String winner;
 
     public WinGamePushMessage(Context context, final String winner) {
         this.context = context;
@@ -22,6 +21,7 @@ public class WinGamePushMessage implements PushMessage {
 
     @Override
     public void createNotification() {
+        String CHANNEL_ID = "GamChan";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context
                 , CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher_round)

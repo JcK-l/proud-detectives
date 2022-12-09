@@ -2,6 +2,7 @@ package de.uhh.detectives.frontend.repository;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface CluesGuessesStateRepository {
     @Query("SELECT * FROM CLUESGUESSESSTATE WHERE playerId == :id")
     CluesGuessesState findFromId(Long id);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(final CluesGuessesState cluesGuessesState);
 
     @Query("SELECT * FROM CluesGuessesState")
@@ -36,21 +37,21 @@ public interface CluesGuessesStateRepository {
     @Query("UPDATE CluesGuessesState SET numberOfTries = numberOfTries + 1 WHERE playerId =:id")
     void updateNumberOfTries(Long id);
 
-    @Query("UPDATE CluesGuessesState SET suspicion_left = :suspicion WHERE playerId =:id")
+    @Query("UPDATE CluesGuessesState SET suspicionLeft = :suspicion WHERE playerId =:id")
     void updateSuspicionLeft(int suspicion, Long id);
 
-    @Query("UPDATE CluesGuessesState SET suspicion_left_tag = :tag WHERE playerId =:id")
+    @Query("UPDATE CluesGuessesState SET suspicionLeftTag = :tag WHERE playerId =:id")
     void updateSuspicionLeft(String tag, Long id);
 
-    @Query("UPDATE CluesGuessesState SET suspicion_middle = :suspicion WHERE playerId =:id")
+    @Query("UPDATE CluesGuessesState SET suspicionMiddle = :suspicion WHERE playerId =:id")
     void updateSuspicionMiddle(int suspicion, Long id);
 
-    @Query("UPDATE CluesGuessesState SET suspicion_middle_tag = :tag WHERE playerId =:id")
+    @Query("UPDATE CluesGuessesState SET suspicionMiddleTag = :tag WHERE playerId =:id")
     void updateSuspicionMiddle(String tag, Long id);
 
-    @Query("UPDATE CluesGuessesState SET suspicion_right = :suspicion WHERE playerId =:id")
+    @Query("UPDATE CluesGuessesState SET suspicionRight = :suspicion WHERE playerId =:id")
     void updateSuspicionRight(int suspicion, Long id);
 
-    @Query("UPDATE CluesGuessesState SET suspicion_right_tag = :tag WHERE playerId =:id")
+    @Query("UPDATE CluesGuessesState SET suspicionRightTag = :tag WHERE playerId =:id")
     void updateSuspicionRight(String tag, Long id);
 }

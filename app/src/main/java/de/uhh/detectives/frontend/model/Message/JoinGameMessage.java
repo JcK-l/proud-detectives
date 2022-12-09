@@ -1,5 +1,6 @@
 package de.uhh.detectives.frontend.model.Message;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Arrays;
@@ -63,6 +64,7 @@ public class JoinGameMessage implements Message {
         return gameId;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "TYPE:JOIN_GAME_MESSAGE" +

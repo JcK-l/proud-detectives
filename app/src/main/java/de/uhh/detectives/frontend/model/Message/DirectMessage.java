@@ -1,5 +1,6 @@
 package de.uhh.detectives.frontend.model.Message;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -55,6 +56,7 @@ public class DirectMessage implements Message {
         return MessageType.UNKNOWN;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "UNKNOWN: " + id;

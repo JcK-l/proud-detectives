@@ -1,18 +1,21 @@
 package de.uhh.detectives.frontend.ui.clues_and_guesses;
 
-import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.DragEvent;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,26 +25,35 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.IntStream;
 
+import de.uhh.detectives.frontend.GameGhostActivity;
 import de.uhh.detectives.frontend.R;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.FragmentCluesGuessesBinding;
 import de.uhh.detectives.frontend.model.CluesGuessesState;
+import de.uhh.detectives.frontend.model.Message.CluesGuessesStateMessage;
 import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.UserData;
+import de.uhh.detectives.frontend.model.event.BasicEvent;
 import de.uhh.detectives.frontend.repository.CluesGuessesStateRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class CluesGuessesFragment extends Fragment {
 
     private FragmentCluesGuessesBinding binding;
-    private ImageView image_suspicion_left;
-    private ImageView image_suspicion_middle;
-    private ImageView image_suspicion_right;
+    private ImageView imageSuspicionLeft;
+    private ImageView imageSuspicionMiddle;
+    private ImageView imageSuspicionRight;
     private ImageView numberOfGuesses;
     private CardView cardview;
 
@@ -81,24 +93,26 @@ public class CluesGuessesFragment extends Fragment {
         cgState = db.getCluesGuessesStateRepository().findFromId(user.getUserId());
 
         Intent intent = new Intent(getActivity(), TcpMessageService.class);
-        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        requireActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
+        EventBus.getDefault().register(this);
 
         initViews();
         setUpListeners();
 
-        cardview.setCardBackgroundColor(ContextCompat.getColor(getContext(), cgState.getCardColor()));
+        cardview.setCardBackgroundColor(ContextCompat.getColor(requireContext(), cgState.getCardColor()));
 
         String iconName = "number_of_tries" + (MAX_TRIES - cgState.getNumberOfTries());
-        final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
+        final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", requireActivity().getPackageName());
         numberOfGuesses.setImageResource(iconIdentifier);
 
-        image_suspicion_left.setTag(cgState.getSuspicion_left_tag());
-        image_suspicion_middle.setTag(cgState.getSuspicion_middle_tag());
-        image_suspicion_right.setTag(cgState.getSuspicion_right_tag());
+        imageSuspicionLeft.setTag(cgState.getSuspicionLeftTag());
+        imageSuspicionMiddle.setTag(cgState.getSuspicionMiddleTag());
+        imageSuspicionRight.setTag(cgState.getSuspicionRightTag());
 
-        image_suspicion_left.setImageResource(cgState.getSuspicion_left());
-        image_suspicion_middle.setImageResource(cgState.getSuspicion_middle());
-        image_suspicion_right.setImageResource(cgState.getSuspicion_right());
+        imageSuspicionLeft.setImageResource(cgState.getSuspicionLeft());
+        imageSuspicionMiddle.setImageResource(cgState.getSuspicionMiddle());
+        imageSuspicionRight.setImageResource(cgState.getSuspicionRight());
 
         final RecyclerView recyclerViewCluesGuesses = binding.recyclerViewCluesGuesses;
         final CluesGuessesAdapter adapter = new CluesGuessesAdapter(this.getContext(), cgState.getCells());
@@ -114,50 +128,80 @@ public class CluesGuessesFragment extends Fragment {
         return root;
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void receiveEmptyMessage(BasicEvent basicEvent) {
+        tcpMessageService.sendMessageToServer(new CluesGuessesStateMessage(
+                cluesGuessesStateRepository.findFromId(user.getUserId())));
+    }
+
     private CluesGuessesState createDefaultCluesGuessesState() {
         CluesGuessesState cluesGuessesState = new CluesGuessesState();
         cluesGuessesState.setCells(setUpCells());
         cluesGuessesState.setCardColor(R.color.white);
-        cluesGuessesState.setSuspicion_left(R.drawable.ic_suspicion_default);
-        cluesGuessesState.setSuspicion_middle(R.drawable.ic_suspicion_default);
-        cluesGuessesState.setSuspicion_right(R.drawable.ic_suspicion_default);
-        cluesGuessesState.setSuspicion_left_tag("waffe:default");
-        cluesGuessesState.setSuspicion_middle_tag("person:default");
-        cluesGuessesState.setSuspicion_right_tag("ort:default");
+        cluesGuessesState.setSuspicionLeft(R.drawable.ic_suspicion_default);
+        cluesGuessesState.setSuspicionMiddle(R.drawable.ic_suspicion_default);
+        cluesGuessesState.setSuspicionRight(R.drawable.ic_suspicion_default);
+        cluesGuessesState.setSuspicionLeftTag("waffe:default");
+        cluesGuessesState.setSuspicionMiddleTag("person:default");
+        cluesGuessesState.setSuspicionRightTag("ort:default");
         cluesGuessesState.setPlayerId(user.getUserId());
         return cluesGuessesState;
     }
 
     private void setUpListeners() {
-        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            switch (which){
-                case DialogInterface.BUTTON_POSITIVE:
-                    guessingGame();
-                    break;
-
-                case DialogInterface.BUTTON_NEGATIVE:
-                    //No button clicked
-                    break;
-            }
-        };
         cardview.setOnClickListener( view -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle("Guess").setMessage("Do you want to confirm your selection?").setPositiveButton("Yes", dialogClickListener)
-                    .setNegativeButton("No", dialogClickListener).show();
+            if (cgState.getNumberOfTries() == MAX_TRIES){
+                createDeathScreen();
+                return;
+            }
+            new MaterialAlertDialogBuilder(requireContext(), R.style.AlertConfirmSelection)
+                    .setTitle("Guess")
+                    .setMessage("Do you want to confirm your selection?")
+                    .setPositiveButton("Yes",
+                            (dialog, which) -> {
+                                guessingGame();
+                                dialog.dismiss();
+                            })
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .setIcon(R.drawable.ic_maybe)
+                    .show();
         });
 
-        setListenerFor(image_suspicion_left);
-        setListenerFor(image_suspicion_middle);
-        setListenerFor(image_suspicion_right);
+        setListenerFor(imageSuspicionLeft);
+        setListenerFor(imageSuspicionMiddle);
+        setListenerFor(imageSuspicionRight);
     }
 
     private void initViews() {
         cardview = binding.cardView;
         numberOfGuesses = binding.imageNumberOfGuesses;
 
-        image_suspicion_left = binding.cardView.findViewById(R.id.image_suspicion_left);
-        image_suspicion_middle = binding.cardView.findViewById(R.id.image_suspicion_middle);
-        image_suspicion_right = binding.cardView.findViewById(R.id.image_suspicion_right);
+        imageSuspicionLeft = binding.cardView.findViewById(R.id.image_suspicion_left);
+        imageSuspicionMiddle = binding.cardView.findViewById(R.id.image_suspicion_middle);
+        imageSuspicionRight = binding.cardView.findViewById(R.id.image_suspicion_right);
+    }
+
+    private void createDeathScreen() {
+        View popUpView = getLayoutInflater().inflate(R.layout.dialog_you_died,
+                null); // inflating popup layout
+        PopupWindow popupWindow = new PopupWindow(popUpView, ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT, true); // Creation of popup
+        popupWindow.setAnimationStyle(android.R.style.Animation_Dialog);
+        popupWindow.showAtLocation(popUpView, Gravity.CENTER, 0, 0); // Displaying popup
+
+        CardView cardView = popUpView.getRootView().findViewById(R.id.background);
+        cardView.setOnClickListener(
+                view -> {
+                    tcpMessageService.sendMessageToServer(new EndGameMessage(user.getUserId(), false));
+                    Intent intentGhost = new Intent(getActivity(), GameGhostActivity.class);
+                    startActivity(intentGhost);
+                    popupWindow.dismiss();
+                    requireActivity().finish();
+                });
+        TextView textView = popUpView.getRootView().findViewById(R.id.textView);
+        final Animation animation = new AlphaAnimation(0f, 1f);
+        animation.setDuration(1500);
+        textView.startAnimation(animation);
     }
 
     private void setListenerFor(ImageView imageView) {
@@ -207,12 +251,12 @@ public class CluesGuessesFragment extends Fragment {
                     }
 
                     String iconName = "ic_hint_" + category + index;
-                    final int drawableId = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
+                    final int drawableId = getResources().getIdentifier(iconName,"drawable", requireActivity().getPackageName());
 
                     String tag = category + ":" + resultDescription;
                     saveSuspicionState(drawableId, category, tag);
 
-                    cardview.setCardBackgroundColor(ContextCompat.getColor(getContext(), cgState.getCardColor()));
+                    cardview.setCardBackgroundColor(ContextCompat.getColor(requireContext(), cgState.getCardColor()));
 
                     ((ImageView) view).setImageResource(drawableId);
                     view.setTag(tag);
@@ -245,19 +289,15 @@ public class CluesGuessesFragment extends Fragment {
                 break;
         }
         cgState = cluesGuessesStateRepository.findFromId(user.getUserId());
+        tcpMessageService.sendMessageToServer(new CluesGuessesStateMessage(cgState));
     }
 
     private void guessingGame() {
-        if (cgState.getNumberOfTries() == MAX_TRIES){
-            Toast.makeText(getContext(), "YOU LOST ALREADY!!!", Toast.LENGTH_LONG).show();
-            return;
-        }
-
         SolutionVerifier solutionVerifier = new SolutionVerifier(getContext());
         String[] suspicion = new String[3];
-        suspicion[0] = cgState.getSuspicion_left_tag().split(":")[1];
-        suspicion[1] = cgState.getSuspicion_middle_tag().split(":")[1];
-        suspicion[2] = cgState.getSuspicion_right_tag().split(":")[1];
+        suspicion[0] = cgState.getSuspicionLeftTag().split(":")[1];
+        suspicion[1] = cgState.getSuspicionMiddleTag().split(":")[1];
+        suspicion[2] = cgState.getSuspicionRightTag().split(":")[1];
         switch (solutionVerifier.compareToSolution(suspicion)) {
             case SUCCESS:
                 cluesGuessesStateRepository.updateCardColor(R.color.correct_guess, user.getUserId());
@@ -272,20 +312,22 @@ public class CluesGuessesFragment extends Fragment {
                 cluesGuessesStateRepository.updateNumberOfTries(user.getUserId());
                 break;
             case INVALID:
-                Toast.makeText(getContext(), "INVALID SELECTION!!!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "invalid selection", Toast.LENGTH_SHORT).show();
                 return;
         }
         cgState = cluesGuessesStateRepository.findFromId(user.getUserId());
+        tcpMessageService.sendMessageToServer(new CluesGuessesStateMessage(cgState));
 
         String iconName = "number_of_tries" + (MAX_TRIES - cgState.getNumberOfTries());
-        final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
+        final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", requireActivity().getPackageName());
         numberOfGuesses.setImageResource(iconIdentifier);
 
+        cardview.setCardBackgroundColor(ContextCompat.getColor(requireContext(), cgState.getCardColor()));
+
         if (cgState.getNumberOfTries() == MAX_TRIES) {
-            Toast.makeText(getContext(), "YOU LOSE!!!", Toast.LENGTH_LONG).show();
-            tcpMessageService.sendMessageToServer(new EndGameMessage(user.getUserId(), false));
+            db.getPlayerRepository().setDead(true, user.getUserId());
+            createDeathScreen();
         }
-        cardview.setCardBackgroundColor(ContextCompat.getColor(getContext(), cgState.getCardColor()));
     }
 
     private List<Cell> setUpCells() {
@@ -308,7 +350,7 @@ public class CluesGuessesFragment extends Fragment {
             iconName = "ic_hint_" + category_lower + (i + 1);
             description_lower = descriptions[i].toLowerCase(Locale.ROOT);
             // different icons for presentation purposes
-            final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
+            final int iconIdentifier = getResources().getIdentifier(iconName,"drawable", requireActivity().getPackageName());
             cells.add(new Cell(CellState.NEUTRAL, iconIdentifier, category_lower, description_lower));
         }
 
@@ -318,7 +360,8 @@ public class CluesGuessesFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getActivity().unbindService(connection);
+        requireActivity().unbindService(connection);
+        EventBus.getDefault().unregister(this);
         binding = null;
     }
 }

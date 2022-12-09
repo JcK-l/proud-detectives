@@ -12,16 +12,15 @@ public class CommsAnimation {
     private boolean isOn;
     private boolean isOff;
 
-    private ConstraintLayout constraintLayout;
-    private ConstraintLayout constraintLayoutTransition;
-    private ConstraintSet constraintSet1;
-    private ConstraintSet constraintSet2;
+    private final ConstraintLayout constraintLayout;
+    private final ConstraintSet constraintSet1;
+    private final ConstraintSet constraintSet2;
 
     private View divider;
 
     CommsAnimation(View root, View rootTransitition) {
         this.constraintLayout = root.findViewById(R.id.constraint_comms);
-        this.constraintLayoutTransition = rootTransitition.findViewById(R.id.constraint_comms_transition);
+        ConstraintLayout constraintLayoutTransition = rootTransitition.findViewById(R.id.constraint_comms_transition);
         this.constraintSet1 = new ConstraintSet();
         this.constraintSet2 = new ConstraintSet();
         this.isOff = true;

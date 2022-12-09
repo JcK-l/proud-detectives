@@ -1,5 +1,6 @@
 package de.uhh.detectives.frontend.model.Message;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import de.uhh.detectives.frontend.model.Message.api.Message;
@@ -69,6 +70,7 @@ public class RegisterMessage implements Message {
         return result;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "TYPE:REGISTER_MESSAGE" +

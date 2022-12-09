@@ -5,27 +5,39 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import de.uhh.detectives.frontend.database.AppDatabase;
+import de.uhh.detectives.frontend.location.MapGeofence;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.DirectMessage;
 import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
 import de.uhh.detectives.frontend.model.Player;
+import de.uhh.detectives.frontend.model.Message.StartGameMessage;
+import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
 import de.uhh.detectives.frontend.model.event.EndGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
+import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
+import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class MainActivity extends AppCompatActivity {
+
     private AppDatabase db;
+    private UserData user;
     private Bundle savedInstanceState;
 
     // LocationHandler in MainActivity einmal initialisieren, um state zu halten
+    private MapGeofence mapGeofence;
     private ChatMessageRepository chatMessageRepository;
 
     private PushMessageService pushMessageService;
@@ -47,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         db = AppDatabase.getDatabase(getApplicationContext());
         chatMessageRepository = db.getChatMessageRepository();
+        user = db.getUserDataRepository().findFirst();
 
         pushMessageService = new PushMessageService(getApplicationContext());
     }
@@ -56,14 +69,28 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
     }
 
-    public Long getGameStartTime() {
-        return gameStartTime;
+    @Subscribe
+    public void receiveJoinGameMessage(JoinGameMessageEvent joinGameMessageEvent) {
+        user = db.getUserDataRepository().findFirst();
     }
 
 
     @Subscribe
     public void receiveChatMessage(ChatMessageEvent chatMessageEvent) {
         ChatMessage chatMessage = chatMessageEvent.getMessage();
+        Character[] symbols = new Character[] {'O', 'o'};
+        StringBuilder ghostMessage = new StringBuilder();
+        int randomNum;
+        // scramble text message
+        if (chatMessage.isSenderDead() && !db.getPlayerRepository().getPlayerWithUserId(user.getUserId()).isDead()) {
+            for (int i = 0; i < chatMessage.getMessage().length(); i++) {
+                randomNum = ThreadLocalRandom.current().nextInt(0,  2);
+                ghostMessage.append(symbols[randomNum]);
+            }
+            chatMessage.setMessage(ghostMessage.toString());
+        } else if (chatMessage.isSenderDead() && db.getPlayerRepository().getPlayerWithUserId(user.getUserId()).isDead()) {
+            chatMessage.setPseudonym(chatMessage.getPseudonym() + " (GHOST)");
+        }
         chatMessageRepository.insert(chatMessage);
 
         // listen for messages directed at us
