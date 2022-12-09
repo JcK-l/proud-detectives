@@ -69,7 +69,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         EventBus.getDefault().register(this);
-        handleLocationPermissionSdkHigher29();
 
         Intent intent = new Intent(this, TcpMessageService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
@@ -173,6 +172,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        handleLocationPermissionSdkHigher29();
 
         for (final String string : permissions) {
             Log.i("Permission", "Checking permission for: " + string);
