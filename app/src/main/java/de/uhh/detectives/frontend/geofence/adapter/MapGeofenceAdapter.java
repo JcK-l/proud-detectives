@@ -32,7 +32,9 @@ public class MapGeofenceAdapter implements GeofenceAdapter {
         geofenceCreatorService = new GeofenceCreatorService(activity);
         geofenceDestroyService = new GeofenceDestroyService(geofencingClient);
         mapGeofencePlacerService = new MapGeofencePlacerService(activity,
-                savedInstanceState, geofencingClient, geofenceCreatorService);
+                savedInstanceState,
+                geofencingClient,
+                geofenceCreatorService);
     }
 
     @Override

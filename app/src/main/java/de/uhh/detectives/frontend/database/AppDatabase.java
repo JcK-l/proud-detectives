@@ -5,7 +5,9 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
+import de.uhh.detectives.frontend.model.CluesGuessesState;
 import de.uhh.detectives.frontend.model.Hint;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.DirectMessage;

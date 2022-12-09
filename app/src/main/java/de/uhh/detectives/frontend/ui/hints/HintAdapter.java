@@ -17,7 +17,8 @@ import de.uhh.detectives.frontend.R;
 public class HintAdapter extends RecyclerView.Adapter<HintAdapter.HintViewHolder> {
 
     final Context context;
-    final List<HintModel> hintModels;
+    private List<HintModel> hintModels;
+    private static boolean newHintFound = false;
 
     public HintAdapter(final Context context, final List<HintModel> hintModels) {
         this.context = context;
@@ -45,6 +46,10 @@ public class HintAdapter extends RecyclerView.Adapter<HintAdapter.HintViewHolder
         return hintModels.size();
     }
 
+    public void setHintModels(List<HintModel> hintModels){
+        this.hintModels = hintModels;
+    }
+
     public static class HintViewHolder extends RecyclerView.ViewHolder {
         final ImageView imageView;
         final TextView categoryTextView, descriptionTextView;
@@ -56,5 +61,13 @@ public class HintAdapter extends RecyclerView.Adapter<HintAdapter.HintViewHolder
             categoryTextView = itemView.findViewById(R.id.hint_category);
             descriptionTextView = itemView.findViewById(R.id.hint_text);
         }
+    }
+
+    public static boolean isNewHintFound() {
+        return newHintFound;
+    }
+
+    public static void setNewHintFound(boolean haveHintFound) {
+        newHintFound = haveHintFound;
     }
 }

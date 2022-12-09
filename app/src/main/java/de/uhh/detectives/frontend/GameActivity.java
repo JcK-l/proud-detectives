@@ -11,13 +11,13 @@ import androidx.navigation.ui.NavigationUI;
 import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
-import de.uhh.detectives.frontend.databinding.ActivityMainBinding;
+import de.uhh.detectives.frontend.databinding.ActivityGameBinding;
 import de.uhh.detectives.frontend.repository.HintRepository;
 import de.uhh.detectives.frontend.waitingroom.GeofencePlacer;
 
 public class GameActivity extends AppCompatActivity {
 
-    private ActivityMainBinding binding;
+    private ActivityGameBinding binding;
     private final static Long gameStartTime = System.currentTimeMillis();
     private Bundle geofenceInformation;
     private Bundle savedInstanceState;
@@ -29,9 +29,8 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.savedInstanceState = savedInstanceState;
 
-        binding = ActivityGameBinding.inflate(getLayoutInflater());
         geofenceInformation = getIntent().getExtras();
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        binding = ActivityGameBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         db = AppDatabase.getDatabase(getApplicationContext());
         hintRepository = db.getHintRepository();

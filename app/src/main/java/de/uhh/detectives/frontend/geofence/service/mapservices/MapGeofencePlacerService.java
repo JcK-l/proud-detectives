@@ -19,7 +19,7 @@ public class MapGeofencePlacerService {
     public MapGeofencePlacerService(Activity activity,
                                     Bundle savedInstanceState,
                                     GeofencingClient geofencingClient,
-                                    GeofenceCreatorService geofenceCreatorService ) {
+                                    GeofenceCreatorService geofenceCreatorService) {
         this.activity = activity;
         this.geofenceCreatorService = geofenceCreatorService;
         mapGeofencePlacementService = new MapGeofencePlacementService(activity,

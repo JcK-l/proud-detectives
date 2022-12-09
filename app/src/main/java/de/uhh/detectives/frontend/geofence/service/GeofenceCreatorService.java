@@ -12,8 +12,6 @@ import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.maps.model.LatLng;
 
-import de.uhh.detectives.frontend.geofence.service.mapservices.MapGeofenceBroadcastReceiver;
-
 public class GeofenceCreatorService extends ContextWrapper {
     private PendingIntent pendingIntent;
     private Context context;
@@ -47,7 +45,7 @@ public class GeofenceCreatorService extends ContextWrapper {
                 //set Transition-types of interest
                 .setTransitionTypes(transitionTypes)
                 //LoiteringDelay = after that Time(ms) Geofencing state is switched from enter to dwell
-                .setLoiteringDelay(3000)
+                .setLoiteringDelay(1000)
                 //Our Circles will never expire
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .build();
@@ -58,7 +56,7 @@ public class GeofenceCreatorService extends ContextWrapper {
         if (pendingIntent != null) {
             return pendingIntent;
         }
-        Intent intent = new Intent(this, MapGeofenceBroadcastReceiver.class);
+        Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
                 PendingIntent.FLAG_MUTABLE);
         return pendingIntent;

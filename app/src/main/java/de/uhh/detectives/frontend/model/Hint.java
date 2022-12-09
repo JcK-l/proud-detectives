@@ -33,7 +33,7 @@ public class Hint implements Serializable {
         this.possessorId = (tokens[2].equals("null")) ? null : Long.parseLong(tokens[2]);
         this.longitude = (tokens[3].equals("null")) ? null : Double.parseDouble(tokens[3]);
         this.latitude = (tokens[4].equals("null")) ? null : Double.parseDouble(tokens[4]);
-        received = longitude == null;
+        this.received = latitude == null;
     }
 
     public int getHintId() {

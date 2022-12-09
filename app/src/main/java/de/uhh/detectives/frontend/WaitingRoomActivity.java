@@ -15,7 +15,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
@@ -107,7 +106,6 @@ public class WaitingRoomActivity extends AppCompatActivity {
         }
 
         Intent intentGame = new Intent(this, GameActivity.class);
-        intentGame.putExtra("hints", (Serializable) startGameMessage.getHints());
         intentGame.putExtra("centerX", startGameMessage.getCenterX());
         intentGame.putExtra("centerY", startGameMessage.getCenterY());
         intentGame.putExtra("radius", startGameMessage.getRadius());

@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.ContextWrapper;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,35 +14,45 @@ import android.util.Log;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationServices;
 
+import de.uhh.detectives.frontend.geofence.service.GeofenceBroadcastReceiver;
 import de.uhh.detectives.frontend.geofence.service.GeofenceCreatorService;
+import de.uhh.detectives.frontend.geofence.service.GeofenceDestroyService;
 import de.uhh.detectives.frontend.geofence.service.GeofencePlacementService;
 
 
 public class HintGeofencePlacementService extends ContextWrapper implements GeofencePlacementService {
     private static final int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
     private static final String TAG = "HintGeofencePlacementService";
-
-    private String geofenceID = "0";
-
+    private FusedLocationProviderClient fusedLocationProviderClient;
     private GeofencingClient geofencingClient;
     private GeofenceCreatorService geofenceCreatorService;
+    private Location lastKnownLocation;
 
 
-    private final HintGeofenceBroadcastReceiver receiver;
+    private final GeofenceBroadcastReceiver receiver;
 
     public HintGeofencePlacementService(final Activity activity,
                                         Bundle savedInstanceState,
                                         GeofencingClient geofencingClient,
-                                        GeofenceCreatorService geofenceCreatorService) {
+                                        GeofenceCreatorService geofenceCreatorService,
+                                        GeofenceDestroyService geofenceDestroyService) {
         super(activity);
         this.geofencingClient = geofencingClient;
         this.geofenceCreatorService =  geofenceCreatorService;
-        receiver = new HintGeofenceBroadcastReceiver();
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
+        receiver = new GeofenceBroadcastReceiver();
         onCreate(activity);
+
+        if (savedInstanceState != null) {
+            lastKnownLocation = savedInstanceState.getParcelable("location");
+        }
+
     }
     @Override
     public void placeGeofence(Activity activity, Geofence geofence) {

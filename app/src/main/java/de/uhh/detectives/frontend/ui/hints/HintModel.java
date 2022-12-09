@@ -23,4 +23,17 @@ public class HintModel {
     public int getImage() {
         return image;
     }
+
+    @Override
+    public boolean equals(Object o){
+        if(o instanceof HintModel){
+            return (category.equals(((HintModel) o).getCategory()) && text.equals(((HintModel) o).getText()));
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode(){
+        return 2;
+    }
 }

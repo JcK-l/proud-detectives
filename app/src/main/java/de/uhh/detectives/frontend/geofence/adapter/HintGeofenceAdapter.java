@@ -19,7 +19,7 @@ import de.uhh.detectives.frontend.geofence.service.hintservices.HintGeofencePlac
 import de.uhh.detectives.frontend.model.Hint;
 
 public class HintGeofenceAdapter implements GeofenceAdapter {
-    private static final float RADIUS_OF_HINT = 100000;
+    private static final float RADIUS_OF_HINT = 2000F;
     private final List<Hint> hints;
     private final GeofenceDestroyService geofenceDestroyService;
     private final GeofencingClient geofencingClient;
@@ -36,7 +36,9 @@ public class HintGeofenceAdapter implements GeofenceAdapter {
         geofenceCreatorService = new GeofenceCreatorService(activity);
         geofenceDestroyService = new GeofenceDestroyService(geofencingClient);
         hintGeofencePlacerService = new HintGeofencePlacerService(activity,
-                savedInstanceState, geofencingClient, geofenceCreatorService);
+                savedInstanceState,
+                geofencingClient,
+                geofenceCreatorService);
     }
 
     @Override
