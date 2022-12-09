@@ -8,19 +8,19 @@ import android.os.Build;
 import androidx.core.app.NotificationManagerCompat;
 
 import de.uhh.detectives.frontend.R;
-import de.uhh.detectives.frontend.pushmessages.values.EnteredMapMessage;
-import de.uhh.detectives.frontend.pushmessages.values.FindHintMessage;
-import de.uhh.detectives.frontend.pushmessages.values.MapExitMessage;
+import de.uhh.detectives.frontend.pushmessages.values.MapEnteredPushMessage;
+import de.uhh.detectives.frontend.pushmessages.values.HintFoundPushMessage;
+import de.uhh.detectives.frontend.pushmessages.values.MapExitPushMessage;
 import de.uhh.detectives.frontend.pushmessages.values.WinGamePushMessage;
 
-public class PushMessageHandler {
+public class PushMessageService {
     private static final String LOCATION_CHANNEL_ID = "LocChan";
     private static final String GAME_EVENTS_CHANNEL_ID = "GamChan";
 
     private final NotificationManagerCompat notificationManagerCompat;
     private final Context context;
 
-    public PushMessageHandler(Context context) {
+    public PushMessageService(Context context) {
         this.context = context;
         NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
         if (notificationManager.areNotificationsEnabled()) {
@@ -66,17 +66,17 @@ public class PushMessageHandler {
     }
 
     public void pushMapExitMessage() {
-        MapExitMessage mapExitMessage = new MapExitMessage(context);
-        notificationManagerCompat.notify(123, mapExitMessage.getNotification());
+        MapExitPushMessage mapExitPushMessage = new MapExitPushMessage(context);
+        notificationManagerCompat.notify(123, mapExitPushMessage.getNotification());
     }
 
     public void pushEnteredMapMessage() {
-        EnteredMapMessage enteredMapMessage = new EnteredMapMessage(context);
-        notificationManagerCompat.notify(124, enteredMapMessage.getNotification());
+        MapEnteredPushMessage mapEnteredPushMessage = new MapEnteredPushMessage(context);
+        notificationManagerCompat.notify(124, mapEnteredPushMessage.getNotification());
     }
 
     public void pushFindHintMessage(String hintName, String hintDescription){
-        FindHintMessage findHintMessage = new FindHintMessage(context, hintName, hintDescription);
-        notificationManagerCompat.notify(125, findHintMessage.getNotification());
+        HintFoundPushMessage hintFoundPushMessage = new HintFoundPushMessage(context, hintName, hintDescription);
+        notificationManagerCompat.notify(125, hintFoundPushMessage.getNotification());
     }
 }

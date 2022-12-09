@@ -13,12 +13,16 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.concurrent.ThreadLocalRandom;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
-import de.uhh.detectives.frontend.location.MapGeofence;
 import de.uhh.detectives.frontend.model.Message.ChatMessage;
 import de.uhh.detectives.frontend.model.Message.DirectMessage;
+import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.Message.StartGameMessage;
+import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.ChatMessageEvent;
+import de.uhh.detectives.frontend.model.event.EndGameMessageEvent;
+import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 import de.uhh.detectives.frontend.model.event.JoinGameMessageEvent;
 import de.uhh.detectives.frontend.model.event.StartGameMessageEvent;
 import de.uhh.detectives.frontend.repository.ChatMessageRepository;
@@ -31,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
     private Bundle savedInstanceState;
 
     private ChatMessageRepository chatMessageRepository;
+
+    private PushMessageService pushMessageService;
+
+    private final static Long gameStartTime = System.currentTimeMillis();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,20 +56,20 @@ public class MainActivity extends AppCompatActivity {
         db = AppDatabase.getDatabase(getApplicationContext());
         chatMessageRepository = db.getChatMessageRepository();
         user = db.getUserDataRepository().findFirst();
+
+        pushMessageService = new PushMessageService(getApplicationContext());
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        MapGeofence mapGeofence = new MapGeofence(this, savedInstanceState);
-        mapGeofence.placeMapGeofence(new LatLng(53.5690, 10.0205),
-                20f);
     }
 
     @Subscribe
     public void receiveJoinGameMessage(JoinGameMessageEvent joinGameMessageEvent) {
         user = db.getUserDataRepository().findFirst();
     }
+
 
     @Subscribe
     public void receiveChatMessage(ChatMessageEvent chatMessageEvent) {
@@ -101,6 +109,26 @@ public class MainActivity extends AppCompatActivity {
         db.getPlayerRepository().insertAll(startGameMessage.getPlayers());
         db.getSolutionRepository().insert(startGameMessage.getSolution());
         db.getHintRepository().insertAll(startGameMessage.getHints());
+    }
+
+    @Subscribe
+    public void receiveWinGameMessage(EndGameMessageEvent endGameMessageEvent) {
+        EndGameMessage endGameMessage = endGameMessageEvent.getMessage();
+
+        if (endGameMessage.isWin()) {
+            Player winner = db.getPlayerRepository().getPlayerWithUserId(endGameMessage.getWinnerId());
+            pushMessageService.pushWinGameMessage(winner.getPseudonym());
+        }
+
+        db.getPlayerRepository().deleteAll();
+        db.getSolutionRepository().deleteAll();
+        db.getHintRepository().deleteAll();
+        db.getChatMessageRepository().deleteAll();
+        db.getDirectMessageRepository().deleteAll();
+        db.getCluesGuessesStateRepository().deleteAll();
+
+        Intent intentLogin = new Intent(this, LoginActivity.class);
+        startActivity(intentLogin);
     }
 
     @Override

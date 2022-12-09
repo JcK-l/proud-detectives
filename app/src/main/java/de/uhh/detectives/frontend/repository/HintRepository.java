@@ -23,6 +23,18 @@ public interface HintRepository {
     @Query("SELECT * FROM Hint")
     List<Hint> getAll();
 
+    @Query("SELECT DISTINCT * FROM Hint WHERE received = :isReceived")
+    List<Hint> getAllHintsWhere(boolean isReceived);
+
     @Query("SELECT * FROM Hint LIMIT 1")
     Hint findFirst();
+
+    @Query("SELECT * FROM Hint WHERE possessorId = :uId")
+    Hint findStartingHint(String uId);
+
+    @Query("SELECT * FROM Hint WHERE description = :id")
+    List<Hint> findHintsById(String id);
+
+    @Query("UPDATE Hint SET received = :received WHERE description = :id")
+    void updateReceived(boolean received, String id);
 }

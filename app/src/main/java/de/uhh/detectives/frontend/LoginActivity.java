@@ -1,9 +1,12 @@
 package de.uhh.detectives.frontend;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.Editable;
@@ -12,6 +15,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -36,10 +41,13 @@ import de.uhh.detectives.frontend.repository.UserDataRepository;
 import de.uhh.detectives.frontend.service.TcpMessageService;
 
 public class LoginActivity extends AppCompatActivity {
-
+    private final int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
+    private ActivityLoginRegisterBinding bindingRegister;
     private ActivityLoginJoinGameBinding bindingJoinGame;
     private TcpMessageService tcpMessageService;
     private UserDataRepository userDataRepository;
+
+    private AppDatabase db;
 
     private UserData user;
 
@@ -48,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private final ServiceConnection connection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
-            tcpMessageService = ((TcpMessageService.LocalBinder)service).getService();
+            tcpMessageService = ((TcpMessageService.LocalBinder) service).getService();
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -61,6 +69,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         EventBus.getDefault().register(this);
+        handleLocationPermissionSdkHigher29();
 
         Intent intent = new Intent(this, TcpMessageService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
@@ -161,27 +170,6 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        for (final String string : permissions) {
-            Log.i("Permission", "Checking permission for: " + string);
-        }
-        boolean isGranted = false;
-        for (final int result : grantResults) {
-            if (result == PERMISSION_GRANTED) {
-                isGranted = true;
-                break;
-            }
-        }
-        if (!isGranted) {
-            Log.e("Permission", "Missing permission");
-            Toast.makeText(getApplicationContext(),"You need to turn on location tracking!", Toast.LENGTH_LONG).show();
-            finishAndRemoveTask();
-        }
-    }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void receiveMessageRegister(final RegisterMessageEvent registerMessageEvent) {
         RegisterMessage registerMessage = registerMessageEvent.getMessage();
@@ -234,6 +222,24 @@ public class LoginActivity extends AppCompatActivity {
         super.onDestroy();
         unbindService(connection);
         EventBus.getDefault().unregister(this);
+    }
+
+    void handleLocationPermissionSdkHigher29() {
+        if (Build.VERSION.SDK_INT >= 29) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return;
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission
+                        .ACCESS_BACKGROUND_LOCATION)) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission
+                            .ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                } else {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission
+                            .ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                }
+            }
+        }
     }
 }
 

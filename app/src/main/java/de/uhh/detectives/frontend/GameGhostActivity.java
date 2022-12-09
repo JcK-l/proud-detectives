@@ -22,12 +22,12 @@ import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.event.CluesGuessesStateMessageEvent;
 import de.uhh.detectives.frontend.model.event.EndGameMessageEvent;
-import de.uhh.detectives.frontend.pushmessages.services.PushMessageHandler;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 import de.uhh.detectives.frontend.repository.CluesGuessesStateRepository;
 
 public class GameGhostActivity extends AppCompatActivity {
 
-    private PushMessageHandler pushMessageHandler;
+    private PushMessageService pushMessageService;
     private AppDatabase db;
 
     @Override
@@ -41,7 +41,7 @@ public class GameGhostActivity extends AppCompatActivity {
 
         Objects.requireNonNull(getSupportActionBar()).hide();
 
-        pushMessageHandler = new PushMessageHandler(getApplicationContext());
+        pushMessageService = new PushMessageService(getApplicationContext());
         db = AppDatabase.getDatabase(getApplicationContext());
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration
@@ -79,7 +79,7 @@ public class GameGhostActivity extends AppCompatActivity {
 
         if (endGameMessage.isWin()) {
             Player winner = db.getPlayerRepository().getPlayerWithUserId(endGameMessage.getWinnerId());
-            pushMessageHandler.pushWinGameMessage(winner.getPseudonym());
+            pushMessageService.pushWinGameMessage(winner.getPseudonym());
         }
 
         db.getPlayerRepository().deleteAll();

@@ -12,27 +12,27 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
-public class LocationPermissionHandler extends ContextWrapper {
-    private boolean isFineLocationPermissionGranted;
+public class LocationPermissionService extends ContextWrapper {
+    private boolean isBackgroundLocationPermissionGranted;
     private boolean isCoarseLocationPermissionGranted;
 
-    public LocationPermissionHandler(Context base) {
+    public LocationPermissionService(Context base) {
         super(base);
     }
 
-    public void askFineLocationPermissions() {
+    public void askBackgroundLocationPermissions() {
         Dexter.withContext(this).withPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                 .withListener(new PermissionListener() {
                     @Override
                     public void onPermissionGranted(
                             PermissionGrantedResponse permissionGrantedResponse) {
-                        isFineLocationPermissionGranted = true;
+                        isBackgroundLocationPermissionGranted = true;
                     }
 
                     @Override
                     public void onPermissionDenied(
                             PermissionDeniedResponse permissionDeniedResponse) {
-                        Toast.makeText(LocationPermissionHandler.this,
+                        Toast.makeText(LocationPermissionService.this,
                                 "Location Permission Denied",
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -58,7 +58,7 @@ public class LocationPermissionHandler extends ContextWrapper {
                     @Override
                     public void onPermissionDenied(
                             PermissionDeniedResponse permissionDeniedResponse) {
-                        Toast.makeText(LocationPermissionHandler.this,
+                        Toast.makeText(LocationPermissionService.this,
                                 "Location Permission Denied",
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -72,7 +72,7 @@ public class LocationPermissionHandler extends ContextWrapper {
                 }).check();
     }
 
-    public boolean isFineLocationPermissionGranted() {
-        return isFineLocationPermissionGranted && isCoarseLocationPermissionGranted;
+    public boolean isBackgroundLocationPermissionGranted() {
+        return isBackgroundLocationPermissionGranted && isCoarseLocationPermissionGranted;
     }
 }

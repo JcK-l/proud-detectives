@@ -33,9 +33,12 @@ public class WaitingRoomActivity extends AppCompatActivity {
 
     private AppDatabase db;
 
+    private Bundle savedInstanceState;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.savedInstanceState = savedInstanceState;
 
         de.uhh.detectives.frontend.databinding.ActivityWaitingRoomBinding binding = ActivityWaitingRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -57,7 +60,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String[] names = intent.getExtras().getStringArray("names");
-        for (int i = 0; i < names.length; i++){
+        for (int i = 0; i < names.length; i++) {
             db.getPlayerRepository().insert(new Player(System.currentTimeMillis() + i, names[i]));
         }
 
@@ -82,7 +85,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         if (joinGameMessage.getPlayerNames() == null) return;
 
         db.getPlayerRepository().deleteAll();
-        for (int i = 0; i < joinGameMessage.getPlayerNames().size(); i++){
+        for (int i = 0; i < joinGameMessage.getPlayerNames().size(); i++) {
             db.getPlayerRepository().insert(new Player(System.currentTimeMillis() + i,
                     joinGameMessage.getPlayerNames().get(i)));
         }
@@ -97,6 +100,9 @@ public class WaitingRoomActivity extends AppCompatActivity {
         }
 
         Intent intentGame = new Intent(this, GameActivity.class);
+        intentGame.putExtra("centerX", startGameMessage.getCenterX());
+        intentGame.putExtra("centerY", startGameMessage.getCenterY());
+        intentGame.putExtra("radius", startGameMessage.getRadius());
         startActivity(intentGame);
         finish();
     }

@@ -25,7 +25,7 @@ import de.uhh.detectives.frontend.repository.UserDataRepository;
 @Database(
         entities = {UserData.class, ChatMessage.class, Player.class, Hint.class,
                 Solution.class, DirectMessage.class, CluesGuessesState.class},
-        version = 2,
+        version = 3,
         exportSchema = false)
 @TypeConverters({Conversion.class})
 public abstract class AppDatabase extends RoomDatabase {

@@ -8,14 +8,14 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 
 import de.uhh.detectives.frontend.R;
-import de.uhh.detectives.frontend.location.GeofenceBroadcastReceiver;
+import de.uhh.detectives.frontend.geofence.service.GeofenceBroadcastReceiver;
 
-public class EnteredMapMessage implements PushMessage {
+public class MapEnteredPushMessage implements PushMessage {
 
     private Notification locationNotification;
     private final Context context;
 
-    public EnteredMapMessage(Context context) {
+    public MapEnteredPushMessage(Context context) {
         this.context = context;
         createNotification();
     }
