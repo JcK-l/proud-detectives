@@ -101,7 +101,7 @@ public class GameActivity extends AppCompatActivity {
     public void receiveEndGameMessage(EndGameMessageEvent endGameMessageEvent) {
         EndGameMessage endGameMessage = endGameMessageEvent.getMessage();
 
-        if (endGameMessage != null) {
+        if (endGameMessage.getWinnerId() != null) {
             Player winner = db.getPlayerRepository().getPlayerWithUserId(endGameMessage.getWinnerId());
             pushMessageService.pushWinGameMessage(winner.getPseudonym(), true);
         } else {

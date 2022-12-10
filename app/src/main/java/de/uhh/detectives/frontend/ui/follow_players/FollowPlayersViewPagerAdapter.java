@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -53,6 +54,7 @@ public class FollowPlayersViewPagerAdapter extends RecyclerView.Adapter<FollowPl
     @Override
     public void onBindViewHolder(@NonNull FollowPlayersViewPagerAdapter.ViewHolder holder, int position) {
         Long playerId = players.get(position).getId();
+        if (db.getPlayerRepository().getPlayerWithUserId(playerId) == null) return;
         if (db.getPlayerRepository().getPlayerWithUserId(playerId).isDead()) {
             holder.setForeground(position);
         }
