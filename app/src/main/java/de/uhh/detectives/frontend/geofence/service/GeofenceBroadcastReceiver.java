@@ -23,7 +23,6 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     private PushMessageService pushMessageService;
     private AppDatabase db;
     private HintRepository hintRepository;
-    private boolean firstMessage = true;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -61,7 +60,6 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                     Log.d(TAG, "geofencingEvent was Null");
             }
         }
-        firstMessage = false;
     }
 
     private boolean isHintGeofenceTriggered(Geofence geofence) {
@@ -84,17 +82,14 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     }
 
     private void handleMapEntered() {
-        if (!firstMessage) {
-            Log.d(TAG, "GEOFENCE_TRANSITION_ENTER_MAP");
-            pushMessageService.pushEnteredMapMessage();
-        }
+        Log.d(TAG, "GEOFENCE_TRANSITION_ENTER_MAP");
+        pushMessageService.pushEnteredMapMessage();
     }
 
     private void handleMapExit() {
-        if (!firstMessage) {
-            Log.d(TAG, "GEOFENCE_TRANSITION_EXIT_MAP");
-            pushMessageService.pushMapExitMessage();
-        }
+        Log.d(TAG, "GEOFENCE_TRANSITION_EXIT_MAP");
+        pushMessageService.pushMapExitMessage();
+
     }
 }
 
