@@ -27,7 +27,11 @@ import com.google.android.gms.location.Priority;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.Task;
 
+import java.math.BigDecimal;
+
 import de.uhh.detectives.frontend.location.api.LocationHandler;
+import de.uhh.detectives.frontend.service.HintService;
+import de.uhh.detectives.frontend.service.HintServiceImpl;
 
 public class LocationHandlerImpl implements LocationHandler {
 
@@ -35,8 +39,8 @@ public class LocationHandlerImpl implements LocationHandler {
     private static final String ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
 
     private static final int REQUEST_CHECK_SETTINGS = 100;
-    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
-    private static final long FASTET_UPDATE_INTERVAL_IN_MILLISECONDS = 500;
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 3000;
+    private static final long FASTET_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
     private static final String TAG = LocationHandlerImpl.class.getSimpleName();
 
     private final FusedLocationProviderClient locationClient;
@@ -45,6 +49,8 @@ public class LocationHandlerImpl implements LocationHandler {
     private final LocationSettingsRequest locationSettingsRequest;
     private final LocationCallback locationCallback;
 
+    private final HintService hintService;
+
     private Location currentLocation;
 
     private boolean locationUpdatesEnabled = false;
@@ -52,12 +58,13 @@ public class LocationHandlerImpl implements LocationHandler {
     public LocationHandlerImpl(final Context context, final Activity activity) {
         checkLocationPermissions(context, activity);
 
-        locationClient = LocationServices.getFusedLocationProviderClient(activity);
-        settingsClient = LocationServices.getSettingsClient(activity);
+        this.locationClient = LocationServices.getFusedLocationProviderClient(activity);
+        this.settingsClient = LocationServices.getSettingsClient(activity);
 
-        locationSettingsRequest = setUpLocationSettingsRequest();
-        locationRequest = setUpLocationRequest();
-        locationCallback = setUpLocationCallback();
+        this.locationSettingsRequest = setUpLocationSettingsRequest();
+        this.locationRequest = setUpLocationRequest();
+        this.locationCallback = setUpLocationCallback();
+        this.hintService = new HintServiceImpl(context);
         setCurrentLocation(context);
         startLocationUpdates(activity);
     }
@@ -69,17 +76,8 @@ public class LocationHandlerImpl implements LocationHandler {
             Log.e(TAG, errorMessage);
             Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
         }
+        Toast.makeText(context, "Location: " + currentLocation.getLongitude() + currentLocation.getLatitude(), Toast.LENGTH_LONG).show();
         return currentLocation;
-    }
-
-    @Override
-    public boolean isLocationUpdatesEnabled() {
-        return locationUpdatesEnabled;
-    }
-
-    @Override
-    public void enableLocationUpdates(final Activity activity) {
-        startLocationUpdates(activity);
     }
 
     @Override
@@ -163,9 +161,24 @@ public class LocationHandlerImpl implements LocationHandler {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 super.onLocationResult(locationResult);
-                currentLocation = locationResult.getLastLocation();
+                final Location location = locationResult.getLastLocation();
+                if (location != null && locationChanged(location, currentLocation)) {
+                    currentLocation = locationResult.getLastLocation();
+                    hintService.checkHintsOnLocationUpdate(currentLocation);
+                    Log.i(TAG, "Location: x=" + currentLocation.getLongitude() + " y=" + currentLocation.getLatitude());
+                }
             }
         };
+    }
+
+    private boolean locationChanged(final Location newLocation, final Location oldLocation) {
+        final BigDecimal minForChange = BigDecimal.valueOf(0.0001).abs();
+        final BigDecimal newX = BigDecimal.valueOf(newLocation.getLongitude());
+        final BigDecimal newY = BigDecimal.valueOf(newLocation.getLatitude());
+        final BigDecimal oldX = BigDecimal.valueOf(oldLocation.getLongitude());
+        final BigDecimal oldY = BigDecimal.valueOf(oldLocation.getLatitude());
+
+        return newX.subtract(oldX).abs().compareTo(minForChange) > 0 || newY.subtract(oldY).abs().compareTo(minForChange) > 0;
     }
 
     private LocationRequest setUpLocationRequest() {

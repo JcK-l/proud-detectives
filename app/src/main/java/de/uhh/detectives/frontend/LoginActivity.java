@@ -30,8 +30,6 @@ import java.util.Objects;
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityLoginJoinGameBinding;
 import de.uhh.detectives.frontend.databinding.ActivityLoginRegisterBinding;
-import de.uhh.detectives.frontend.location.api.LocationHandler;
-import de.uhh.detectives.frontend.location.impl.LocationHandlerImpl;
 import de.uhh.detectives.frontend.model.Message.JoinGameMessage;
 import de.uhh.detectives.frontend.model.Message.RegisterMessage;
 import de.uhh.detectives.frontend.model.UserData;
@@ -72,8 +70,6 @@ public class LoginActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, TcpMessageService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
-
-        LocationHandler locationHandler = new LocationHandlerImpl(this.getApplicationContext(), this);
 
         AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
         userDataRepository = db.getUserDataRepository();
