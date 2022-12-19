@@ -115,10 +115,11 @@ public class HintsFragment extends Fragment {
             @Override
             public void run() {
                 if (HintAdapter.isNewHintFound()) {
+                    adapter.setHintModels(getHintsForUser());
                     adapter.notifyItemInserted(hintsForUser.size());
+                    HintAdapter.setNewHintFound(false);
                 }
                 handler.post(this);
-                HintAdapter.setNewHintFound(false);
             }
         };
     }

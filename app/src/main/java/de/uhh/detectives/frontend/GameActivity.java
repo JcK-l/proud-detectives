@@ -16,19 +16,19 @@ import java.util.Objects;
 
 import de.uhh.detectives.frontend.database.AppDatabase;
 import de.uhh.detectives.frontend.databinding.ActivityGameBinding;
-import de.uhh.detectives.frontend.model.Map;
-import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
-import de.uhh.detectives.frontend.repository.HintRepository;
-import de.uhh.detectives.frontend.repository.MapRepository;
-import de.uhh.detectives.frontend.waitingroom.GeofencePlacer;
 import de.uhh.detectives.frontend.model.CluesGuessesState;
+import de.uhh.detectives.frontend.model.Map;
 import de.uhh.detectives.frontend.model.Message.CluesGuessesStateMessage;
 import de.uhh.detectives.frontend.model.Message.EndGameMessage;
 import de.uhh.detectives.frontend.model.Player;
 import de.uhh.detectives.frontend.model.UserData;
 import de.uhh.detectives.frontend.model.event.CluesGuessesStateMessageEvent;
 import de.uhh.detectives.frontend.model.event.EndGameMessageEvent;
+import de.uhh.detectives.frontend.pushmessages.services.PushMessageService;
 import de.uhh.detectives.frontend.repository.CluesGuessesStateRepository;
+import de.uhh.detectives.frontend.repository.HintRepository;
+import de.uhh.detectives.frontend.repository.MapRepository;
+import de.uhh.detectives.frontend.waitingroom.GeofencePlacer;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -144,11 +144,9 @@ public class GameActivity extends AppCompatActivity {
         Map map = mapRepository.getAll();
         GeofencePlacer geofencePlacer = new GeofencePlacer(this,
                 savedInstanceState,
-                hintRepository.getAll(),
                 map.getCenterX(),
                 map.getCenterY(),
                 map.getRadius());
         geofencePlacer.placeMapGeofence();
-        geofencePlacer.placeHintGeofences();
     }
 }

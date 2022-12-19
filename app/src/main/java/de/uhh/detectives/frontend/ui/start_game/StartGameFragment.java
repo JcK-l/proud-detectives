@@ -43,13 +43,14 @@ public class StartGameFragment extends Fragment {
 
     private UserData user;
 
-    private LocationHandler locationHandler;
     private List<Player> players;
 
     private StartGameAdapter startGameAdapter;
 
     private TcpMessageService tcpMessageService;
     private Location location;
+
+    private static final int GAME_RADIUS = 500;
 
     private final ServiceConnection connection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -99,7 +100,7 @@ public class StartGameFragment extends Fragment {
 
         binding.buttonStartGame.setOnClickListener(
                 view -> tcpMessageService.sendMessageToServer(new StartGameMessage(user,
-                        location.getLongitude(), location.getLatitude(), 1000))
+                        location.getLongitude(), location.getLatitude(), GAME_RADIUS))
         );
 
         return root;
