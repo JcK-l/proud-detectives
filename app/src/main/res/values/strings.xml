@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Proud Detectives</string>
+    <string name="hint_category">Hint category</string>
+    <string name="hint_description">Hint description</string>
+    <string name="type_a_message">Type a message</string>
+    <string name="map_left_message">You have left the map</string>
+    <string name="back_on_the_map_message">You are on the map</string>
+    <string name="confirm_guess">Confirm Guess</string>
+    <string name="sample_name">Bob</string>
+    <string name="location_channel_name">Location notification channel</string>
+    <string name="game_event_channel_name">Game event channel</string>
+    <string name="notification_channel_description">"Channel for notifications for geofence events "</string>
+    <string name="game_event_channel_description">"Channel for notifications for geofence events "</string>
+
+    <string-array name="weapon_names">
+        <item>Pistole</item>
+        <item>Dolch</item>
+        <item>Seil</item>
+        <item>Kerzenleuchter</item>
+        <item>Rohrzange</item>
+        <item>Heizungsrohr</item>
+        <item>Messer</item>
+        <item>Gift</item>
+        <item>Hantel</item>
+    </string-array>
+
+    <string-array name="person_names">
+        <item>Dennis Gatow</item>
+        <item>Felix Bloom</item>
+        <item>Tom Gruen</item>
+        <item>Klara Porz</item>
+        <item>Gloria Roth</item>
+        <item>Diana Weiss</item>
+    </string-array>
+
+    <string-array name="location_names">
+        <item>Kueche</item>
+        <item>Musikzimmer</item>
+        <item>Schlafzimmer</item>
+        <item>Speisezimmer</item>
+        <item>Keller</item>
+        <item>Billardzimmer</item>
+        <item>Bibliothek</item>
+        <item>Garten</item>
+        <item>Eingangshalle</item>
+        <item>Arbeitszimmer</item>
+    </string-array>
+</resources>

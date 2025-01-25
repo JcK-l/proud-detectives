@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/followPlayersFragment"
+        android:icon="@drawable/ic_eye"
+        android:title="Observe" />
+    <item
+        android:id="@+id/commsFragment"
+        android:icon="@drawable/ic_comms"
+        android:title="Communication" />
+</menu>
